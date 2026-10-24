@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 2. Using the Metamath Program</title>
+  <script>
+(function () {
+  var groups = ["theme", "width", "type", "text"];
+  var defaults = { theme: "system", width: "normal", type: "sans", text: "normal" };
+  var allowed = {
+    theme: { system: true, light: true, dark: true },
+    width: { normal: true, wide: true, compact: true },
+    type: { sans: true, serif: true },
+    text: { small: true, normal: true, large: true }
+  };
+  var namePrefix = "md2html-reader:";
+
+  function readWindowState() {
+    if (!window.name || window.name.indexOf(namePrefix) !== 0) return {};
+    try {
+      return JSON.parse(window.name.slice(namePrefix.length)) || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function readSetting(name) {
+    var value = null;
+    try {
+      value = localStorage.getItem("md2html-reader-" + name);
+    } catch (error) {}
+    if (!value) value = readWindowState()[name];
+    return allowed[name][value] ? value : null;
+  }
+
+  groups.forEach(function (name) {
+    var saved = readSetting(name);
+    if (saved && saved !== defaults[name]) {
+      document.documentElement.dataset[name] = saved;
+    }
+  });
+})();
+  </script>
+  
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/code.css">
+  <link rel="stylesheet" href="assets/highlight.css">
+  
+  <style>
+
+  </style>
+  
+  <style>
+
+  </style>
+  
+  
+  
+</head>
+<body>
+  <main class="container">
+    <header class="page-header">
+      <div class="page-title">ch2.md</div>
+      <details class="reader-widget">
+        <summary aria-label="reader controls" title="Reader controls">Aa</summary>
+        <form aria-label="reader controls">
+          <fieldset>
+            <legend>Theme</legend>
+            <label><input id="theme-system" name="theme" value="system" type="radio" checked> system</label>
+            <label><input id="theme-light" name="theme" value="light" type="radio"> light</label>
+            <label><input id="theme-dark" name="theme" value="dark" type="radio"> dark</label>
+          </fieldset>
+          <fieldset>
+            <legend>Measure</legend>
+            <label><input id="width-normal" name="width" value="normal" type="radio" checked> normal</label>
+            <label><input id="width-wide" name="width" value="wide" type="radio"> wide</label>
+            <label><input id="width-compact" name="width" value="compact" type="radio"> compact</label>
+          </fieldset>
+          <fieldset>
+            <legend>Type</legend>
+            <label><input id="type-sans" name="type" value="sans" type="radio" checked> sans</label>
+            <label><input id="type-serif" name="type" value="serif" type="radio"> serif</label>
+          </fieldset>
+          <fieldset>
+            <legend>Text</legend>
+            <label><input id="text-small" name="text" value="small" type="radio"> small</label>
+            <label><input id="text-normal" name="text" value="normal" type="radio" checked> normal</label>
+            <label><input id="text-large" name="text" value="large" type="radio"> large</label>
+          </fieldset>
+        </form>
+      </details>
+    </header>
+    <article class="page-content">
+<h1 id="chapter-2-using-the-metamath-program" style="border-bottom: none;">Chapter 2. Using the Metamath Program</h1>
+
+<nav class="nav">
+    <span class="activenav"><a href="ch1.html">← Previous</a></span>
+    <span class="activenav"><a href="index.html">↑ Up</a></span>
+    <span class="activenav"><a href="ch3.html">Next →</a></span>
+</nav>
+
+<p><a href="book/metamath.html#using-the-metamath-program">Read in html</a> &nbsp;|&nbsp; <a href="book/metamath.pdf#page=55">Read in pdf</a></p>
+<div class="code-box inline-source"><div class="code-header">mm source</div><div class="codehilite" data-language="metamath"><pre><code><span class="cm">$( Declare the constant symbols we will use $)</span>
+<span class="w">    </span><span class="k">$c</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="n">+</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="p">$.</span>
+<span class="cm">$( Declare the metavariables we will use $)</span>
+<span class="w">    </span><span class="k">$v</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="n">P</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="p">$.</span>
+<span class="cm">$( Specify properties of the metavariables $)</span>
+<span class="w">    </span><span class="nl">tt</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">tr</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">ts</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">wp</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">P</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">wq</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="p">$.</span>
+<span class="cm">$( Define "term" and "wff" $)</span>
+<span class="w">    </span><span class="nl">tze</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">tpl</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">+</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">weq</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">wim</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">P</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="cm">$( State the axioms $)</span>
+<span class="w">    </span><span class="nl">a1</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">a2</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">+</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="p">$.</span>
+<span class="cm">$( Define the modus ponens inference rule $)</span>
+<span class="w">    </span><span class="p">${</span>
+<span class="w">        </span><span class="nl">min</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">P</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">        </span><span class="nl">maj</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">P</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">        </span><span class="nl">mp</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="p">$}</span>
+<span class="cm">$( Prove a theorem $)</span>
+<span class="w">    </span><span class="nl">th1</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">$=</span>
+<span class="w">    </span><span class="cm">$( Here is its proof: $)</span>
+<span class="w">        </span><span class="nl">tt</span><span class="w"> </span><span class="nl">tze</span><span class="w"> </span><span class="nl">tpl</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">weq</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">weq</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">a2</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">tze</span><span class="w"> </span><span class="nl">tpl</span>
+<span class="w">        </span><span class="nl">tt</span><span class="w"> </span><span class="nl">weq</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">tze</span><span class="w"> </span><span class="nl">tpl</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">weq</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">weq</span><span class="w"> </span><span class="nl">wim</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">a2</span>
+<span class="w">        </span><span class="nl">tt</span><span class="w"> </span><span class="nl">tze</span><span class="w"> </span><span class="nl">tpl</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">a1</span><span class="w"> </span><span class="nl">mp</span><span class="w"> </span><span class="nl">mp</span>
+<span class="w">    </span><span class="p">$.</span>
+</code></pre></div>
+<div class="code-output"><span>Output:</span><pre>Metamath - Version 0.195 30-Dec-2020          Type HELP for help, EXIT to exit.
+MM&gt; read &quot;.md2html-cache/ch2/mm-inline-f338a58087cd/mm.mm&quot;
+Reading source file &quot;.md2html-cache/ch2/mm-inline-f338a58087cd/mm.mm&quot;... 881 by
+tes
+881 bytes were read into the source buffer.
+The source has 19 statements; 7 are $a and 1 are $p.
+No errors were found.  However, proofs were not checked.  Type VERIFY PROOF *
+if you want to check them.
+MM&gt; verify proof *
+0 10%  20%  30%  40%  50%  60%  70%  80%  90% 100%
+..................................................
+All proofs in the database were verified in 0.00 s.
+MM&gt; exit
+</pre></div></div>
+    </article>
+  </main>
+  <script>
+(function () {
+  var groups = ["theme", "width", "type", "text"];
+  var defaults = { theme: "system", width: "normal", type: "sans", text: "normal" };
+  var allowed = {
+    theme: { system: true, light: true, dark: true },
+    width: { normal: true, wide: true, compact: true },
+    type: { sans: true, serif: true },
+    text: { small: true, normal: true, large: true }
+  };
+  var namePrefix = "md2html-reader:";
+
+  function apply(name, value) {
+    if (value === defaults[name]) {
+      delete document.documentElement.dataset[name];
+      return;
+    }
+    document.documentElement.dataset[name] = value;
+  }
+
+  function readWindowState() {
+    if (!window.name || window.name.indexOf(namePrefix) !== 0) return {};
+    try {
+      return JSON.parse(window.name.slice(namePrefix.length)) || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveWindowState(name, value) {
+    var state = readWindowState();
+    state[name] = value;
+    try {
+      window.name = namePrefix + JSON.stringify(state);
+    } catch (error) {}
+  }
+
+  function readSetting(name) {
+    var value = null;
+    try {
+      value = localStorage.getItem("md2html-reader-" + name);
+    } catch (error) {
+      value = null;
+    }
+    if (!value) value = readWindowState()[name];
+    return allowed[name][value] ? value : null;
+  }
+
+  function saveSetting(name, value) {
+    try {
+      localStorage.setItem("md2html-reader-" + name, value);
+    } catch (error) {}
+    saveWindowState(name, value);
+  }
+
+  groups.forEach(function (name) {
+    var saved = readSetting(name);
+    if (saved) apply(name, saved);
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    groups.forEach(function (name) {
+      var saved = readSetting(name);
+      var inputs = Array.prototype.slice.call(document.querySelectorAll('input[name="' + name + '"]'));
+      inputs.forEach(function (input) {
+        if (saved && input.value === saved) input.checked = true;
+        input.addEventListener("change", function () {
+          if (!input.checked) return;
+          apply(name, input.value);
+          saveSetting(name, input.value);
+          if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise().catch(function () {});
+          }
+        });
+      });
+    });
+  });
+})();
+  </script>
+</body>
+</html>

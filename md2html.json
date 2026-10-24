@@ -1,0 +1,17 @@
+{
+  "input": "src",
+  "output": "html",
+  "output_mode": "site",
+  "assets": "shared",
+  "parse_liquid": false,
+  "commands": {
+    "mm": "metamath 'read \"'{source}'\"' 'verify proof *' exit",
+    "metamath": "metamath 'read \"'{source}'\"' 'verify proof *' exit"
+  },
+  "math": {
+    "backend": "mathjax-chtml"
+  },
+  "site": {
+    "title": "Metamath"
+  }
+}
