@@ -45,6 +45,7 @@
   
   <link rel="stylesheet" href="assets/base.css">
   <link rel="stylesheet" href="assets/code.css">
+  <link rel="stylesheet" href="assets/toc.css">
   <link rel="stylesheet" href="assets/highlight.css">
   
   <style>
@@ -100,8 +101,27 @@
     <span class="activenav"><a href="ch3.html">Next →</a></span>
 </nav>
 
-<p><a href="book/metamath.html#using-the-metamath-program">Read in html</a> &nbsp;|&nbsp; <a href="book/metamath.pdf#page=55">Read in pdf</a></p>
-<div class="code-box inline-source"><div class="code-header">mm source</div><div class="codehilite" data-language="metamath"><pre><code><span class="cm">$( Declare the constant symbols we will use $)</span>
+<p><a href="book/metamath.html#using-the-metamath-program">Book html</a> &nbsp;|&nbsp; <a href="book/metamath.pdf#page=55">Book pdf</a></p>
+<div class="table-of-contents"><h2>Directory</h2><ul class="toc-list"><li><a href="#a-few-things-to-know-and-memorize">A few things to know and memorize:</a></li><li><a href="#running-the-ch2-example">Running the ch2 example</a></li><li><a href="#working-through-the-proof-without-knowing-metamath">Working through the Proof without knowing Metamath</a></li><li><a href="#23">2.3</a></li><li><a href="#quiz-questions">Quiz Questions</a><ul class="toc-list"><li><a href="#q">Q</a><ul class="toc-list"><li><a href="#a">A</a></li></ul></li><li><a href="#q-2">Q</a><ul class="toc-list"><li><a href="#a-2">A</a></li></ul></li><li><a href="#q-3">Q</a><ul class="toc-list"><li><a href="#a-3">A</a></li></ul></li><li><a href="#q-4">Q</a><ul class="toc-list"><li><a href="#a-4">A</a></li></ul></li><li><a href="#q-5">Q</a></li></ul></li></ul></div>
+<h2 id="a-few-things-to-know-and-memorize">A few things to know and memorize:</h2>
+<ul>
+<li><code>$c</code> -- constants. User-defined, "meaningless"</li>
+<li><code>$v</code> -- Variables. "Metavariables" or "placeholders"</li>
+<li><code>$e</code> -- Essential hypothesis. ("logical hypothesis")</li>
+<li><code>$f</code> -- Floating Hypothesis. ("variable type hypothesis") Must contain a constant followed by a variable.</li>
+<li><code>$a</code> -- Axiomatic assertion. Constant followed by arbitrarily many math symbols.</li>
+<li><code>$p</code> -- Provable assertion. Constant followed by arbitrarily many math symbols.</li>
+</ul>
+<p>Notes while trying to understand the metamath proof in ch2:</p>
+<ul>
+<li><code>tze $a term 0 $.</code> This is an axiomatic hypothesis, as opposed to the floating hypotheses earlier. The floating hypotheses were not "axioms" because they refer to metavariables. But 0 is an actual term of the language (?) so we need an actual axiom.</li>
+<li><code>tpl $a term ( t + r ) $.</code> Here even though the concept of parentheses aren't in the language, can I come up with an example where the addition of parentheses changes the way in which expression parsing occurs? </li>
+<li>"$a is a constant followed by arbitrary seq of math symbols" -- The definition is this simple, no tricks. But it's not devoid of structure. I guess that structure is the consistency checks on popping from the stack and substituting all of the mandatory hypotheses?</li>
+<li>In the statement <code>tpl $a term ( t + r ) $.</code> constants <code>( + )</code> don't need any hypotheses. <code>t</code> and <code>r</code> need hypotheses because they are metavariables. This is satisfied by the hypotheses <code>$f term t $.</code> and <code>$f term r $.</code></li>
+</ul>
+<p>Metamath's show statement command can show you a statement's mandatory hypotheses.</p>
+<h2 id="running-the-ch2-example">Running the ch2 example</h2>
+<div class="code-box inline-source"><details class="collapsible-code"><summary class="code-summary"><span>mm source</span><span class="expand-hint">(click to expand)</span></summary><div class="codehilite" data-language="metamath"><pre><code><span class="cm">$( Declare the constant symbols we will use $)</span>
 <span class="w">    </span><span class="k">$c</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="n">+</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="p">$.</span>
 <span class="cm">$( Declare the metavariables we will use $)</span>
 <span class="w">    </span><span class="k">$v</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="n">P</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="p">$.</span>
@@ -133,7 +153,7 @@
 <span class="w">        </span><span class="nl">tt</span><span class="w"> </span><span class="nl">tze</span><span class="w"> </span><span class="nl">tpl</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">tt</span><span class="w"> </span><span class="nl">a1</span><span class="w"> </span><span class="nl">mp</span><span class="w"> </span><span class="nl">mp</span>
 <span class="w">    </span><span class="p">$.</span>
 </code></pre></div>
-<div class="code-output"><span>Output:</span><pre>Metamath - Version 0.195 30-Dec-2020          Type HELP for help, EXIT to exit.
+</details><div class="code-output"><span>Output:</span><pre>Metamath - Version 0.195 30-Dec-2020          Type HELP for help, EXIT to exit.
 MM&gt; read &quot;.md2html-cache/ch2/mm-inline-f338a58087cd/mm.mm&quot;
 Reading source file &quot;.md2html-cache/ch2/mm-inline-f338a58087cd/mm.mm&quot;... 881 by
 tes
@@ -147,6 +167,73 @@ MM&gt; verify proof *
 All proofs in the database were verified in 0.00 s.
 MM&gt; exit
 </pre></div></div>
+<h2 id="working-through-the-proof-without-knowing-metamath">Working through the Proof without knowing Metamath</h2>
+<p>I had great success in looking at the central proof example in chapter 2, and saying with conviction, "this is a ridiculously simple interaction of a stack and a substitution system."
+There are only so many ways you can parse through a stack and substitute stuff
+as you read through the proof (the list of <code>tt tt weq tt ...</code> statements),
+and so eventually you'll stumble on the correct algorithm.</p>
+<p>For example, two sequences that occur a few times in the proof are:</p>
+<ul>
+<li><code>tt tze tpl</code> (occurs 4 times)</li>
+<li><code>tt weq</code> (occurs 5 times)</li>
+</ul>
+<p>Let's look at the first one. First, <code>tt</code> is our floating hypothesis (<code>$f</code>) which
+ declares <code>t</code> as a variable of typecode <code>term</code>, so <code>term t</code> is pushed to the stack. (Note: the word "typecode" is not used until chapter 4!! I thought of it as the "tag" for t, but typecode is the usual term)</p>
+<p>Second, <code>term 0</code> is pushed to the stack.</p>
+<p>Third, we want to push <code>tpl</code> to the stack. tpl's definition is <code>tpl $a term ( t + r ) $.</code>, which has two placeholders/variables t and r. The real way to phrase this is that we have two <em>mandatory hypotheses</em>. We pop from the stack to substitute our term 0 in for the second placeholder (the most recent mandatory hypothesis). We pop from the stack to substitute our secondmost recent mandatory hypothesis. And we're left with <code>term ( t + 0 )</code>. </p>
+<p>Up to the last two statements, this is the whole procedure of the proof. push terms, pop terms when we need to substitute variables. There are no surprises or nonsequiturs up until the modus ponens rules. Just before we parse the first <code>mp</code>, the stack looks like the following. All the impenetrable work has gone into building these expressions, and I cannot stress enough that it is not that interesting (which means if you're confused, you should work through this by hand to convince yourself yeah, it's just substituting stuff in). </p>
+<div class="codehilite fenced-code" data-language=""><pre><code>wff ( t + 0 ) = t
+wff t = t
+|- ( t + 0 ) = t 
+wff ( t + 0 ) = t
+wff ( ( t + 0 ) = t -&gt; t = t ) 
+|- ( t + 0 ) = t 
+|- ( ( t + 0 ) = t -&gt; ( ( t + 0 ) = t -&gt; t = t ) ) 
+</code></pre></div>
+
+<p>When we parse <code>mp</code>, I initially thought we had two mandatory hypotheses meaning we pop two things from the stack (the most recent two turnstiles) and deduce what P and Q must be. But in fact, we don't do deductions like that in Metamath!
+The substitutions for P and Q must be given explicitly, they are not deduced. 
+Therefore we need to pop four things from the stack in total. In order, the things we pop (the four mandatory hypotheses for <code>mp</code>) are <code>|- ( P -&gt; Q )</code>, <code>|- P</code>, <code>Q</code>, <code>P</code>. The order is because this is the reverse order of how they appear in the database. This is established on page 130, section 4.2.5, of the Metamath book. Okay, so we pop four things from the stack, do our substitutions, and push turnstile Q. The proof stack now looks like this:</p>
+<div class="codehilite fenced-code" data-language=""><pre><code>wff ( t + 0 ) = t
+wff t = t
+|- ( t + 0 ) = t 
+|- ( ( t + 0 ) = t -&gt; t = t ) 
+</code></pre></div>
+
+<p>Same thing again. This time <code>t = t</code> is in the slot for <code>Q</code>, so:</p>
+<div class="codehilite fenced-code" data-language=""><pre><code>|- t = t
+</code></pre></div>
+
+<p>QED!</p>
+<h2 id="23">2.3</h2>
+<h2 id="quiz-questions">Quiz Questions</h2>
+<h3 id="q">Q</h3>
+<p>In Metamath, what does a typecode refer to?</p>
+<h4 id="a">A</h4>
+<p>A typecode is a constant defined first inside <code>$c mytypecode $.</code> It is used to assign a type in a floating hypothesis, <code>hypoth $f mytypecode x $.</code> This is a hypothesis which states that the variable <code>x</code> is of type <code>mytypecode</code>. Note that there is no complicated "type system", so this is really just a label that is associated with <code>x</code> whenever we apply <code>hypoth</code>.</p>
+<h3 id="q-2">Q</h3>
+<p>In Metamath, what does the symbol <code>$c</code> mean, and how is it used?</p>
+<h4 id="a-2">A</h4>
+<p>c stands for constant. These are user-defined, and the user needs to define things like typecodes <code>wff</code>, <code>term</code>, and the other primitive symbols you want to define like <code>(</code>, <code>)</code>, <code>|-</code>, <code>-&gt;</code>. Like all Metamath statements, <code>$c</code> must be closed with a <code>$.</code> symbol. For example: <code>$c wff term ( ) |- -&gt; $.</code> </p>
+<h3 id="q-3">Q</h3>
+<p>In Metamath, what does the symbol <code>$v</code> mean, and how is it used?</p>
+<h4 id="a-3">A</h4>
+<p>v stands for variable. These are user-defined. Every variable that you want to use must be declared. The statement <code>$v</code> must be closed with a <code>$.</code> symbol. For example, <code>$v t r s P Q $.</code> </p>
+<p>When variables occur in an essential hypothesis or axiom, they must be filled (satisfied) by other mandatory hypotheses. (??? Not sure if this is correct or if it's the correct phrasing of what I mean).</p>
+<h3 id="q-4">Q</h3>
+<p>In Metamath, what does the symbol <code>$e</code> mean, and how is it used?</p>
+<h4 id="a-4">A</h4>
+<p>e stands for essential hypothesis. It is also called a logical hypothesis. It must have a label, and can be followed by any number of math symbols, eg.
+<code>mytheorem $e |- ( P -&gt; Q ) $.</code>
+...</p>
+<h3 id="q-5">Q</h3>
+<p>In Metamath, what does the symbol <code>$e</code> mean, and how is it used?</p>
+<ul>
+<li><code>$e</code> -- Essential hypothesis. ("logical hypothesis")</li>
+<li><code>$f</code> -- Floating Hypothesis. ("variable type hypothesis") Must contain a constant followed by a variable.</li>
+<li><code>$a</code> -- Axiomatic assertion. Constant followed by arbitrarily many math symbols.</li>
+<li><code>$p</code> -- Provable assertion. Constant followed by arbitrarily many math symbols.</li>
+</ul>
     </article>
   </main>
   <script>

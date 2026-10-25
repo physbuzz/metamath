@@ -90,7 +90,25 @@
       </details>
     </header>
     <article class="page-content">
-<h1 id="metamath-a-computer-language-for-mathematical-proofs">Metamath A Computer Language for Mathematical Proofs</h1>
+<p><a href="book/metamath.html">Read in html</a> &nbsp;|&nbsp; <a href="book/metamath.pdf">Read in pdf</a> | <a href="https://us.metamath.org/downloads/metamath.pdf">Read on metamath.org</a>.</p>
+<h1 id="metamath-study-notes">Metamath Study Notes</h1>
+<p>Studying Metamath and its applications, starting with Norm Megill's 2019 Metamath book. I realized only after creating this layout that it doesn't quite make sense to work through chapter by chapter so I'll have to reorganize these markdown files.</p>
+<p>The approach I'll probably take is: 
+1. read ch2 and refer to ch4 to try to parse the proof in ch2. 
+2. Read ch4 and write a C++ metamath interpreter, and try it on David Wheeler's <a href="https://github.com/david-a-wheeler/metamath-test">set of mm test cases</a>. (Appendices B, E may be relevant but not needed). Study/implement appendix D, the MIU system.
+4. Read ch3 and understand some implications of <code>set.mm</code>, while using the commands in ch5.
+5. Read appendix C, and perhaps Mario Carneiro's Models for Metamath.
+5. Mini formalization project. </p>
+<p>For the formalization project, here's a few things I want to study: 
+- Formalize something regarding Turing machines
+- Enumerate the smallest theorems of some theory
+- Find the shortest proof of some statement using a SAT solver
+- Formalize some theorems in plane geometry from Hilbert's axioms
+- Primality certificates (Pratt 1975?)
+- Read and create examples from Mario Carneiro "Models for Metamath" 2016</p>
+<p>Other things I want to do:
+- Write a bonus chapter of SICP, "Metamath using Logic Programming" based on <a href="mathandcode.com/books/sicp">ch 4.4.</a>, with (probably extremely slow, academic-curiosity-only) automatic proof discovery and certificate generation. I believe the tools of SICP 4.4 make this easy. SICP just implements the machinery and says "people use this for both proofs and databases, isn't that funny?"</p>
+<p>I'll probably reorganize this at some point. Studying chapter-by-chapter isn't really </p>
 <h2 id="contents">Contents</h2>
 <ul>
 <li><a href="ch1.html">Chapter 1. Introduction</a></li>
