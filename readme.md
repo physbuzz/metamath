@@ -10,4 +10,4 @@ Later I'll put it on my website at [mathandcode.com/books/metamath/](mathandcode
 
 It uses [github.com/physbuzz/md2html](github.com/physbuzz/md2html) to build the pages.
 
-I also made a html version of the book, and since Metamath is public domain I can upload it to github no worries! Woohoo!
+I also made a [html version of Megill's Metamath book](mathandcode.com/books/metamath/book/metamath.html). Since it's public domain I can upload it to github no worries! Woohoo!

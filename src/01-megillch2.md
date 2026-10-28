@@ -1,13 +1,13 @@
 ---
-title: "Chapter 2. Using the Metamath Program"
+title: "01 Working through a Metamath Proof by Hand (Megill ch2)"
 ---
 
-<h1 id="chapter-2-using-the-metamath-program" style="border-bottom: none;">Chapter 2. Using the Metamath Program</h1>
+<h1 id="01-megillch2" style="border-bottom: none;">01 Working through a Metamath Proof by Hand (Megill ch2)</h1>
 
 <nav class="nav">
-    <span class="activenav"><a href="ch1.html">← Previous</a></span>
+    <span class="activenav"><a href="00-rant.html">← Previous</a></span>
     <span class="activenav"><a href="index.html">↑ Up</a></span>
-    <span class="activenav"><a href="ch3.html">Next →</a></span>
+    <span class="activenav"><a href="02-sicp-logic.html">Next →</a></span>
 </nav>
 
 [Book html](book/metamath.html#using-the-metamath-program) &nbsp;|&nbsp; [Book pdf](book/metamath.pdf#page=55)

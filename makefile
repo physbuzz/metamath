@@ -2,12 +2,15 @@ MD2HTML ?= md2html
 PORT ?= 8001
 HOST ?= 127.0.0.1
 
-.PHONY: all build html rebuild serve watch clean
+.PHONY: all build html markdown rebuild serve watch clean
 
 all: build
 
 build html:
 	$(MD2HTML)
+
+markdown:
+	$(MD2HTML) --jekyll-markdown -o markdown-output
 
 rebuild:
 	$(MD2HTML) --clean --force
@@ -19,4 +22,4 @@ watch:
 	$(MD2HTML) --watch
 
 clean:
-	rm -rf html
+	rm -rf html markdown-output
