@@ -28,7 +28,7 @@ For the formalization project, here's a few things I want to study:
 
 Other things I want to do:
 
-- Write a bonus chapter of SICP, "Metamath using Logic Programming" based on [ch 4.4.](mathandcode.com/books/sicp), with (probably extremely slow, academic-curiosity-only) automatic proof discovery and certificate generation. I believe the tools of SICP 4.4 make this easy. SICP just implements the machinery and says "people use this for both proofs and databases, isn't that funny?"
+- Write a bonus chapter of SICP, "Metamath using Logic Programming" based on [ch 4.4.](https://www.mathandcode.com/books/sicp/ch4/notes-ch4-4.html), with (probably extremely slow, academic-curiosity-only) automatic proof discovery and certificate generation. I believe the tools of SICP 4.4 make this easy. SICP just implements the machinery and says "people use this for both proofs and databases, isn't that funny?"
 
 
 I'll probably reorganize this at some point. Studying chapter-by-chapter isn't really

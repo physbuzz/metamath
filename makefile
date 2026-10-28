@@ -4,7 +4,7 @@ HOST ?= 127.0.0.1
 
 .PHONY: all build html markdown rebuild serve watch clean
 
-all: build
+all: build markdown
 
 build html:
 	$(MD2HTML)

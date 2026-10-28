@@ -9,9 +9,16 @@
     "metamath": "metamath 'read \"'{source}'\"' 'verify proof *' exit"
   },
   "math": {
-    "backend": "mathjax-chtml"
+    "backend": "mathjax-chtml",
+    "chtml_fonts": "inline"
   },
   "site": {
     "title": "Metamath"
+  },
+  "feed": false,
+  "frontmatter": {
+    "layout": "book",
+    "render_with_liquid": false,
+    "show_title": false
   }
 }
