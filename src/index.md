@@ -39,8 +39,8 @@ I'll probably reorganize this at some point. Studying chapter-by-chapter isn't r
 - [00 Rant about Mathematical Proof (cf. Megill ch1)](00-rant.html)
 - [01 Working through a Metamath Proof by Hand (Megill ch2)](01-megillch2.html)
 - [02 Connection with Logic Programming (cf. SICP 4.4)](02-sicp-logic.html)
+- [03 Writing a Metamath Interpreter (Megill ch4)](03-interpreter.html)
 
 Planned:
 
-- [03 Writing a Metamath Interpreter (Megill ch4)](03-interpreter.html)
 - [04 Looking at set.mm](04-setmm.html)
