@@ -11,15 +11,40 @@ title: "02 Connection with Logic Programming (cf. SICP 4.4)"
 </nav>
 
 
-Note: This is a bonus section! If you don't understand Lisp and don't care about SICP ch4-4 it might be greek.
+> [!NOTE] This is a bonus section! If you don't understand or care about Lisp, 
+> or you don't care about Structure and Interpretation of Compute Programs (SICP) ch4-4 
+> it's probably not worth it to read. But I worked through the chapter recently so it begs
+> the connection.
 
 In this notes section, my goal is to understand automatic proof discovery
 and certificate generation using the logic programming of SICP ch4-4.
 
-This is not as exciting as it sounds,
+This is almost certainly not as exciting as it sounds,
 SICP ch4-4 is really about expanding your consciousness to think about what 
 you can do with computer languages and architectures. It's not about making some
-super sophisticated superpowered algorithm that churns out proofs. But there
+super sophisticated superpowered algorithm that churns out proofs. 
+
+# TODO:
+
+First, we'll implement one simple rule system using the code.
+
+Second, we'll implement the full metamath rules, but I'm pretty sure that with the 
+current code this gives infinite recursion. So the infinite recursion can be fixed by 
+adding a finite substitution depth, and eventually we "find" the statement `|- t = t` 
+in our "database". It would be nice to adapt this to going the other way, enumerating theorems.
+
+Third, we want to modify the code to also write out the metamath certificate.
+We don't need to truly print out the valid `.mm` file, we can, in the spirit of SICP chapter 4,
+just emit a series of quote symbols in whatever syntax might be convenient. 
+
+Fourth, we can investigate a metamath proof checker written in Lisp? This is a good idea,
+but I might do this after the cpp version when I better understand it. 
+
+
+
+# Section Scratch Notes
+
+But there
 are some analogies and correspondences that I want to understand, namely (using Metamath ch2 as an example problem)...
 
 - In the query system, without changing the code, how do we encode the axioms so we can simply do a query for `'(|- t = t)`?

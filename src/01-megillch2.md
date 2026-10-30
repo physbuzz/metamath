@@ -26,11 +26,11 @@ title: "01 Working through a Metamath Proof by Hand (Megill ch2)"
 Notes while trying to understand the metamath proof in ch2:
 
  - `tze $a term 0 $.` This is an axiomatic hypothesis, as opposed to the floating hypotheses earlier. The floating hypotheses were not "axioms" because they refer to metavariables. But 0 is an actual term of the language (?) so we need an actual axiom.
-- `tpl $a term ( t + r ) $.` Here even though the concept of parentheses aren't in the language, can I come up with an example where the addition of parentheses changes the way in which expression parsing occurs? 
-- "$a is a constant followed by arbitrary seq of math symbols" -- The definition is this simple, no tricks. But it's not devoid of structure. I guess that structure is the consistency checks on popping from the stack and substituting all of the mandatory hypotheses?
-- In the statement `tpl $a term ( t + r ) $.` constants `( + )` don't need any hypotheses. `t` and `r` need hypotheses because they are metavariables. This is satisfied by the hypotheses `$f term t $.` and `$f term r $.`
-
-Metamath's show statement command can show you a statement's mandatory hypotheses.
+- `tpl $a term ( t + r ) $.` Here parentheses are just constants, not actual metamath syntax. though the concept of parentheses aren't in the language, can I come up with an example where the addition of parentheses changes the way in which expression parsing occurs? 
+- "$a is a constant followed by arbitrary seq of math symbols" -- The definition is simple, no tricks. I don't think there is any invalid axiom we can write by this definition. (Later when we introduce the `$d` symbol maybe? Unsure if this puts constraints on the axiom itself, or simply on what is allowed to be substited in for the mandatory hypotheses of an axiom.) 
+- In the statement `tpl $a term ( t + r ) $.` constants `( + )` don't need any hypotheses. `t` and `r` need hypotheses because they are metavariables. These are satisfied by the hypotheses `$f term t $.` and `$f term r $.`
+- Metamath's `show` command can show you a statement's mandatory hypotheses, very useful for just
+starting out when I've been unsure of what a statement's mhs are.
 
 ## Running the ch2 example
 
@@ -120,6 +120,14 @@ QED!
 
 ## 2.3
 
+Especially useful stuff in the interactive CLI:
+- `prove theorem1` -> `delete all` to practice.
+- `assign 1 mp` -> Assign proof line 1 to the hypothesis mp.
+- `improve all` -> used in ch2 for, when the "proof structure" is complete, there's still a lot of statements to fill, so `improve` can automatically construct those statements.
+
+
+
+
 ## Quiz Questions
 
 ### Q
@@ -149,11 +157,3 @@ e stands for essential hypothesis. It is also called a logical hypothesis. It mu
 ### Q
 In Metamath, what does the symbol `$e` mean, and how is it used?
 
-
-
-
-
-- `$e` -- Essential hypothesis. ("logical hypothesis")
-- `$f` -- Floating Hypothesis. ("variable type hypothesis") Must contain a constant followed by a variable.
-- `$a` -- Axiomatic assertion. Constant followed by arbitrarily many math symbols.
-- `$p` -- Provable assertion. Constant followed by arbitrarily many math symbols.
