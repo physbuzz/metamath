@@ -3,6 +3,8 @@
 #include <string>
 #include <sstream>
 #include <cctype>
+#include <vector>
+#include <memory>
 
 
 using namespace std;
@@ -14,7 +16,7 @@ void help(){
 }
 
 // After preprocessing, a database will consist of a sequence of statements. These are the scoping statements ${ and $}, along with the $c, $v, $f, $e, $d, $a, and $p statements.
-enum class SType {
+enum class TokenType {
     CBEGIN,     // $(
     CEND,       // $)
     FBEGIN,     // $[ NOTE: file inclusion not supported
@@ -34,78 +36,90 @@ enum class SType {
     SNULL
 };
 
-SType getStatementType(string arg){
+TokenType getTokenType(string arg){
     if(arg.length()==0){
-        cerr<<"Arg length 0 in getStatementType?!"<<endl;
-        return SType::SNULL;
+        cerr<<"Arg length 0 in getTokenType?!"<<endl;
+        return TokenType::SNULL;
     }
     if(arg[0]=='$'){
         if(arg.length()!=2){
-            cerr<<"Statement "<<arg<<" must be length 2 in getStatementType?!"<<endl;
-            return SType::SNULL;
+            cerr<<"Statement "<<arg<<" must be length 2 in getTokenType?!"<<endl;
+            return TokenType::SNULL;
         }
         switch(arg[1]){
             case  '(':
-                return SType::CBEGIN;
+                return TokenType::CBEGIN;
             case  ')':
-                return SType::CEND;
+                return TokenType::CEND;
             case  '[':
-                return SType::FBEGIN;
+                return TokenType::FBEGIN;
             case  ']':
-                return SType::FEND;
+                return TokenType::FEND;
             case  '{':
-                return SType::BBEGIN;
+                return TokenType::BBEGIN;
             case  '}':
-                return SType::BEND;
+                return TokenType::BEND;
             case  'c':
-                return SType::CONSTANT;
+                return TokenType::CONSTANT;
             case  'v':
-                return SType::VARIABLE;
+                return TokenType::VARIABLE;
             case  'f':
-                return SType::FLOATING;
+                return TokenType::FLOATING;
             case  'e':
-                return SType::ESSENTIAL;
+                return TokenType::ESSENTIAL;
             case  'd':
-                return SType::DISJOINT;
+                return TokenType::DISJOINT;
             case  'a':
-                return SType::AXIOM;
+                return TokenType::AXIOM;
             case  'p':
-                return SType::PROOF;
+                return TokenType::PROOF;
             case  '.':
-                return SType::END;
+                return TokenType::END;
             case  '=':
-                return SType::EQUALS;
+                return TokenType::EQUALS;
             default:
                 cerr<<"Statement "<<arg<<" is not a valid Statement"<<endl;
-                return SType::SNULL;
+                return TokenType::SNULL;
         }
     }
-    return SType::STATEMENT;
+    return TokenType::STATEMENT;
 }
 
-string toString(SType type) {
+string toString(TokenType type) {
     switch (type) {
-        case SType::CBEGIN:    return "CBEGIN";
-        case SType::CEND:      return "CEND";
-        case SType::FBEGIN:    return "FBEGIN";
-        case SType::FEND:      return "FEND";
-        case SType::BBEGIN:    return "BBEGIN";
-        case SType::BEND:      return "BEND";
-        case SType::CONSTANT:  return "CONSTANT";
-        case SType::VARIABLE:  return "VARIABLE";
-        case SType::FLOATING:  return "FLOATING";
-        case SType::ESSENTIAL: return "ESSENTIAL";
-        case SType::DISJOINT:  return "DISJOINT";
-        case SType::AXIOM:     return "AXIOM";
-        case SType::PROOF:     return "PROOF";
-        case SType::END:       return "END";
-        case SType::EQUALS:    return "EQUALS";
-        case SType::STATEMENT: return "STATEMENT";
-        case SType::SNULL:     return "SNULL";
+        case TokenType::CBEGIN:    return "CBEGIN";
+        case TokenType::CEND:      return "CEND";
+        case TokenType::FBEGIN:    return "FBEGIN";
+        case TokenType::FEND:      return "FEND";
+        case TokenType::BBEGIN:    return "BBEGIN";
+        case TokenType::BEND:      return "BEND";
+        case TokenType::CONSTANT:  return "CONSTANT";
+        case TokenType::VARIABLE:  return "VARIABLE";
+        case TokenType::FLOATING:  return "FLOATING";
+        case TokenType::ESSENTIAL: return "ESSENTIAL";
+        case TokenType::DISJOINT:  return "DISJOINT";
+        case TokenType::AXIOM:     return "AXIOM";
+        case TokenType::PROOF:     return "PROOF";
+        case TokenType::END:       return "END";
+        case TokenType::EQUALS:    return "EQUALS";
+        case TokenType::STATEMENT: return "STATEMENT";
+        case TokenType::SNULL:     return "SNULL";
     }
     return "UNKNOWN";
 }
 
+// Note, these only metamath's labeled statement types.
+enum class StatementType {
+    FLOATING,
+    ESSENTIAL,
+    AXIOM,
+    PROOF
+};
+
+enum class SymbolType {
+    VARIABLE,
+    CONSTANT
+};
 
 bool isValidChar(char arg){
     return arg>='!' && arg <= '~';
@@ -136,9 +150,9 @@ while $p$ potentially carries a lot. Something like
 struct Statement{
     string label;
 
-    //potentially bad overloading of SType. It doesn't make sense for most things to be here.
+    //potentially bad overloading of SymbolType. It doesn't make sense for most things to be here.
     // Only allow f, e, a, p.
-    SType statementType; 
+    SymbolType statementType; 
 
     SymbolID typecode;
 
@@ -151,78 +165,287 @@ struct Statement{
     vector<StatementID> statements;
 }
 */
+typedef int SymbolID;
+typedef int StatementID;
+struct Symbol
+{
+    string label;
+    SymbolType symbolType;
+};
+struct Statement
+{
+    string label;
+    StatementType statementType;
+    SymbolID typecode;
+
+    // For $f, require symbols.length()==1 and statements.length()==0.
+    // For $e, require symbols.length()>=1 and statements.length()==0.
+    // For $a, require symbols.length()>=1 and statements.length()>=1.
+    // For $p, require symbols.length()>=1 and statements.length()>=1.
+    // List of symbols. For example, `t r s ( )`
+    vector<SymbolID> symbols;
+    // Index into statement list.
+    // "Every variable appearing in `statements` must have an active hypothesis
+    vector<StatementID> statements;
+};
+
+enum class ParserState {
+    NONE,    // not parsing a statement.
+    VARIABLES, // Parsing a $v statement
+    CONSTANTS, // Parsing a $c statement
+    FLOATING_TYPE, // Parsing a $f statement, expecting typecode
+    FLOATING_SYMBOLS, // Parsing a $f statement, expecting symbols
+    ESSENTIAL_TYPE, // Parsing a $e statement, expecting typecode
+    ESSENTIAL_SYMBOLS, // Parsing a $e statement, expecting symbols
+    AXIOM_TYPE, // Parsing a $a statement, expecting typecode
+    AXIOM_SYMBOLS, // Parsing a $a statement, expecting symbols
+    PROOF_TYPE, // Parsing a $p statement, expecting typecode
+    PROOF_SYMBOLS, // Parsing a $p statement, expecting symbols
+    PROOF_PROOF, // Parsing a $p statement, expecting proof
+};
 class Metamath {
     bool commentSkip;
     bool errorState;
 public:
-    typedef int SymbolID;
-    typedef int StatementID;
-    struct Symbol {
-        
-    }
-    struct Statement{
-        string label;
-        // Though we have an SType here, the only valid things are:
-        // f (SType::FLOATING)
-        // e (SType::ESSENTIAL)
-        // a (SType::AXIOM)
-        // p (SType::PROOF)
-        SType statementType; 
-        SymbolID typecode;
-        // List of symbols. For example, `t r s ( )`
-        // For a floating hypothesis, symbols must have length 1 and statements must have length 0.
-        vector<SymbolID> symbols;
-        // Index into statement list.
-        // "Every variable appearing in `statements` must have an active hypothesis
-        vector<StatementID> statements;
-    }
+    vector<Symbol> symbols;
+    vector<Statement> statements;
 
-    Metamath() : commentSkip(false), errorState(false) { }
+    ParserState parserState;
+    int blockDepth;
+    string currentLabel;
+    unique_ptr<Statement> currentStatement;
+
+    Metamath() : commentSkip(false), errorState(false), parserState(ParserState::NONE), blockDepth(0) {
+    }
 
     void parseBegin() {
     }
 
+    SymbolID getSymbolID(string label) {
+        for (size_t i = 0; i < symbols.size(); ++i) {
+            if (symbols[i].label == label) {
+                return static_cast<SymbolID>(i);
+            }
+        }
+        return -1;
+    }
+    StatementID getStatementID(string label) {
+        for (size_t i = 0; i < statements.size(); ++i) {
+            if (statements[i].label == label) {
+                return static_cast<StatementID>(i);
+            }
+        }
+        return -1;
+    }
+
     void parseWord(string word,int line){
-        //cout<<toString(getStatementType(word))<<"  "<<word<<"  line  "<<line<<endl;
+        //cout<<toString(getTokenType(word))<<"  "<<word<<"  line  "<<line<<endl;
         if(errorState)
             return;
-        auto stype=getStatementType(word);
+        auto stype=getTokenType(word);
         if(commentSkip) {
-            if(stype==SType::CEND)
+            if(stype==TokenType::CEND)
                 commentSkip=false;
             return;
         }
         switch(stype) {
-case SType::CBEGIN: 
+case TokenType::CBEGIN: 
             commentSkip=true;
             break;
-case SType::CEND: 
+case TokenType::CEND: 
             cerr<<"At line "<<line<<" comment end found outside of comment environment.";
             errorState=true;
             break;
-case SType::FBEGIN: 
+case TokenType::FBEGIN: 
             cerr<<"At line "<<line<<" File inclusion not implemented.";
             errorState=true;
             break;
-case SType::FEND:  
+case TokenType::FEND:  
             cerr<<"At line "<<line<<" File inclusion not implemented.";
             errorState=true;
             break;
-case SType::BBEGIN: 
-case SType::BEND:  
-case SType::CONSTANT:  
-case SType::VARIABLE:  
-case SType::FLOATING: 
-case SType::ESSENTIAL: 
-case SType::DISJOINT:  
-case SType::AXIOM:     
-case SType::PROOF:     
-case SType::END:       
-case SType::EQUALS:    
-case SType::STATEMENT: 
-            std::cout<<word<<" ";
+case TokenType::BBEGIN: 
+            blockDepth++;
             break;
-case SType::SNULL:     
+case TokenType::BEND:  
+            if(blockDepth==0){
+                cerr<<"At line "<<line<<" Block end found outside of block environment.";
+                errorState=true;
+            } else {
+                blockDepth--;
+            }
+            break;
+case TokenType::CONSTANT:  
+            if(parserState!=ParserState::NONE){
+                cerr<<"At line "<<line<<" Constant statement found while parsing another statement.";
+                errorState=true;
+            } else {
+                parserState=ParserState::CONSTANTS;
+            }
+            break;
+case TokenType::VARIABLE:  
+            if(parserState!=ParserState::NONE){
+                cerr<<"At line "<<line<<" Variable statement found while parsing another statement.";
+                errorState=true;
+            } else {
+                parserState=ParserState::VARIABLES;
+            }
+            break;
+case TokenType::FLOATING: 
+            if(parserState!=ParserState::NONE){
+                cerr<<"At line "<<line<<" Floating statement found while parsing another statement.";
+                errorState=true;
+                break;
+            } 
+            if(currentLabel.length()==0){
+                cerr<<"At line "<<line<<" Floating statement found without a label.";
+                errorState=true;
+                break;
+            } 
+            currentStatement=make_unique<Statement>();
+            currentStatement->label=currentLabel;
+            currentStatement->statementType=StatementType::FLOATING;
+            currentLabel="";
+            parserState=ParserState::FLOATING_TYPE;
+            break;
+case TokenType::ESSENTIAL:
+            if (parserState != ParserState::NONE) {
+                cerr << "At line " << line << " Essential statement found while parsing another statement.";
+                errorState = true;
+                break;
+            }
+            if (currentLabel.length() == 0){
+                cerr << "At line " << line << " Essential statement found without a label.";
+                errorState = true;
+                break;
+            }
+            currentStatement = make_unique<Statement>();
+            currentStatement->label = currentLabel;
+            currentLabel = "";
+            parserState = ParserState::ESSENTIAL_TYPE;
+            break;
+case TokenType::DISJOINT:  
+            cerr<<"At line "<<line<<" Disjoint statement found. Not implemented.";
+            errorState=true;
+            break;
+case TokenType::AXIOM:     
+            if (parserState != ParserState::NONE) {
+                cerr << "At line " << line << " Axiom statement found while parsing another statement.";
+                errorState = true;
+                break;
+            }
+            if (currentLabel.length() == 0){
+                cerr << "At line " << line << " Axiom statement found without a label.";
+                errorState = true;
+                break;
+            }
+            currentStatement = make_unique<Statement>();
+            currentStatement->label = currentLabel;
+            currentLabel = "";
+            parserState = ParserState::AXIOM_TYPE;
+            break;
+case TokenType::PROOF:     
+            if (parserState != ParserState::NONE) {
+                cerr << "At line " << line << " Proof statement found while parsing another statement.";
+                errorState = true;
+                break;
+            }
+            if (currentLabel.length() == 0){
+                cerr << "At line " << line << " Proof statement found without a label.";
+                errorState = true;
+                break;
+            }
+            currentStatement = make_unique<Statement>();
+            currentStatement->label = currentLabel;
+            currentLabel = "";
+            parserState = ParserState::PROOF_TYPE;
+            break;
+case TokenType::END:       
+            if(parserState==ParserState::NONE){
+                cerr<<"At line "<<line<<" $. statement found while not parsing a statement.";
+                errorState=true;
+                break;
+            }
+            switch(parserState){
+                case ParserState::VARIABLES:
+                case ParserState::CONSTANTS:
+                    break;
+                case ParserState::FLOATING_SYMBOLS:
+                case ParserState::ESSENTIAL_SYMBOLS:
+                case ParserState::AXIOM_SYMBOLS:
+                case ParserState::PROOF_PROOF:
+                    statements.push_back(*currentStatement);
+                    currentStatement.reset();
+                    break;
+                default:
+                    cerr<<"At line "<<line<<" $. statement found while parsing a statement, but not at the end of a statement.";
+                    errorState=true;
+                    break;
+            }
+            parserState=ParserState::NONE;
+            break;
+case TokenType::EQUALS:    
+            if(parserState!=ParserState::PROOF_SYMBOLS){
+                cerr<<"At line "<<line<<" $= statement found while not parsing a proof statement.";
+                cerr<<"This guy: "<<word<<".";
+                errorState=true;
+                break;
+            }
+            parserState=ParserState::PROOF_PROOF;
+            break;
+case TokenType::STATEMENT: 
+            switch(parserState){
+                case ParserState::NONE:
+                    if(currentLabel.length()!=0){
+                        cerr<<"At line "<<line<<" Label "<<word
+                        <<" found while label "<<currentLabel<<" is still active.";
+                        errorState=true;
+                        break;
+                    }
+                    currentLabel=word;
+                    break;
+                case ParserState::VARIABLES:
+                    // TODO: check label doesn't exist
+                    symbols.push_back({word,SymbolType::VARIABLE});
+                    break;
+                case ParserState::CONSTANTS:
+                    // TODO: check label doesn't exist
+                    symbols.push_back({word,SymbolType::CONSTANT});
+                    break;
+                case ParserState::FLOATING_TYPE:
+                    currentStatement->typecode=getSymbolID(word);
+                    parserState=ParserState::FLOATING_SYMBOLS;
+                    break;
+                case ParserState::ESSENTIAL_TYPE:
+                    currentStatement->typecode=getSymbolID(word);
+                    parserState=ParserState::ESSENTIAL_SYMBOLS;
+                    break;
+                case ParserState::AXIOM_TYPE:
+                    currentStatement->typecode=getSymbolID(word);
+                    parserState=ParserState::AXIOM_SYMBOLS;
+                    break;
+                case ParserState::PROOF_TYPE:
+                    currentStatement->typecode=getSymbolID(word);
+                    parserState=ParserState::PROOF_SYMBOLS;
+                    break;
+                case ParserState::FLOATING_SYMBOLS:
+                    currentStatement->symbols.push_back(getSymbolID(word));
+                    break;
+                case ParserState::ESSENTIAL_SYMBOLS:
+                    currentStatement->symbols.push_back(getSymbolID(word));
+                    break;
+                case ParserState::AXIOM_SYMBOLS:
+                    currentStatement->symbols.push_back(getSymbolID(word));
+                    break;
+                case ParserState::PROOF_SYMBOLS:
+                    currentStatement->symbols.push_back(getSymbolID(word));
+                    break;
+                case ParserState::PROOF_PROOF:
+                    currentStatement->statements.push_back(getStatementID(word));
+                    break;
+            }
+            break;
+case TokenType::SNULL:     
 default:
             
             cerr<<"At line "<<line<<" File inclusion not implemented.";
