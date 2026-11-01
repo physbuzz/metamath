@@ -32,7 +32,7 @@ enum class TokenType {
     PROOF,      // $p
     END,        // $.
     EQUALS,     // $=
-    STATEMENT,  // HI BADCOP
+    TOKEN,  // HI BADCOP
     SNULL
 };
 
@@ -82,7 +82,7 @@ TokenType getTokenType(string arg){
                 return TokenType::SNULL;
         }
     }
-    return TokenType::STATEMENT;
+    return TokenType::TOKEN;
 }
 
 string toString(TokenType type) {
@@ -102,7 +102,7 @@ string toString(TokenType type) {
         case TokenType::PROOF:     return "PROOF";
         case TokenType::END:       return "END";
         case TokenType::EQUALS:    return "EQUALS";
-        case TokenType::STATEMENT: return "STATEMENT";
+        case TokenType::TOKEN: return "TOKEN";
         case TokenType::SNULL:     return "SNULL";
     }
     return "UNKNOWN";
@@ -189,260 +189,411 @@ struct Statement
     vector<StatementID> statements;
 };
 
-enum class ParserState {
+
+
+enum class CurrentParserState {
     NONE,    // not parsing a statement.
     VARIABLES, // Parsing a $v statement
     CONSTANTS, // Parsing a $c statement
-    FLOATING_TYPE, // Parsing a $f statement, expecting typecode
-    FLOATING_SYMBOLS, // Parsing a $f statement, expecting symbols
-    ESSENTIAL_TYPE, // Parsing a $e statement, expecting typecode
-    ESSENTIAL_SYMBOLS, // Parsing a $e statement, expecting symbols
-    AXIOM_TYPE, // Parsing a $a statement, expecting typecode
-    AXIOM_SYMBOLS, // Parsing a $a statement, expecting symbols
-    PROOF_TYPE, // Parsing a $p statement, expecting typecode
-    PROOF_SYMBOLS, // Parsing a $p statement, expecting symbols
-    PROOF_PROOF, // Parsing a $p statement, expecting proof
+    STATEMENT
 };
-class Metamath {
-    bool commentSkip;
+
+
+string toString(CurrentParserState state) {
+    switch (state) {
+        case CurrentParserState::NONE: return "NONE";
+        case CurrentParserState::VARIABLES: return "VARIABLES";
+        case CurrentParserState::CONSTANTS: return "CONSTANTS";
+        case CurrentParserState::STATEMENT: return "STATEMENT";
+    }
+    return "UNKNOWN";
+}
+
+enum class ParserStatementState {
+    TYPECODE, SYMBOLS, PROOF
+};
+
+struct ParserState {
     bool errorState;
-public:
+    bool commentSkip;
+    string currentLabel;
+    Statement currentStatement;
+
+    vector<SymbolID> symbolStack;
+    vector<int> symbolStackLevels;
+    vector<StatementID> statementStack;
+    vector<int> statementStackLevels;
+    CurrentParserState parserState;
+    StatementType currentStatementType;
+    ParserStatementState currentStatementState;
+};
+
+struct ProofDatabase {
     vector<Symbol> symbols;
     vector<Statement> statements;
 
-    ParserState parserState;
-    int blockDepth;
-    string currentLabel;
-    unique_ptr<Statement> currentStatement;
+    void printDatabase() {
+        cout<<" =============== "<<endl;
+        cout<<" === Symbols === "<<endl;
+        cout<<" =============== "<<endl;
+        for(size_t i=0;i<symbols.size();i++){
+            cout<<i<<": "<<symbols[i].label;
+            if(symbols[i].symbolType==SymbolType::CONSTANT)
+                cout<<" (constant)"<<endl;
+            else
+                cout<<" (variable)"<<endl;
+        }
+        cout<<endl;
+        cout<<" ================== "<<endl;
+        cout<<" === Statements === "<<endl;
+        cout<<" ================== "<<endl;
+        for(size_t i=0;i<statements.size();i++){
+            switch(statements[i].statementType){
+            case StatementType::FLOATING:
+                cout<<i<<": "<<statements[i].label
+                    <<" $f "<< statements[i].typecode<<" "<< statements[i].symbols.at(0)<<" $. (floating hypothesis)"<<endl;
+                break;
+            case StatementType::ESSENTIAL:
+                cout<<i<<": "<<statements[i].label
+                    <<" $e "<< statements[i].typecode<<" ";
+                for(size_t j=0;j<statements[i].symbols.size();j++){
+                    cout<<statements[i].symbols.at(j)<<" ";
+                }
+                cout<<"$. (essential hypothesis)"<<endl;
+                break;
+            case StatementType::AXIOM:
+                cout<<i<<": "<<statements[i].label
+                    <<" $a "<< statements[i].typecode<<" ";
+                for(size_t j=0;j<statements[i].symbols.size();j++){
+                    cout<<statements[i].symbols.at(j)<<" ";
+                }
+                cout<<"$. (axiom)"<<endl;
+                break;
+            case StatementType::PROOF:
+                cout<<i<<": "<<statements[i].label
+                    <<" $p "<< statements[i].typecode<<" ";
+                for(size_t j=0;j<statements[i].symbols.size();j++){
+                    cout<<statements[i].symbols.at(j)<<" ";
+                }
+                cout<<endl;
+                cout<<"$= ";
+                for(size_t j=0;j<statements[i].statements.size();j++){
+                    cout<<statements[i].statements.at(j)<<" ";
+                }
+                cout<< "$."<<endl;
+                break;
+            default:
+                break;
+            }
+        }
 
-    Metamath() : commentSkip(false), errorState(false), parserState(ParserState::NONE), blockDepth(0) {
+    }
+};
+
+class Metamath {
+public:
+    ProofDatabase pdb;
+    ParserState ps;
+
+    Metamath() : pdb(), ps() {
+        ps.parserState = CurrentParserState::NONE;
+        ps.statementStackLevels.push_back(0);
+        ps.symbolStackLevels.push_back(0);
+        ps.commentSkip=false;
+        ps.errorState = false;
     }
 
     void parseBegin() {
     }
 
     SymbolID getSymbolID(string label) {
-        for (size_t i = 0; i < symbols.size(); ++i) {
-            if (symbols[i].label == label) {
+        for (size_t i = 0; i < pdb.symbols.size(); ++i) {
+            if (pdb.symbols[i].label == label) {
                 return static_cast<SymbolID>(i);
             }
         }
         return -1;
     }
     StatementID getStatementID(string label) {
-        for (size_t i = 0; i < statements.size(); ++i) {
-            if (statements[i].label == label) {
+        for (size_t i = 0; i < pdb.statements.size(); ++i) {
+            if (pdb.statements[i].label == label) {
                 return static_cast<StatementID>(i);
             }
         }
         return -1;
     }
 
-    void parseWord(string word,int line){
-        //cout<<toString(getTokenType(word))<<"  "<<word<<"  line  "<<line<<endl;
-        if(errorState)
-            return;
-        auto stype=getTokenType(word);
-        if(commentSkip) {
-            if(stype==TokenType::CEND)
-                commentSkip=false;
+    void parserError(string message) {
+        cerr << "Error while parsing: "<<message<<endl;
+        ps.errorState = true;
+    }
+    void parserError(string message, int line, string token="") {
+        if(token.length()>0)
+            cerr << "Error at line " << line << " while parsing token \"" << token << "\": "
+                 << message << " Token: " << token << endl;
+        else
+            cerr << "Error at line " << line << " while parsing: "
+                 << message << endl;
+        ps.errorState = true;
+    }
+
+    void parseSwitchToStatement(StatementType stype, int line, string word) {
+        if(ps.parserState!=CurrentParserState::NONE){
+            parserError("Cannot be in state " + 
+                toString(ps.parserState)
+                + " while starting a statement.", line, word);
             return;
         }
-        switch(stype) {
+        if(ps.currentLabel==""){
+            parserError("Statement cannot have empty label.", line, word);
+            return;
+        }
+        ps.parserState=CurrentParserState::STATEMENT;
+        ps.currentStatement.label=ps.currentLabel;
+        ps.currentStatement.statementType=stype;
+        ps.currentLabel="";
+        ps.currentStatementType=stype;
+        ps.currentStatementState=ParserStatementState::TYPECODE;
+    }
+    int getConstantID(string word){
+        SymbolID ret=getSymbolID(word);
+        if(ret<0 || pdb.symbols[ret].symbolType!=SymbolType::CONSTANT)
+            return -1;
+        return ret;
+    }
+    void parseWord(string word,int line) {
+        //cout<<toString(getTokenType(word))<<"  "<<word<<"  line  "<<line<<endl;
+        if(ps.errorState)
+            return;
+
+        TokenType ttype=getTokenType(word);
+
+        if(ps.commentSkip) {
+            if(ttype==TokenType::CEND)
+                ps.commentSkip=false;
+            return;
+        }
+
+        switch(ttype) {
 case TokenType::CBEGIN: 
-            commentSkip=true;
+            ps.commentSkip=true;
             break;
 case TokenType::CEND: 
-            cerr<<"At line "<<line<<" comment end found outside of comment environment.";
-            errorState=true;
+            parserError("Comment end found outside of comment environment.", line, word);
             break;
 case TokenType::FBEGIN: 
-            cerr<<"At line "<<line<<" File inclusion not implemented.";
-            errorState=true;
+            parserError("File inclusion not implemented.", line, word);
             break;
 case TokenType::FEND:  
-            cerr<<"At line "<<line<<" File inclusion not implemented.";
-            errorState=true;
+            parserError("File inclusion not implemented.", line, word);
             break;
 case TokenType::BBEGIN: 
-            blockDepth++;
+            if(ps.currentLabel!="") {
+                parserError("Blocks cannot be labeled.", line, word);
+                break;
+            }
+            if(ps.parserState!=CurrentParserState::NONE){
+                parserError("Cannot be in state " + 
+                    toString(ps.parserState)
+                    + " while entering block.", line, word);
+                break;
+            }
+            ps.symbolStackLevels.push_back(ps.symbolStackLevels.back());
+            ps.statementStackLevels.push_back(ps.statementStackLevels.back());
             break;
 case TokenType::BEND:  
-            if(blockDepth==0){
-                cerr<<"At line "<<line<<" Block end found outside of block environment.";
-                errorState=true;
-            } else {
-                blockDepth--;
+            if(ps.currentLabel!="") {
+                parserError("Ending block statement cannot be labeled.", line, word);
+                break;
+            }
+            if(ps.parserState!=CurrentParserState::NONE){
+                parserError("Cannot be in state " + 
+                    toString(ps.parserState)
+                    + " while ending block.", line, word);
+                break;
+            }
+            if(ps.symbolStackLevels.size()==1){
+                parserError("Cannot end block when not in a block.", line, word);
+                break;
+            }
+            {
+                int sysl = ps.symbolStackLevels.back();
+                ps.symbolStackLevels.pop_back();
+                ps.symbolStack.resize(sysl);
+                int stsl = ps.statementStackLevels.back();
+                ps.statementStackLevels.pop_back();
+                ps.statementStack.resize(stsl);
             }
             break;
 case TokenType::CONSTANT:  
-            if(parserState!=ParserState::NONE){
-                cerr<<"At line "<<line<<" Constant statement found while parsing another statement.";
-                errorState=true;
-            } else {
-                parserState=ParserState::CONSTANTS;
+            if(ps.currentLabel!="") {
+                parserError("Constant Statement cannot have a label.", line, word);
+                break;
             }
+            if(ps.parserState!=CurrentParserState::NONE){
+                parserError("Cannot be in state " + 
+                    toString(ps.parserState)
+                    + " while starting a constant.", line, word);
+                break;
+            }
+            ps.parserState=CurrentParserState::CONSTANTS;
             break;
 case TokenType::VARIABLE:  
-            if(parserState!=ParserState::NONE){
-                cerr<<"At line "<<line<<" Variable statement found while parsing another statement.";
-                errorState=true;
-            } else {
-                parserState=ParserState::VARIABLES;
-            }
-            break;
-case TokenType::FLOATING: 
-            if(parserState!=ParserState::NONE){
-                cerr<<"At line "<<line<<" Floating statement found while parsing another statement.";
-                errorState=true;
-                break;
-            } 
-            if(currentLabel.length()==0){
-                cerr<<"At line "<<line<<" Floating statement found without a label.";
-                errorState=true;
-                break;
-            } 
-            currentStatement=make_unique<Statement>();
-            currentStatement->label=currentLabel;
-            currentStatement->statementType=StatementType::FLOATING;
-            currentLabel="";
-            parserState=ParserState::FLOATING_TYPE;
-            break;
-case TokenType::ESSENTIAL:
-            if (parserState != ParserState::NONE) {
-                cerr << "At line " << line << " Essential statement found while parsing another statement.";
-                errorState = true;
+            if(ps.currentLabel!="") {
+                parserError("Variable Statement cannot have a label.", line, word);
                 break;
             }
-            if (currentLabel.length() == 0){
-                cerr << "At line " << line << " Essential statement found without a label.";
-                errorState = true;
+            if(ps.parserState!=CurrentParserState::NONE){
+                parserError("Cannot be in state " + 
+                    toString(ps.parserState)
+                    + " while starting a variable.", line, word);
                 break;
             }
-            currentStatement = make_unique<Statement>();
-            currentStatement->label = currentLabel;
-            currentLabel = "";
-            parserState = ParserState::ESSENTIAL_TYPE;
+            ps.parserState=CurrentParserState::VARIABLES;
             break;
 case TokenType::DISJOINT:  
-            cerr<<"At line "<<line<<" Disjoint statement found. Not implemented.";
-            errorState=true;
+            parserError("Disjoint variables not implemented.", line, word);
+            break;
+case TokenType::FLOATING: 
+            parseSwitchToStatement(StatementType::FLOATING, line, word);
+            break;
+case TokenType::ESSENTIAL:
+            parseSwitchToStatement(StatementType::ESSENTIAL, line, word);
             break;
 case TokenType::AXIOM:     
-            if (parserState != ParserState::NONE) {
-                cerr << "At line " << line << " Axiom statement found while parsing another statement.";
-                errorState = true;
-                break;
-            }
-            if (currentLabel.length() == 0){
-                cerr << "At line " << line << " Axiom statement found without a label.";
-                errorState = true;
-                break;
-            }
-            currentStatement = make_unique<Statement>();
-            currentStatement->label = currentLabel;
-            currentLabel = "";
-            parserState = ParserState::AXIOM_TYPE;
+            parseSwitchToStatement(StatementType::AXIOM, line, word);
             break;
 case TokenType::PROOF:     
-            if (parserState != ParserState::NONE) {
-                cerr << "At line " << line << " Proof statement found while parsing another statement.";
-                errorState = true;
-                break;
-            }
-            if (currentLabel.length() == 0){
-                cerr << "At line " << line << " Proof statement found without a label.";
-                errorState = true;
-                break;
-            }
-            currentStatement = make_unique<Statement>();
-            currentStatement->label = currentLabel;
-            currentLabel = "";
-            parserState = ParserState::PROOF_TYPE;
+            parseSwitchToStatement(StatementType::PROOF, line, word);
             break;
 case TokenType::END:       
-            if(parserState==ParserState::NONE){
-                cerr<<"At line "<<line<<" $. statement found while not parsing a statement.";
-                errorState=true;
+            if(ps.parserState==CurrentParserState::NONE){
+                parserError("End statement found while not parsing a statement.", line, word);
                 break;
             }
-            switch(parserState){
-                case ParserState::VARIABLES:
-                case ParserState::CONSTANTS:
+            switch(ps.parserState){
+                case CurrentParserState::VARIABLES:
+                case CurrentParserState::CONSTANTS:
                     break;
-                case ParserState::FLOATING_SYMBOLS:
-                case ParserState::ESSENTIAL_SYMBOLS:
-                case ParserState::AXIOM_SYMBOLS:
-                case ParserState::PROOF_PROOF:
-                    statements.push_back(*currentStatement);
-                    currentStatement.reset();
+                case CurrentParserState::STATEMENT:
+                    //Pretty sure I don't want to change
+                    // ps.curentStatementState and ps.currentStatementType,
+                    // but might want to do in the future. (Add a NULL enum for example)
+                    pdb.statements.push_back(ps.currentStatement);
+                    ps.currentStatement=Statement();
+                    ps.statementStackLevels.back()+=1;
                     break;
                 default:
-                    cerr<<"At line "<<line<<" $. statement found while parsing a statement, but not at the end of a statement.";
-                    errorState=true;
                     break;
             }
-            parserState=ParserState::NONE;
+            ps.parserState=CurrentParserState::NONE;
             break;
 case TokenType::EQUALS:    
-            if(parserState!=ParserState::PROOF_SYMBOLS){
-                cerr<<"At line "<<line<<" $= statement found while not parsing a proof statement.";
-                cerr<<"This guy: "<<word<<".";
-                errorState=true;
+            if(ps.parserState!=CurrentParserState::STATEMENT){
+                parserError("Symbol must occur inside a proof statement", line, word);
                 break;
             }
-            parserState=ParserState::PROOF_PROOF;
+            if(ps.currentStatementType!=StatementType::PROOF){
+                parserError("Symbol must occur inside a proof statement", line, word);
+                break;
+            }
+            if(ps.currentStatementState!=ParserStatementState::SYMBOLS){
+                parserError("Typecode missing inside proof statement.", line, word);
+                break;
+            }
+            ps.currentStatementState=ParserStatementState::PROOF;
             break;
-case TokenType::STATEMENT: 
-            switch(parserState){
-                case ParserState::NONE:
-                    if(currentLabel.length()!=0){
-                        cerr<<"At line "<<line<<" Label "<<word
-                        <<" found while label "<<currentLabel<<" is still active.";
-                        errorState=true;
-                        break;
+case TokenType::TOKEN: 
+            /*
+            We could be in ps.parserState===NONE, in which case the token
+            should be interpreted as a label.
+            
+            We could be in ps.parserState==VARIABLE or CONSTANT, in which case
+            we push the appropriate active variables. Checking for CONSTANT
+            only at top level should be done earlier.
+
+            We could be in ps.parserState==STATEMENT, in which case we've gotta
+            switch on ps.currentStatementState and ps.currentStatementType to
+            handle filling in the appropriate expression.
+            */
+            switch(ps.parserState){
+            case CurrentParserState::NONE:
+                if(ps.currentLabel!="") {
+                    parserError("Double label encountered.", line, word);
+                    break;
+                }
+                ps.currentLabel=word;
+                break;
+            case CurrentParserState::VARIABLES:
+                if(getSymbolID(word)!=-1){
+                    parserError("Variable "+word+" already defined.", line, word);
+                    break;
+                }
+                if(getStatementID(word)!=-1){
+                    parserError("Trying to declare variable, but Statement "+word+" already defined.", line, word);
+                    break;
+                }
+                pdb.symbols.push_back(Symbol{word, SymbolType::VARIABLE});
+                ps.symbolStack.push_back(pdb.symbols.size()-1);
+                ps.symbolStackLevels.back()+=1;
+                break;
+            case CurrentParserState::CONSTANTS:
+                if(getSymbolID(word)!=-1){
+                    parserError("Constant "+word+" already defined.", line, word);
+                    break;
+                }
+                if(getStatementID(word)!=-1){
+                    parserError("Trying to declare constant, but Statement "+word+" already defined.", line, word);
+                    break;
+                }
+                pdb.symbols.push_back(Symbol{word, SymbolType::CONSTANT});
+                ps.symbolStack.push_back(pdb.symbols.size()-1);
+                ps.symbolStackLevels.back()+=1;
+                break;
+            case CurrentParserState::STATEMENT:
+                switch(ps.currentStatementState){
+                case ParserStatementState::TYPECODE:
+                    {
+                        SymbolID typecode = getConstantID(word);
+                        if (typecode == -1)
+                        {
+                            parserError("Typecode " + word + " not defined as a constant.", line, word);
+                            break;
+                        }
+                        ps.currentStatement.typecode = typecode;
+                        ps.currentStatementState = ParserStatementState::SYMBOLS;
                     }
-                    currentLabel=word;
                     break;
-                case ParserState::VARIABLES:
-                    // TODO: check label doesn't exist
-                    symbols.push_back({word,SymbolType::VARIABLE});
+                case ParserStatementState::SYMBOLS:
+                    {
+                        SymbolID id = getSymbolID(word);
+                        if(id==-1){
+                            parserError("Symbol "+word+" not defined.", line, word);
+                            break;
+                        }
+                        if(ps.currentStatementType==StatementType::FLOATING && ps.currentStatement.symbols.size()>=1){
+                            parserError("Floating hypothesis can only have one symbol.", line, word);
+                            break;
+                        }
+                        ps.currentStatement.symbols.push_back(id);
+                    }
                     break;
-                case ParserState::CONSTANTS:
-                    // TODO: check label doesn't exist
-                    symbols.push_back({word,SymbolType::CONSTANT});
+                case ParserStatementState::PROOF:   
+                    {
+                        StatementID sid = getStatementID(word);
+                        if(sid==-1){
+                            parserError("Statement "+word+" not defined.", line, word);
+                            break;
+                        }
+                        ps.currentStatement.statements.push_back(sid);
+                    }
                     break;
-                case ParserState::FLOATING_TYPE:
-                    currentStatement->typecode=getSymbolID(word);
-                    parserState=ParserState::FLOATING_SYMBOLS;
+                default:
                     break;
-                case ParserState::ESSENTIAL_TYPE:
-                    currentStatement->typecode=getSymbolID(word);
-                    parserState=ParserState::ESSENTIAL_SYMBOLS;
-                    break;
-                case ParserState::AXIOM_TYPE:
-                    currentStatement->typecode=getSymbolID(word);
-                    parserState=ParserState::AXIOM_SYMBOLS;
-                    break;
-                case ParserState::PROOF_TYPE:
-                    currentStatement->typecode=getSymbolID(word);
-                    parserState=ParserState::PROOF_SYMBOLS;
-                    break;
-                case ParserState::FLOATING_SYMBOLS:
-                    currentStatement->symbols.push_back(getSymbolID(word));
-                    break;
-                case ParserState::ESSENTIAL_SYMBOLS:
-                    currentStatement->symbols.push_back(getSymbolID(word));
-                    break;
-                case ParserState::AXIOM_SYMBOLS:
-                    currentStatement->symbols.push_back(getSymbolID(word));
-                    break;
-                case ParserState::PROOF_SYMBOLS:
-                    currentStatement->symbols.push_back(getSymbolID(word));
-                    break;
-                case ParserState::PROOF_PROOF:
-                    currentStatement->statements.push_back(getStatementID(word));
-                    break;
+                }
+                break;
+            default:
+                break;
             }
             break;
 case TokenType::SNULL:     
@@ -475,12 +626,12 @@ int main(int argc, char** argv){
     Metamath mm;
     while(file.get(c)){
         if(isWhitespace(c)){
-            if(c=='\r'||c=='\n'){
-                line++;
-            }
             if(ts==TokenizerState::ACCUMULATING){
                 ts=TokenizerState::WHITESPACE;
                 mm.parseWord(identifier,line);
+            }
+            if(c=='\r'||c=='\n'){
+                line++;
             }
         } else if(isValidChar(c)) {
             if(ts==TokenizerState::WHITESPACE){
@@ -498,6 +649,8 @@ int main(int argc, char** argv){
         mm.parseWord(identifier,line);
     } 
     cout<<endl;
+
+    mm.pdb.printDatabase();
     return 0;
 }
 

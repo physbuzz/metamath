@@ -1,6 +1,9 @@
     
 $( Declare the constant symbols we will use $)
     $c 0 + = -> ( ) term wff |- $.
+
+
+
 $( Declare the metavariables we will use $)
     $v t r s P Q $.
 $( Specify properties of the metavariables $)
@@ -24,6 +27,13 @@ $( Define the modus ponens inference rule $)
         mp $a |- Q $.
     $}
 $( Prove a theorem $)
+    th1 $p |- t = t $=
+    $( Here is its proof: $)
+        tt tze tpl tt weq tt tt weq tt a2 tt tze tpl
+        tt weq tt tze tpl tt weq tt tt weq wim tt a2
+        tt tze tpl tt tt a1 mp mp
+    $.
+
     th1 $p |- t = t $=
     $( Here is its proof: $)
         tt tze tpl tt weq tt tt weq tt a2 tt tze tpl

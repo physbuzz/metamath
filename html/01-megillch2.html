@@ -115,11 +115,12 @@
 <p>Notes while trying to understand the metamath proof in ch2:</p>
 <ul>
 <li><code>tze $a term 0 $.</code> This is an axiomatic hypothesis, as opposed to the floating hypotheses earlier. The floating hypotheses were not "axioms" because they refer to metavariables. But 0 is an actual term of the language (?) so we need an actual axiom.</li>
-<li><code>tpl $a term ( t + r ) $.</code> Here even though the concept of parentheses aren't in the language, can I come up with an example where the addition of parentheses changes the way in which expression parsing occurs? </li>
-<li>"$a is a constant followed by arbitrary seq of math symbols" -- The definition is this simple, no tricks. But it's not devoid of structure. I guess that structure is the consistency checks on popping from the stack and substituting all of the mandatory hypotheses?</li>
-<li>In the statement <code>tpl $a term ( t + r ) $.</code> constants <code>( + )</code> don't need any hypotheses. <code>t</code> and <code>r</code> need hypotheses because they are metavariables. This is satisfied by the hypotheses <code>$f term t $.</code> and <code>$f term r $.</code></li>
+<li><code>tpl $a term ( t + r ) $.</code> Here parentheses are just constants, not actual metamath syntax. though the concept of parentheses aren't in the language, can I come up with an example where the addition of parentheses changes the way in which expression parsing occurs? </li>
+<li>"$a is a constant followed by arbitrary seq of math symbols" -- The definition is simple, no tricks. I don't think there is any invalid axiom we can write by this definition. (Later when we introduce the <code>$d</code> symbol maybe? Unsure if this puts constraints on the axiom itself, or simply on what is allowed to be substited in for the mandatory hypotheses of an axiom.) </li>
+<li>In the statement <code>tpl $a term ( t + r ) $.</code> constants <code>( + )</code> don't need any hypotheses. <code>t</code> and <code>r</code> need hypotheses because they are metavariables. These are satisfied by the hypotheses <code>$f term t $.</code> and <code>$f term r $.</code></li>
+<li>Metamath's <code>show</code> command can show you a statement's mandatory hypotheses, very useful for just
+starting out when I've been unsure of what a statement's mhs are.</li>
 </ul>
-<p>Metamath's show statement command can show you a statement's mandatory hypotheses.</p>
 <h2 id="running-the-ch2-example">Running the ch2 example</h2>
 <div class="code-box inline-source"><details class="collapsible-code"><summary class="code-summary"><span>mm source</span><span class="expand-hint">(click to expand)</span></summary><div class="codehilite" data-language="metamath"><pre><code><span class="cm">$( Declare the constant symbols we will use $)</span>
 <span class="w">    </span><span class="k">$c</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="n">+</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="p">$.</span>
@@ -206,6 +207,10 @@ wff t = t
 
 <p>QED!</p>
 <h2 id="23">2.3</h2>
+<p>Especially useful stuff in the interactive CLI:
+- <code>prove theorem1</code> -&gt; <code>delete all</code> to practice.
+- <code>assign 1 mp</code> -&gt; Assign proof line 1 to the hypothesis mp.
+- <code>improve all</code> -&gt; used in ch2 for, when the "proof structure" is complete, there's still a lot of statements to fill, so <code>improve</code> can automatically construct those statements.</p>
 <h2 id="quiz-questions">Quiz Questions</h2>
 <h3 id="q">Q</h3>
 <p>In Metamath, what does a typecode refer to?</p>
@@ -228,12 +233,6 @@ wff t = t
 ...</p>
 <h3 id="q-5">Q</h3>
 <p>In Metamath, what does the symbol <code>$e</code> mean, and how is it used?</p>
-<ul>
-<li><code>$e</code> -- Essential hypothesis. ("logical hypothesis")</li>
-<li><code>$f</code> -- Floating Hypothesis. ("variable type hypothesis") Must contain a constant followed by a variable.</li>
-<li><code>$a</code> -- Axiomatic assertion. Constant followed by arbitrarily many math symbols.</li>
-<li><code>$p</code> -- Provable assertion. Constant followed by arbitrarily many math symbols.</li>
-</ul>
     </article>
   </main>
   <script>
