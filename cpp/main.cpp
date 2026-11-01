@@ -348,6 +348,16 @@ public:
             parserError("Statement cannot have empty label.", line, word);
             return;
         }
+        if(getStatementID(ps.currentLabel)!=-1){
+            parserError("Statement "+ps.currentLabel+" already defined.", line, word);
+            return;
+        }
+        if(getSymbolID(ps.currentLabel)!=-1){
+            parserError("Statement "+ps.currentLabel+" already defined as a symbol.", line, word);
+            return;
+        }
+
+
         ps.parserState=CurrentParserState::STATEMENT;
         ps.currentStatement.label=ps.currentLabel;
         ps.currentStatement.statementType=stype;
