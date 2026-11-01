@@ -30,10 +30,3 @@ $( Prove a theorem $)
         tt weq tt tze tpl tt weq tt tt weq wim tt a2
         tt tze tpl tt tt a1 mp mp
     $.
-
-    th1 $p |- t = t $=
-    $( Here is its proof: $)
-        tt tze tpl tt weq tt tt weq tt a2 tt tze tpl
-        tt weq tt tze tpl tt weq tt tt weq wim tt a2
-        tt tze tpl tt tt a1 mp mp
-    $.

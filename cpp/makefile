@@ -3,6 +3,8 @@ CXX = g++
 
 CXXARGS = -g
 
+.PHONY: all main run
+
 all: main run
 
 main: main.cpp

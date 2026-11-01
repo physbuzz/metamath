@@ -5,11 +5,11 @@
 #include <cctype>
 #include <vector>
 #include <memory>
+#include <algorithm>
+#include <set>
 
 
 using namespace std;
-
-#define MAX_CHAR 256
 
 void help(){
     cout<<"Here is where I'd put a help file...\rIF I HAD ONE!!!"<<endl;
@@ -187,6 +187,7 @@ struct Statement
     // Index into statement list.
     // "Every variable appearing in `statements` must have an active hypothesis
     vector<StatementID> statements;
+    vector<StatementID> mandatory;
 };
 
 
@@ -322,6 +323,37 @@ public:
         }
         return -1;
     }
+    // Get the statement that introduces the symbol with the given ID. 
+    StatementID getActiveStatementForSymbol(SymbolID id) {
+        // This gets the statement, but not the active statement
+        for(int i=0;i<ps.statementStack.size();i++){
+            StatementID sid=ps.statementStack[i];
+            const Statement &s=pdb.statements[sid];
+            if(s.statementType==StatementType::FLOATING &&
+                s.symbols.at(0)==id){
+                return sid;
+            }
+        }
+        return -1;
+    }
+
+
+    bool isSymbolActive(SymbolID id) {
+        for (size_t i = 0; i < ps.symbolStack.size(); ++i) {
+            if (ps.symbolStack[i] == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+    bool isStatementActive(StatementID id) {
+        for (size_t i = 0; i < ps.statementStack.size(); ++i) {
+            if (ps.statementStack[i] == id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     void parserError(string message) {
         cerr << "Error while parsing: "<<message<<endl;
@@ -335,6 +367,112 @@ public:
             cerr << "Error at line " << line << " while parsing: "
                  << message << endl;
         ps.errorState = true;
+    }
+    void getStatementsMandatorySet(std::set<StatementID> &mandatorySet, 
+                const Statement &statement,
+                int line, string token) {
+        for (int i = 0; i < statement.symbols.size(); i++) {
+            SymbolID id = statement.symbols[i];
+            // check if it's a constant
+            if (pdb.symbols[id].symbolType == SymbolType::CONSTANT)
+                continue;
+            // Look up the statement id:
+            StatementID stat = getActiveStatementForSymbol(id);
+            if (stat < 0) {
+                cerr << "Error while parsing: SymbolID=" << id
+                     << ", symbol " << pdb.symbols[id].label
+                     << " has no active floating hypothesis." << endl;
+                cerr << "while parsing line " << line << ", token " << token << endl;
+                ps.errorState = true;
+                return;
+            }
+            mandatorySet.insert(stat);
+        }
+    }
+
+    void pushStatement(int line, string token) {
+        // Check the constraints I mentioned
+        // For $f, require symbols.length()==1 and statements.length()==0.
+        // For $e, require symbols.length()>=1 and statements.length()==0.
+        // For $a, require symbols.length()>=1 and statements.length()==0.
+        // For $p, require symbols.length()>=1 and statements.length()>=1.
+        switch(ps.currentStatementType){
+            case StatementType::FLOATING:
+                if(ps.currentStatement.symbols.size()!=1){
+                    parserError("Floating hypothesis must have exactly one symbol.", line, token);
+                    return;
+                }
+                if(ps.currentStatement.statements.size()!=0){
+                    parserError("Floating hypothesis cannot have statements.", line, token );
+                    return;
+                }
+                break;
+            case StatementType::ESSENTIAL:
+                if(ps.currentStatement.symbols.size()<1){
+                    parserError("Essential hypothesis must have at least one symbol.", line, token);
+                    return;
+                }
+                if(ps.currentStatement.statements.size()!=0){
+                    parserError("Essential hypothesis cannot have statements.", line, token);
+                    return;
+                }
+                break;
+            case StatementType::AXIOM:
+                if(ps.currentStatement.symbols.size()<1){
+                    parserError("Axiom must have at least one symbol.", line, token);
+                    return;
+                }
+                if(ps.currentStatement.statements.size()!=0){
+                    parserError("Axiom must have zero statements.", line, token);
+                    return;
+                }
+                break;
+            case StatementType::PROOF:
+                if(ps.currentStatement.symbols.size()<1){
+                    parserError("Proof must have at least one symbol.", line, token);
+                    return;
+                }
+                if(ps.currentStatement.statements.size()<1){
+                    parserError("Proof must have at least one statement.", line, token);
+                    return;
+                }
+                break;
+            default:
+                parserError("Unknown statement type.");
+                return;
+        }
+        /* To find the mandatory hypotheses, it's a lil convoluted, 
+        we'll do it in a slow O(N^2) way. Step 1 is to go up the list of active 
+        hypotheses and collect all essential hypotheses in a set, while parsing 
+        them. For any variable in an essential hypothesis, or variable in the 
+        symbols list of the statement itself, we find the floating hypothesis t
+        hat defines that variable, and add it to the list of mandatory 
+        hypotheses. Finally, we do a second pass up the list of active 
+        hypotheses (iterate from 0), and push anything in our set to the 
+        list of mandatory hypotheses.*/
+        if(ps.currentStatement.statementType!=StatementType::FLOATING){
+            std::set<StatementID> mandatorySet;
+            getStatementsMandatorySet(mandatorySet, ps.currentStatement,
+                 line, token);
+            for(int i=0;i<ps.statementStack.size();i++) {
+                StatementID id=ps.statementStack[i];
+                Statement &s=pdb.statements.at(id);
+                if(s.statementType!=StatementType::ESSENTIAL)
+                    continue;
+                mandatorySet.insert(id);
+                getStatementsMandatorySet(mandatorySet, s, line, token);
+            }
+            for(int i=0;i<ps.statementStack.size();i++) {
+                StatementID id=ps.statementStack[i];
+                if(mandatorySet.count(id)>0)
+                    ps.currentStatement.mandatory.push_back(id);
+            }
+        }
+        //Finally, push.
+        pdb.statements.push_back(ps.currentStatement);
+        ps.currentStatement=Statement();
+        ps.statementStack.push_back(pdb.statements.size()-1);
+        ps.statementStackLevels.back()+=1;
     }
 
     void parseSwitchToStatement(StatementType stype, int line, string word) {
@@ -356,8 +494,6 @@ public:
             parserError("Statement "+ps.currentLabel+" already defined as a symbol.", line, word);
             return;
         }
-
-
         ps.parserState=CurrentParserState::STATEMENT;
         ps.currentStatement.label=ps.currentLabel;
         ps.currentStatement.statementType=stype;
@@ -383,7 +519,6 @@ public:
                 ps.commentSkip=false;
             return;
         }
-
         switch(ttype) {
 case TokenType::CBEGIN: 
             ps.commentSkip=true;
@@ -489,9 +624,11 @@ case TokenType::END:
                     //Pretty sure I don't want to change
                     // ps.curentStatementState and ps.currentStatementType,
                     // but might want to do in the future. (Add a NULL enum for example)
-                    pdb.statements.push_back(ps.currentStatement);
-                    ps.currentStatement=Statement();
-                    ps.statementStackLevels.back()+=1;
+                    pushStatement(line,word);
+                    // pdb.statements.push_back(ps.currentStatement);
+                    // ps.currentStatement=Statement();
+                    // ps.statementStack.push_back(pdb.statements.size()-1);
+                    // ps.statementStackLevels.back()+=1;
                     break;
                 default:
                     break;
@@ -585,6 +722,10 @@ case TokenType::TOKEN:
                             parserError("Floating hypothesis can only have one symbol.", line, word);
                             break;
                         }
+                        if(!isSymbolActive(id)){
+                            parserError("Symbol "+word+" not active.", line, word);
+                            break;
+                        }
                         ps.currentStatement.symbols.push_back(id);
                     }
                     break;
@@ -593,6 +734,10 @@ case TokenType::TOKEN:
                         StatementID sid = getStatementID(word);
                         if(sid==-1){
                             parserError("Statement "+word+" not defined.", line, word);
+                            break;
+                        }
+                        if(!isStatementActive(sid)){
+                            parserError("Statement "+word+" not active.", line, word);
                             break;
                         }
                         ps.currentStatement.statements.push_back(sid);
