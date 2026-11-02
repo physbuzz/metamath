@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <set>
 
-
 using namespace std;
 
 void help(){
@@ -35,6 +34,9 @@ enum class TokenType {
     TOKEN,  // HI BADCOP
     SNULL
 };
+
+// Token types correspond to
+// `$( $) $[ $] ${ $} $c $v $f $e $d $a $p $. $=`
 
 TokenType getTokenType(string arg){
     if(arg.length()==0){
@@ -111,6 +113,7 @@ string toString(TokenType type) {
 // Note, these only metamath's labeled statement types.
 enum class StatementType {
     FLOATING,
+    FLOATING_REDECLARE,
     ESSENTIAL,
     AXIOM,
     PROOF
@@ -180,7 +183,7 @@ struct Statement
 
     // For $f, require symbols.length()==1 and statements.length()==0.
     // For $e, require symbols.length()>=1 and statements.length()==0.
-    // For $a, require symbols.length()>=1 and statements.length()>=1.
+    // For $a, require symbols.length()>=1 and statements.length()==0.
     // For $p, require symbols.length()>=1 and statements.length()>=1.
     // List of symbols. For example, `t r s ( )`
     vector<SymbolID> symbols;
@@ -287,7 +290,6 @@ struct ProofDatabase {
                 break;
             }
         }
-
     }
 };
 
@@ -307,6 +309,21 @@ public:
     void parseBegin() {
     }
 
+    bool symbolIDIsActive(SymbolID arg) {
+        for(int i=0; i<ps.symbolStack.size(); i++) {
+            if(arg==ps.symbolStack[i])
+                return true;
+        }
+        return false;
+    }
+    bool statementIDIsActive(StatementID arg) {
+        for(int i=0; i<ps.statementStack.size(); i++) {
+            if(arg==ps.statementStack[i])
+                return true;
+        }
+        return false;
+    }
+        
     SymbolID getSymbolID(string label) {
         for (size_t i = 0; i < pdb.symbols.size(); ++i) {
             if (pdb.symbols[i].label == label) {
@@ -324,7 +341,7 @@ public:
         return -1;
     }
     // Get the statement that introduces the symbol with the given ID. 
-    StatementID getActiveStatementForSymbol(SymbolID id) {
+    StatementID getActiveFloatingForSymbol(SymbolID id) {
         // This gets the statement, but not the active statement
         for(int i=0;i<ps.statementStack.size();i++){
             StatementID sid=ps.statementStack[i];
@@ -347,6 +364,10 @@ public:
         return false;
     }
     bool isStatementActive(StatementID id) {
+        // TODO double check the following
+        if(pdb.statements.at(id).statementType==StatementType::AXIOM ||
+              pdb.statements.at(id).statementType==StatementType::PROOF)
+                return true;
         for (size_t i = 0; i < ps.statementStack.size(); ++i) {
             if (ps.statementStack[i] == id) {
                 return true;
@@ -377,7 +398,7 @@ public:
             if (pdb.symbols[id].symbolType == SymbolType::CONSTANT)
                 continue;
             // Look up the statement id:
-            StatementID stat = getActiveStatementForSymbol(id);
+            StatementID stat = getActiveFloatingForSymbol(id);
             if (stat < 0) {
                 cerr << "Error while parsing: SymbolID=" << id
                      << ", symbol " << pdb.symbols[id].label
@@ -398,6 +419,7 @@ public:
         // For $p, require symbols.length()>=1 and statements.length()>=1.
         switch(ps.currentStatementType){
             case StatementType::FLOATING:
+            case StatementType::FLOATING_REDECLARE:
                 if(ps.currentStatement.symbols.size()!=1){
                     parserError("Floating hypothesis must have exactly one symbol.", line, token);
                     return;
@@ -449,8 +471,15 @@ public:
         hat defines that variable, and add it to the list of mandatory 
         hypotheses. Finally, we do a second pass up the list of active 
         hypotheses (iterate from 0), and push anything in our set to the 
-        list of mandatory hypotheses.*/
-        if(ps.currentStatement.statementType!=StatementType::FLOATING){
+        list of mandatory hypotheses.
+
+        Mandatory hypotheses only need to be computed for assertions, that is,
+        for $a and $p statements. For $f and $e statements, `statment.mandatory` should
+        be empty. 
+        */
+        if(ps.currentStatement.statementType!=StatementType::FLOATING 
+           && ps.currentStatement.statementType!=StatementType::FLOATING_REDECLARE
+           && ps.currentStatement.statementType!=StatementType::ESSENTIAL){
             std::set<StatementID> mandatorySet;
             getStatementsMandatorySet(mandatorySet, ps.currentStatement,
                  line, token);
@@ -468,11 +497,45 @@ public:
                     ps.currentStatement.mandatory.push_back(id);
             }
         }
-        //Finally, push.
-        pdb.statements.push_back(ps.currentStatement);
-        ps.currentStatement=Statement();
-        ps.statementStack.push_back(pdb.statements.size()-1);
-        ps.statementStackLevels.back()+=1;
+        
+        if(ps.currentStatement.statementType==StatementType::FLOATING_REDECLARE){
+
+            //First, check that tag and var match with old symbol.
+            StatementID sid = getStatementID(ps.currentLabel);
+            if(sid==-1){
+                cerr<<"What that shouldn't be possible lol."<<endl;
+                return;
+            }
+            Statement &s = pdb.statements.at(sid);
+            if(ps.currentStatement.label!=s.label){
+                parserError("Floating hypothesis label mismatch with old statement.", line, token);
+                return;
+            }
+            if(ps.currentStatement.symbols.at(0)!=s.symbols.at(0)){
+                parserError("Floating hypothesis symbol mismatch with old statement.", line, token);
+                return;
+            }
+            // no need to push to pdb.
+            ps.statementStack.push_back(sid);
+            ps.statementStackLevels.back()+=1;
+            ps.currentStatement=Statement();
+        } else {
+            //Finally, push.
+            if(ps.errorState) {
+                cerr<<"GOTCHA!!!!!!"<<endl;
+                return;
+            }
+            if(ps.currentStatement.statementType == StatementType::FLOATING){
+                //Extra check to make sure we don't redeclare a symbol
+                StatementID sid = getActiveFloatingForSymbol(ps.currentStatement.symbols.at(0));
+
+            }
+
+            pdb.statements.push_back(ps.currentStatement);
+            ps.currentStatement=Statement();
+            ps.statementStack.push_back(pdb.statements.size()-1);
+            ps.statementStackLevels.back()+=1;
+        }
     }
 
     void parseSwitchToStatement(StatementType stype, int line, string word) {
@@ -486,13 +549,31 @@ public:
             parserError("Statement cannot have empty label.", line, word);
             return;
         }
-        if(getStatementID(ps.currentLabel)!=-1){
-            parserError("Statement "+ps.currentLabel+" already defined.", line, word);
+        if(getSymbolID(ps.currentLabel)!=-1){
+            parserError("Statement " + ps.currentLabel + " already defined as a symbol.", line, word);
             return;
         }
-        if(getSymbolID(ps.currentLabel)!=-1){
-            parserError("Statement "+ps.currentLabel+" already defined as a symbol.", line, word);
-            return;
+        StatementID statementIDLookup=getStatementID(ps.currentLabel);
+        if(statementIDLookup!=-1){
+            if(stype==StatementType::FLOATING){
+                /*
+                Most statements are not allowed to be redeclared, but floating hypotheses are.
+                We look up the statement and check if it's active. If it is not active, we can
+                redeclare it. However, once we're done parsing the statement (we reach $.) 
+                we need to push the index of the old statement (and ensure that it matches exactly).
+                Since this is done later,
+                we need to signal that we're in this special case by assigning 
+                stype=StatementType::FLOATING_REDECLARE
+                */
+                if(statementIDIsActive(statementIDLookup)){
+                    parserError("Statement " + ps.currentLabel + " already defined.", line, word);
+                    return;
+                }
+                stype=StatementType::FLOATING_REDECLARE;
+            } else {
+                parserError("Statement " + ps.currentLabel + " already defined.", line, word);
+                return;
+            }
         }
         ps.parserState=CurrentParserState::STATEMENT;
         ps.currentStatement.label=ps.currentLabel;
@@ -562,11 +643,12 @@ case TokenType::BEND:
                 break;
             }
             {
-                int sysl = ps.symbolStackLevels.back();
                 ps.symbolStackLevels.pop_back();
+                int sysl = ps.symbolStackLevels.back();
                 ps.symbolStack.resize(sysl);
-                int stsl = ps.statementStackLevels.back();
+
                 ps.statementStackLevels.pop_back();
+                int stsl = ps.statementStackLevels.back();
                 ps.statementStack.resize(stsl);
             }
             break;
@@ -718,7 +800,9 @@ case TokenType::TOKEN:
                             parserError("Symbol "+word+" not defined.", line, word);
                             break;
                         }
-                        if(ps.currentStatementType==StatementType::FLOATING && ps.currentStatement.symbols.size()>=1){
+                        if((ps.currentStatementType==StatementType::FLOATING
+                                || ps.currentStatementType==StatementType::FLOATING_REDECLARE)
+                               && ps.currentStatement.symbols.size()>=1){
                             parserError("Floating hypothesis can only have one symbol.", line, word);
                             break;
                         }

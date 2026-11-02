@@ -4,3 +4,6 @@ _tmp/
 node_modules
 package-lock.json
 *.swp
+/src/book/frege/
+/html/book/frege/
+/ai

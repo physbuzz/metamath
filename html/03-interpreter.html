@@ -44,6 +44,8 @@
   </script>
   
   <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/code.css">
+  <link rel="stylesheet" href="assets/highlight.css">
   
   <style>
 
@@ -99,6 +101,134 @@
 </nav>
 
 <p><a href="book/metamath.html#the-metamath-language">Read in html</a> &nbsp;|&nbsp; <a href="book/metamath.pdf#page=129">Read in pdf</a></p>
+<h1 id="stuff-i-learned-from-writing-an-interpreter">Stuff I Learned from Writing an Interpreter</h1>
+<p>On the first pass, I ignored disjoint variables and compressed proofs. The 
+first task is to fill in the proof database, and second to actually check
+the proofs and perform the substitutions. Third and fourth, we add back
+disjoint variables and compressed proofs.</p>
+<p>I generally have had nothing but bad luck trying to be clever with interpreters,
+so I wrote it in a boring, stateful, verbose way. Lots of switch statements
+that I can make clever later -- which I won't, because it's a learning project
+and I'm going to use the actualy metamath project for a real application.</p>
+<h2 id="misc-stuff-i-was-confused-about-scratchwork-todo">Misc stuff I was confused about (SCRATCHWORK / TODO):</h2>
+<p>"Symbol" or "math symbol" refers to constants defined with <code>$c ... $.</code> 
+or variables defined with <code>$v ... $.</code></p>
+<p><code>$a</code> and <code>$p</code> statements are <strong>assertions</strong>, which means that they may have
+mandatory hypotheses which, when checking a proof, must be satisfied by expressions
+popped from the proof stack.</p>
+<p><code>$f</code> and <code>$e</code> statements are <strong>hypotheses</strong>, when checking a proof they do not 
+have any mandatory hypotheses that must be satisfied.</p>
+<p>However, importantly, when an assertion has a essential hypothesis that must be
+satisfied, we also must look at all the variables referenced by that essential 
+hypothesis and require that they're satisfied by floating hypotheses. </p>
+<p>For example, in the very silly example below where I prove turnstile in a silly system,
+the axiom <code>remove_variable</code> has two mandatory hypotheses: One for the essential hypothesis,
+and one to satisfy the variable <code>b</code> inside <code>stmnt_b2</code>. Also note: how do we know that 
+<code>b</code> will only be satisfied by something (a list of math symbols) on the proof stack of the 
+form <code>term $1</code>? It's because <code>b</code> is only allowed to be inside one floating hypothesis definition.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$v</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="p">$.</span>
+<span class="k">$c</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">V</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="nl">term_a</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">term_b</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">term_c</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="p">${</span>
+<span class="w">    </span><span class="nl">stmnt_b2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">remove_variable</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="nl">chaos_axiom</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="p">$.</span><span class="w"> </span>
+
+<span class="nl">proof_of_turnstile</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">term_a</span><span class="w"> </span><span class="nl">term_a</span><span class="w"> </span><span class="nl">chaos_axiom</span><span class="w"> </span><span class="nl">remove_variable</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p>from atomfighter10101: 
+$f stuff much better. Its more a computer science thing than a logic thing. It's for assigning types to the variables as guards to prevent incorrect substitution. It's fair to call it a hyp. For example, in Men(x)-&gt; Mortal(x). The Men(x) acts as a type guard. The thing that replaces x must be a Man</p>
+<h2 id="writing-the-parser">Writing the parser</h2>
+<p>When writing the parser, I found it easiest to distinguish between the following enum classes and structs. If you're 
+writing your own parser, starting from these terms isn't the worst idea. 
+There are a few things I had to jump around the Metamath book to figure out, and I found the categories to distinguish between given in the book
+weren't exactly the same as the categories that were useful in the code.</p>
+<p>First, an enum class corresponds to the various important
+token types we have, among <code>$( $) $[ $] ${ $} $c $v $f $e $d $a $p $. $=</code>. So <code>TokenType::AXIOM</code> corresponds to <code>$a</code>. 
+Errors are <code>TokenType::SNULL</code> and anything that falls through
+is <code>TokenType::TOKEN</code>. It was tempting to call these "Statements" at first. </p>
+<p>Next, a <code>Symbol</code> is a constant or a variable, ie. a "math symbol" in the Metamath book. Easy enough:</p>
+<div class="codehilite fenced-code" data-language="cpp"><div class="code-language">c++</div><pre><code><span class="k">struct</span><span class="w"> </span><span class="nc">Symbol</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">label</span><span class="p">;</span>
+<span class="w">    </span><span class="n">SymbolType</span><span class="w"> </span><span class="n">symbolType</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>Next, <code>StatementType</code> and the <code>Statement</code> struct actually
+correspond only to <em>labeled</em> statements: floating or 
+essential hypotheses, and axioms or proofs. 
+<code>SymbolID</code> and <code>StatementID</code> are just <code>size_t</code>s that point into the proof database.</p>
+<div class="codehilite fenced-code" data-language="cpp"><div class="code-language">c++</div><pre><code><span class="k">struct</span><span class="w"> </span><span class="nc">Statement</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">label</span><span class="p">;</span>
+<span class="w">    </span><span class="n">StatementType</span><span class="w"> </span><span class="n">statementType</span><span class="p">;</span>
+<span class="w">    </span><span class="n">SymbolID</span><span class="w"> </span><span class="n">typecode</span><span class="p">;</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">SymbolID</span><span class="o">&gt;</span><span class="w"> </span><span class="n">symbols</span><span class="p">;</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">StatementID</span><span class="o">&gt;</span><span class="w"> </span><span class="n">statements</span><span class="p">;</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">StatementID</span><span class="o">&gt;</span><span class="w"> </span><span class="n">mandatory</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>The label and typecode are always filled; and generally
+<code>symbols</code> fills anything before the <code>$=</code> and <code>statements</code>
+stores anything after it. And of course while parsing we have
+to enforce other requirements: a floating hypothesis can only have one symbol stored, and that symbol must be a variable. A floating, essential, or axiom must not have any statements. And a few other constraints, like the symbols
+and statements being active.</p>
+<p>The mandatory hypothesis list also takes care to construct. 
+I used a <code>std::set&lt;StatementID&gt;</code> to test membership and was lazy and used
+a whole bunch of expensive lookups: 
+for every variable in <code>symbols</code>, and every variable in every active
+essential hypothesis, we traverse the whole list of active statements to find a floating hypothesis defining that symbol, and add it to the set. After that's finished, we traverse the list of 
+active statements again, test membership in the set, and if so
+push it to the list of mandatory statements. This ensures the correct order.</p>
+<p>The proof database is then simple:</p>
+<div class="codehilite fenced-code" data-language="cpp"><div class="code-language">c++</div><pre><code><span class="k">struct</span><span class="w"> </span><span class="nc">ProofDatabase</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Symbol</span><span class="o">&gt;</span><span class="w"> </span><span class="n">symbols</span><span class="p">;</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Statement</span><span class="o">&gt;</span><span class="w"> </span><span class="n">statements</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>Note that just given the info of the proof database, you cannot, at proof-check time, determine which statements
+and symbols are active. This was a bit disappointing for
+me, I tried to figure out a Lisp style stack of frames at 
+first, but I couldn't get it to work and ended up figuring out
+a lot of the validity at parse time. </p>
+<p>My super-stateful parser therefore ended up with this structure:</p>
+<div class="codehilite fenced-code" data-language="cpp"><div class="code-language">c++</div><pre><code><span class="k">struct</span><span class="w"> </span><span class="nc">ParserState</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">errorState</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">commentSkip</span><span class="p">;</span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">currentLabel</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Statement</span><span class="w"> </span><span class="n">currentStatement</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">SymbolID</span><span class="o">&gt;</span><span class="w"> </span><span class="n">symbolStack</span><span class="p">;</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">symbolStackLevels</span><span class="p">;</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">StatementID</span><span class="o">&gt;</span><span class="w"> </span><span class="n">statementStack</span><span class="p">;</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">statementStackLevels</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">//NONE, VARIABLES, CONSTANTS, STATEMENT</span>
+<span class="w">    </span><span class="n">CurrentParserState</span><span class="w"> </span><span class="n">parserState</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// FLOATING, ESSENTIAL, AXIOM, PROOF, </span>
+<span class="w">    </span><span class="n">StatementType</span><span class="w"> </span><span class="n">currentStatementType</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">//TYPECODE, SYMBOLS, PROOF</span>
+<span class="w">    </span><span class="n">ParserStatementState</span><span class="w"> </span><span class="n">currentStatementState</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>The stacks are the things that keep track of the active symbol ids, and when we leave a scope we pop an element from <code>fooStackLevels</code> then <code>std::vector::resize</code> the <code>fooStack</code> array to the new length. I could add more state to make the mandatory hypothesis testing faster.</p>
+<p>Uhh yeah that's pretty much it. I didn't find it to be 
+obvious if this would work; you know, there are always 
+questions about what datatypes to use, whether to store each
+data type in its own array, and so on. This works well enough and it
+took me a few passes to wind up at these data structures.</p>
+<h2 id="writing-the-proof-checker">Writing the proof checker</h2>
     </article>
   </main>
   <script>
