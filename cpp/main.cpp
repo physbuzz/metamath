@@ -113,7 +113,6 @@ string toString(TokenType type) {
 // Note, these only metamath's labeled statement types.
 enum class StatementType {
     FLOATING,
-    FLOATING_REDECLARE,
     ESSENTIAL,
     AXIOM,
     PROOF
@@ -291,6 +290,25 @@ struct ProofDatabase {
             }
         }
     }
+    // Get symbol ID, don't check if the symbol is active, just look in pdb.
+    SymbolID getSymbolID(string label) {
+        for (size_t i = 0; i < symbols.size(); ++i) {
+            if (symbols[i].label == label) {
+                return static_cast<SymbolID>(i);
+            }
+        }
+        return -1;
+    }
+
+    // Get statement ID, don't check if the statement is active, just look in pdb.
+    StatementID getStatementID(string label) {
+        for (size_t i = 0; i < statements.size(); ++i) {
+            if (statements[i].label == label) {
+                return static_cast<StatementID>(i);
+            }
+        }
+        return -1;
+    }
 };
 
 class Metamath {
@@ -324,22 +342,6 @@ public:
         return false;
     }
         
-    SymbolID getSymbolID(string label) {
-        for (size_t i = 0; i < pdb.symbols.size(); ++i) {
-            if (pdb.symbols[i].label == label) {
-                return static_cast<SymbolID>(i);
-            }
-        }
-        return -1;
-    }
-    StatementID getStatementID(string label) {
-        for (size_t i = 0; i < pdb.statements.size(); ++i) {
-            if (pdb.statements[i].label == label) {
-                return static_cast<StatementID>(i);
-            }
-        }
-        return -1;
-    }
     // Get the statement that introduces the symbol with the given ID. 
     StatementID getActiveFloatingForSymbol(SymbolID id) {
         // This gets the statement, but not the active statement
@@ -364,7 +366,6 @@ public:
         return false;
     }
     bool isStatementActive(StatementID id) {
-        // TODO double check the following
         if(pdb.statements.at(id).statementType==StatementType::AXIOM ||
               pdb.statements.at(id).statementType==StatementType::PROOF)
                 return true;
@@ -419,7 +420,6 @@ public:
         // For $p, require symbols.length()>=1 and statements.length()>=1.
         switch(ps.currentStatementType){
             case StatementType::FLOATING:
-            case StatementType::FLOATING_REDECLARE:
                 if(ps.currentStatement.symbols.size()!=1){
                     parserError("Floating hypothesis must have exactly one symbol.", line, token);
                     return;
@@ -478,7 +478,6 @@ public:
         be empty. 
         */
         if(ps.currentStatement.statementType!=StatementType::FLOATING 
-           && ps.currentStatement.statementType!=StatementType::FLOATING_REDECLARE
            && ps.currentStatement.statementType!=StatementType::ESSENTIAL){
             std::set<StatementID> mandatorySet;
             getStatementsMandatorySet(mandatorySet, ps.currentStatement,
@@ -498,44 +497,26 @@ public:
             }
         }
         
-        if(ps.currentStatement.statementType==StatementType::FLOATING_REDECLARE){
-
-            //First, check that tag and var match with old symbol.
-            StatementID sid = getStatementID(ps.currentLabel);
-            if(sid==-1){
-                cerr<<"What that shouldn't be possible lol."<<endl;
-                return;
-            }
-            Statement &s = pdb.statements.at(sid);
-            if(ps.currentStatement.label!=s.label){
-                parserError("Floating hypothesis label mismatch with old statement.", line, token);
-                return;
-            }
-            if(ps.currentStatement.symbols.at(0)!=s.symbols.at(0)){
-                parserError("Floating hypothesis symbol mismatch with old statement.", line, token);
-                return;
-            }
-            // no need to push to pdb.
-            ps.statementStack.push_back(sid);
-            ps.statementStackLevels.back()+=1;
-            ps.currentStatement=Statement();
-        } else {
-            //Finally, push.
-            if(ps.errorState) {
-                cerr<<"GOTCHA!!!!!!"<<endl;
-                return;
-            }
-            if(ps.currentStatement.statementType == StatementType::FLOATING){
-                //Extra check to make sure we don't redeclare a symbol
-                StatementID sid = getActiveFloatingForSymbol(ps.currentStatement.symbols.at(0));
-
-            }
-
-            pdb.statements.push_back(ps.currentStatement);
-            ps.currentStatement=Statement();
-            ps.statementStack.push_back(pdb.statements.size()-1);
-            ps.statementStackLevels.back()+=1;
+        //Finally, push.
+        if(ps.errorState) {
+            cerr<<"GOTCHA!!!!!!"<<endl;
+            return;
         }
+        if(ps.currentStatement.statementType == StatementType::FLOATING) {
+            // Extra check to make sure we don't redeclare a symbol
+            StatementID sid = getActiveFloatingForSymbol(ps.currentStatement.symbols.at(0));
+            if(sid!=-1){
+                parserError("Floating hypothesis for symbol " + 
+                    pdb.symbols[ps.currentStatement.symbols.at(0)].label +
+                    " already defined in statement " + 
+                    pdb.statements[sid].label, line, token);
+                return;
+            }
+        }
+        pdb.statements.push_back(ps.currentStatement);
+        ps.currentStatement = Statement();
+        ps.statementStack.push_back(pdb.statements.size() - 1);
+        ps.statementStackLevels.back() += 1;
     }
 
     void parseSwitchToStatement(StatementType stype, int line, string word) {
@@ -549,28 +530,13 @@ public:
             parserError("Statement cannot have empty label.", line, word);
             return;
         }
-        if(getSymbolID(ps.currentLabel)!=-1){
+        if(pdb.getSymbolID(ps.currentLabel)!=-1){
             parserError("Statement " + ps.currentLabel + " already defined as a symbol.", line, word);
             return;
         }
-        StatementID statementIDLookup=getStatementID(ps.currentLabel);
+        StatementID statementIDLookup=pdb.getStatementID(ps.currentLabel);
         if(statementIDLookup!=-1){
             if(stype==StatementType::FLOATING){
-                /*
-                Most statements are not allowed to be redeclared, but floating hypotheses are.
-                We look up the statement and check if it's active. If it is not active, we can
-                redeclare it. However, once we're done parsing the statement (we reach $.) 
-                we need to push the index of the old statement (and ensure that it matches exactly).
-                Since this is done later,
-                we need to signal that we're in this special case by assigning 
-                stype=StatementType::FLOATING_REDECLARE
-                */
-                if(statementIDIsActive(statementIDLookup)){
-                    parserError("Statement " + ps.currentLabel + " already defined.", line, word);
-                    return;
-                }
-                stype=StatementType::FLOATING_REDECLARE;
-            } else {
                 parserError("Statement " + ps.currentLabel + " already defined.", line, word);
                 return;
             }
@@ -583,7 +549,7 @@ public:
         ps.currentStatementState=ParserStatementState::TYPECODE;
     }
     int getConstantID(string word){
-        SymbolID ret=getSymbolID(word);
+        SymbolID ret=pdb.getSymbolID(word);
         if(ret<0 || pdb.symbols[ret].symbolType!=SymbolType::CONSTANT)
             return -1;
         return ret;
@@ -754,25 +720,40 @@ case TokenType::TOKEN:
                 ps.currentLabel=word;
                 break;
             case CurrentParserState::VARIABLES:
-                if(getSymbolID(word)!=-1){
-                    parserError("Variable "+word+" already defined.", line, word);
-                    break;
+                {
+                    SymbolID symid=pdb.getSymbolID(word);
+                    bool symIsActive = (symid!=-1) && symbolIDIsActive(symid);
+                    if(symIsActive){
+                        parserError("Variable "+word+" already defined and active.", line, word);
+                        break;
+                    }
+                    if(pdb.getStatementID(word)!=-1){
+                        parserError("Trying to declare variable, but Statement "+word+" already defined.", line, word);
+                        break;
+                    }
+                    if(symid!=-1) {
+                        // We've already checked that the symbol is not active, so we simply 
+                        // need to redeclare it, not push it to the pdb.symbols list.
+                        ps.symbolStack.push_back(symid);
+                        ps.symbolStackLevels.back()+=1;
+                    } else {
+                        pdb.symbols.push_back(Symbol{word, SymbolType::VARIABLE});
+                        ps.symbolStack.push_back(pdb.symbols.size()-1);
+                        ps.symbolStackLevels.back()+=1;
+                    }
                 }
-                if(getStatementID(word)!=-1){
-                    parserError("Trying to declare variable, but Statement "+word+" already defined.", line, word);
-                    break;
-                }
-                pdb.symbols.push_back(Symbol{word, SymbolType::VARIABLE});
-                ps.symbolStack.push_back(pdb.symbols.size()-1);
-                ps.symbolStackLevels.back()+=1;
                 break;
             case CurrentParserState::CONSTANTS:
-                if(getSymbolID(word)!=-1){
+                if(pdb.getSymbolID(word)!=-1){
                     parserError("Constant "+word+" already defined.", line, word);
                     break;
                 }
-                if(getStatementID(word)!=-1){
+                if(pdb.getStatementID(word)!=-1){
                     parserError("Trying to declare constant, but Statement "+word+" already defined.", line, word);
+                    break;
+                }
+                if(ps.symbolStackLevels.size()>1){
+                    parserError("Cannot declare constant inside a block.", line, word);
                     break;
                 }
                 pdb.symbols.push_back(Symbol{word, SymbolType::CONSTANT});
@@ -795,13 +776,12 @@ case TokenType::TOKEN:
                     break;
                 case ParserStatementState::SYMBOLS:
                     {
-                        SymbolID id = getSymbolID(word);
+                        SymbolID id = pdb.getSymbolID(word);
                         if(id==-1){
                             parserError("Symbol "+word+" not defined.", line, word);
                             break;
                         }
-                        if((ps.currentStatementType==StatementType::FLOATING
-                                || ps.currentStatementType==StatementType::FLOATING_REDECLARE)
+                        if(ps.currentStatementType==StatementType::FLOATING
                                && ps.currentStatement.symbols.size()>=1){
                             parserError("Floating hypothesis can only have one symbol.", line, word);
                             break;
@@ -815,7 +795,7 @@ case TokenType::TOKEN:
                     break;
                 case ParserStatementState::PROOF:   
                     {
-                        StatementID sid = getStatementID(word);
+                        StatementID sid = pdb.getStatementID(word);
                         if(sid==-1){
                             parserError("Statement "+word+" not defined.", line, word);
                             break;
@@ -845,6 +825,120 @@ default:
     void parseEnd() {
     }
 };
+
+struct MathSymbolString {
+    std::vector<int> str;
+    MathSymbolString() : str() { }
+    MathSymbolString(std::vector<int> str) : str(str) { 
+    }
+};
+
+struct Replacement {
+    SymbolID from;
+    vector<SymbolID> to;
+};
+
+
+// ReplacementList can also be referred to as a Frame.
+class ReplacementList {
+public:
+    vector<Replacement> rules;
+    vector<SymbolID> replace(SymbolID arg, bool noerror=true){
+        for(auto rule : rules){
+            if(rule.from==arg)
+                return rule.to;
+        }
+        if(!noerror) { // :)
+             // >:)
+            cerr << "No match found in replacement rule."<<endl;
+        }
+        return vector<SymbolID>({arg});
+    }
+    MathSymbolString replace(MathSymbolString arg, bool noerror=true){
+        MathSymbolString ret;
+        for(auto item : arg.str){
+            auto list=replace(item,noerror);
+            for(auto replaced : list)
+                ret.str.push_back(replaced);
+        }
+        if(!noerror) { // :)
+             // >:)
+            cerr << "No match found in replacement rule."<<endl;
+        }
+        return ret;
+    }
+    MathSymbolString replaceVariables(MathSymbolString arg, ProofDatabase &pdb, bool noerror=true){
+        MathSymbolString ret;
+        for(auto item : arg.str){
+            Symbol sym=pdb.symbols.at(item);
+            if(sym.symbolType==SymbolType::VARIABLE){
+                auto list=replace(item,noerror);
+                for(auto replaced : list)
+                    ret.str.push_back(replaced);
+            } else {
+                ret.str.push_back(item);
+            }
+        }
+        return ret;
+    }
+};
+
+bool unify(
+        ReplacementList &ret,
+        vector<MathSymbolString> from, 
+        vector<MathSymbolString> to, 
+        ProofDatabase &pdb){
+    // check lengths
+    if(from.size() != to.size()){
+        cerr<<"Cannot unify: from and to list lengths are not identical"<<endl;
+        return false;
+    }
+    for(int i=from.size(); i>=0; i--) {
+        
+    }
+    return true;
+}
+
+void checkProofs(ProofDatabase &pdb){
+    for(int i=0; pdb.statements.size(); i++){
+        if(pdb.statements[i].statementType==StatementType::PROOF){
+            Statement &proof=pdb.statements[i];
+            std::vector<StatementID> &proofcommands=pdb.statements[i].statements;
+            MathSymbolString target(pdb.statements[i].symbols);
+            vector<MathSymbolString> proofstack;
+            for(StatementID foo : proofcommands) {
+                Statement &proofcommand=pdb.statements[foo];
+                // If it's a hypothesis, we just push it to the stack
+                if(proofcommand.statementType==StatementType::ESSENTIAL
+                    || proofcommand.statementType==StatementType::FLOATING) {
+                    proofstack.push_back(proofcommand.symbols);
+                } else {
+                    // If it's an assertion, we need to do unification among the mandatory 
+                    // hypotheses, and things we pop from the stack.
+                    /* Everything in the list of mandatory hypotheses and foo.symbols gets 
+                    relabeled, then the mandatory hypotheses are unified with things popped from 
+                    the stack. Then, foo.symbols is replaced according to the unficiation, and 
+                    pushed to the stack. */
+
+                    vector<MathSymbolString> mandatory;
+                    vector<MathSymbolString> popped;
+                    for(int i=proofcommand.mandatory.size();i>=0;i--) {
+                        StatementID mandatoryID=proofcommand.mandatory[i];
+                        mandatory.push_back(pdb.statements.at(mandatoryID).symbols);
+                        if(proofstack.size()==0) {
+                            cerr<<"Error: proof command "<<proofcommand.label<<" requires mandatory hypothesis "<<pdb.statements.at(mandatoryID).label<<", but proof stack is empty."<<endl;
+                            return;
+                        }
+                        popped.push_back(proofstack.back());
+                        proofstack.pop_back();
+                    }
+                    ReplacementList rl = unify(mandatory, popped);
+
+                }
+            }
+        }
+    }
+}
 
 int main(int argc, char** argv){
     if(argc<2){

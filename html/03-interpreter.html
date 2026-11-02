@@ -145,6 +145,9 @@ form <code>term $1</code>? It's because <code>b</code> is only allowed to be ins
 
 <p>from atomfighter10101: 
 $f stuff much better. Its more a computer science thing than a logic thing. It's for assigning types to the variables as guards to prevent incorrect substitution. It's fair to call it a hyp. For example, in Men(x)-&gt; Mortal(x). The Men(x) acts as a type guard. The thing that replaces x must be a Man</p>
+<p>Note: My parser has exploded in complexity, while <a href="https://github.com/david-a-wheeler/mmverify.py/blob/master/mmverify.py">David Wheeler's Python implementation</a>.</p>
+<p>"Each label token must be unique, and no label token may match any math symbol token." -- I explicitly ignore this. We can have a variable v and a label v. This is silly, but like, it's just
+something to be discouraged in real proof databases and ignoring it makes it easier to parse.</p>
 <h2 id="writing-the-parser">Writing the parser</h2>
 <p>When writing the parser, I found it easiest to distinguish between the following enum classes and structs. If you're 
 writing your own parser, starting from these terms isn't the worst idea. 
