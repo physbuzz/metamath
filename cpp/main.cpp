@@ -8,6 +8,9 @@
 #include <algorithm>
 #include <set>
 
+
+#define VERBOSE
+
 using namespace std;
 
 void help(){
@@ -234,6 +237,23 @@ struct ParserState {
 struct ProofDatabase {
     vector<Symbol> symbols;
     vector<Statement> statements;
+    Statement &getStatement(StatementID arg){
+        return statements.at(arg);
+    }
+    const Statement &getStatement(StatementID arg) const{
+        return statements.at(arg);
+    }
+
+    Symbol &getSymbol(SymbolID arg) {
+        return symbols.at(arg);
+    }
+    const Symbol &getSymbol(SymbolID arg) const{
+        return symbols.at(arg);
+    }
+    bool isVariable(SymbolID arg) const{
+        return getSymbol(arg).symbolType==SymbolType::VARIABLE;
+    }
+
 
     void printDatabase() {
         cout<<" =============== "<<endl;
@@ -826,119 +846,342 @@ default:
     }
 };
 
-struct MathSymbolString {
-    std::vector<int> str;
-    MathSymbolString() : str() { }
-    MathSymbolString(std::vector<int> str) : str(str) { 
+/* Refactor the proof checker:
+    ProofStatement typecode, list of math symbols
+    ProofStatement has three purposes in life: 
+        - Store statements on the proof stack
+        - Arguments to the unification function
+        - Storing and returning replacement rules
+*/
+struct ProofStatement {
+    SymbolID typecode;
+    vector<SymbolID> sym;
+    ProofStatement() { } 
+    ProofStatement(SymbolID typecode, const vector<SymbolID> sym) : typecode(typecode), sym(sym) { }
+    bool equals(const ProofStatement &arg) const {
+        bool ret=typecode==arg.typecode;
+        ret=ret&&(sym.size()==arg.sym.size());
+        int i=0;
+        while(ret && i<sym.size()){
+            ret=ret&&(sym[i]==arg.sym[i]);
+            i++;
+        }
+        return ret;
+    }
+    ostream& appendToStream(ostream &arg) {
+        arg<<typecode<<" ";
+        for(int i=0;i<sym.size();i++){
+            arg<<sym[i];
+            if(i<sym.size()-1)
+                arg<<" ";
+        }
+        return arg;
+    }
+    ostream& appendToStream(ostream &arg, ProofDatabase &pdb) {
+        arg<<pdb.getSymbol(typecode).label<<" ";
+        for(int i=0;i<sym.size();i++){
+            arg<<pdb.getSymbol(sym[i]).label;
+            if(i<sym.size()-1)
+                arg<<" ";
+        }
+        return arg;
     }
 };
 
-struct Replacement {
+struct ReplacementRule {
     SymbolID from;
     vector<SymbolID> to;
+    ReplacementRule() { } 
+    ReplacementRule(SymbolID from, vector<SymbolID> to) : from(from), to(to) { }
+
+    ostream& appendToStream(ostream &arg) {
+        arg<<from<<" ";
+        for(int i=0;i<to.size();i++) {
+            arg<<to[i];
+            if(i<to.size()-1)
+                arg<<" ";
+        }
+        return arg;
+    }
+
+    ostream& appendToStream(ostream &arg, ProofDatabase &pdb) {
+        arg<<pdb.getSymbol(from).label<<" replace with ";
+        for(int i=0;i<to.size();i++){
+            arg<<pdb.getSymbol(to[i]).label;
+            if(i<to.size()-1)
+                arg<<" ";
+        }
+        return arg;
+    }
 };
 
-
-// ReplacementList can also be referred to as a Frame.
-class ReplacementList {
-public:
-    vector<Replacement> rules;
-    vector<SymbolID> replace(SymbolID arg, bool noerror=true){
-        for(auto rule : rules){
-            if(rule.from==arg)
-                return rule.to;
-        }
-        if(!noerror) { // :)
-             // >:)
-            cerr << "No match found in replacement rule."<<endl;
-        }
-        return vector<SymbolID>({arg});
-    }
-    MathSymbolString replace(MathSymbolString arg, bool noerror=true){
-        MathSymbolString ret;
-        for(auto item : arg.str){
-            auto list=replace(item,noerror);
-            for(auto replaced : list)
-                ret.str.push_back(replaced);
-        }
-        if(!noerror) { // :)
-             // >:)
-            cerr << "No match found in replacement rule."<<endl;
-        }
-        return ret;
-    }
-    MathSymbolString replaceVariables(MathSymbolString arg, ProofDatabase &pdb, bool noerror=true){
-        MathSymbolString ret;
-        for(auto item : arg.str){
-            Symbol sym=pdb.symbols.at(item);
-            if(sym.symbolType==SymbolType::VARIABLE){
-                auto list=replace(item,noerror);
-                for(auto replaced : list)
-                    ret.str.push_back(replaced);
-            } else {
-                ret.str.push_back(item);
+struct Frame {
+    vector<ReplacementRule> frame;
+    // Look up the symbol "from" in the frame and populate "ret" with the replacement rule.
+    // If no replacement rule is found, return the list with only the symbol {from}.
+    bool lookup(SymbolID from, vector<SymbolID> &ret) {
+        for(auto rule : frame) {
+            if(from==rule.from){
+                ret=rule.to;
+                return true;
             }
         }
-        return ret;
+        ret=vector<SymbolID>({from});
+        return false;
+    }
+    ostream& appendToStream(ostream &arg) {
+        for(int i=0;i<frame.size();i++){
+            frame[i].appendToStream(arg<<"  ");
+            if(i<frame.size()-1)
+                arg<<"\n";
+        }
+        return arg;
+    }
+    ostream& appendToStream(ostream &arg, ProofDatabase &pdb) {
+        for(int i=0;i<frame.size();i++){
+            frame[i].appendToStream(arg<<"  ", pdb);
+            if(i<frame.size()-1)
+                arg<<"\n";
+        }
+        return arg;
     }
 };
 
-bool unify(
-        ReplacementList &ret,
-        vector<MathSymbolString> from, 
-        vector<MathSymbolString> to, 
-        ProofDatabase &pdb){
-    // check lengths
-    if(from.size() != to.size()){
-        cerr<<"Cannot unify: from and to list lengths are not identical"<<endl;
+bool applyFrame(const ProofStatement &init, Frame &frame, ProofStatement &ret, ProofDatabase &pdb){
+    ret.typecode=init.typecode;
+    for(SymbolID id : init.sym) {
+        if (pdb.isVariable(id)) {
+            vector<SymbolID> newsymbols;
+            bool success=frame.lookup(id,newsymbols);
+            if(!success)
+                return false;
+            ret.sym.insert(ret.sym.end(),newsymbols.begin(),newsymbols.end());
+        } else {
+            ret.sym.push_back(id);
+        }
+    }
+    return true;
+}
+
+/* 
+Earliest statement (usually a floating hypothesis) will be the last element of
+from and to. eg. "to[to.size()-1]" should be the last element popped off the proof stack.
+*/
+bool unify(Frame &frame,
+    vector<ProofStatement> from, 
+    vector<StatementType> fromTypes,
+    vector<ProofStatement> to, 
+    ProofDatabase &pdb) {
+    if(from.size()!=to.size()) {
+        cerr<<"unify lengths different"<<endl;
         return false;
     }
-    for(int i=from.size(); i>=0; i--) {
-        
+    for(int i=to.size()-1;i>=0;i--) {
+        ProofStatement &fromStatement=from[i];
+        ProofStatement &toStatement=to[i];
+        if(fromStatement.typecode != toStatement.typecode) {
+            cerr<<"Error during unification! Typecode mismatch."<<endl;
+            return false;
+        }
+        if(fromTypes[i]==StatementType::FLOATING) {
+            //Two cases, if the symbol isn't in the frame, we add it.
+            //Else, if it is in the frame, we check that the replacement is consistent.
+            vector<SymbolID> lresult;
+            bool success=frame.lookup(fromStatement.sym.at(0), lresult);
+            if(success){
+                if(!toStatement.equals(ProofStatement(fromStatement.typecode,lresult))){
+                    cerr<<"Error during unification! Symbol list mismatch."<<endl;
+                    return false;
+                }
+            } else {
+                frame.frame.push_back(
+                    ReplacementRule(fromStatement.sym.at(0),
+                                    toStatement.sym));
+            }
+        } else {
+            // Else it's a mandatory essential hypothesis, and cannot define a new replacement rule
+            // Instead, we just have to check for consistency.
+            ProofStatement ret;
+            bool success=applyFrame(fromStatement, frame,ret, pdb);
+            if(!success) {
+                cerr << "Error during unification! Mandatory hypothesis contains variable with no substitution."<<endl;
+                return false;
+            }
+            success = toStatement.equals(ret);
+            if(!success) {
+                cerr << "Error during unification! Mandatory hypothesis mismatches statement on proof stack after replacement!"<<endl;
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+/*ostream &appendToStream(ostream &arg, const vector<ProofStatement> &list, ProofDatabase &pdb){
+    for(int i=0;i<list.size();i++){
+        list[i].appendToStream(arg<<"  ", pdb);
+        if(i<list.size()-1)
+            arg<<"\n";
+    }
+    return arg;
+}*/
+ostream &appendToStream(ostream &arg, const vector<SymbolID> &list, ProofDatabase &pdb){
+    for(int i=0;i<list.size();i++){
+        arg<<pdb.getSymbol(list[i]).label;
+        if(i<list.size()-1)
+            arg<<" ";
+    }
+    return arg;
+}
+
+ostream &appendToStream(ostream &arg, const Statement &stat, ProofDatabase &pdb){
+    // Print the statement, excluding proof's "$= ...", in the form "$a typecode symbols $."
+    if(stat.statementType==StatementType::FLOATING){
+        arg<<stat.label<<" $f "<<pdb.getSymbol(stat.typecode).label<<" ";
+        appendToStream(arg, stat.symbols, pdb)<<" $.";
+    } else if(stat.statementType==StatementType::ESSENTIAL){
+        arg<<stat.label<<" $e "<<pdb.getSymbol(stat.typecode).label<<" ";
+        appendToStream(arg, stat.symbols, pdb)<<" $.";
+    } else if(stat.statementType==StatementType::AXIOM){
+        arg<<stat.label<<" $a "<<pdb.getSymbol(stat.typecode).label<<" ";
+        appendToStream(arg, stat.symbols, pdb)<<" $.";
+    } else if(stat.statementType==StatementType::PROOF){
+        arg<<stat.label<<" $p "<<pdb.getSymbol(stat.typecode).label<<" ";
+        appendToStream(arg, stat.symbols, pdb)<<" $.";
+    }
+    return arg;
+}
+
+
+bool checkProof(Statement &proof, ProofDatabase &pdb) {
+    if(proof.statementType!=StatementType::PROOF) {
+        cerr<<"Not a proof."<<endl;
+        return false;
+    }
+    vector<StatementID> &proofcommands = proof.statements;
+    ProofStatement target(proof.typecode,proof.symbols);
+    vector<ProofStatement> proofstack;
+    for(size_t n_command=0; n_command<proofcommands.size();n_command++) {
+//#ifdef VERBOSE
+        //cout<<"\n";
+//#endif
+        StatementID foo=proofcommands[n_command];
+        Statement &proofcommand = pdb.getStatement(foo);
+        // If it's a hypothesis, we just push it to the stack
+        if(proofcommand.statementType==StatementType::ESSENTIAL
+            || proofcommand.statementType == StatementType::FLOATING) {
+            ProofStatement mynew(proofcommand.typecode,proofcommand.symbols);
+#ifdef VERBOSE
+            if(proofcommand.statementType == StatementType::ESSENTIAL)
+                mynew.appendToStream(cout<<"Pushing to stack: ",pdb)<<endl;
+            else 
+                mynew.appendToStream(cout<<"Pushing to stack: ",pdb)<<endl;
+#endif
+            proofstack.push_back({proofcommand.typecode,proofcommand.symbols});
+            continue;
+        }
+
+        // If it's an assertion, we need to do unification among the mandatory
+        // hypotheses, and things we pop from the stack.
+        /* Everything in the list of mandatory hypotheses and foo.symbols gets
+        relabeled, then the mandatory hypotheses are unified with things popped from
+        the stack. Then, foo.symbols is replaced according to the unficiation, and
+        pushed to the stack. */
+        vector<ProofStatement> mandatory;
+        vector<StatementType> mandatoryTypes;
+        vector<ProofStatement> popped;
+        for(int i=proofcommand.mandatory.size()-1;i>=0;i--) {
+            Statement &myMandatory = pdb.getStatement(proofcommand.mandatory[i]);
+            mandatory.push_back({myMandatory.typecode,myMandatory.symbols});
+            mandatoryTypes.push_back(myMandatory.statementType);
+            if(proofstack.size()==0) {
+                cerr << "Error: proof command " << proofcommand.label 
+                    << " requires mandatory hypothesis " 
+                    << myMandatory.label 
+                    << ", but proof stack is empty." << endl;
+                return false;
+            }
+            popped.push_back(proofstack.back());
+            proofstack.pop_back();
+        }
+#ifdef VERBOSE
+        if(mandatory.size()>0 || popped.size()>0) {
+            cout<<"\n";
+            appendToStream(cout<<"Parsing statement ", proofcommand, pdb)<<endl;
+            cout<<"Mandatory hypotheses: "<<endl;
+            for(int i=0;i<mandatory.size();i++){
+                mandatory[i].appendToStream(cout<<"  ",pdb)<<endl;
+            }
+            cout<<"Popped from stack: "<<endl;
+            for(int i=0;i<popped.size();i++){
+                popped[i].appendToStream(cout<<"  ",pdb)<<endl;
+            }
+        }
+#endif
+        Frame frame;
+        bool success=unify(frame, mandatory, mandatoryTypes, popped, pdb);
+        if(!success){
+            cerr << "Error in proof command " << proofcommand.label 
+                << ". Unable to unify proof stack while parsing command " 
+                << n_command << " with label "
+                << proofcommand.label
+                << "." << endl;
+            return false;
+        }
+
+#ifdef VERBOSE
+        if(frame.frame.size()>0){
+            cout<<"Unifying Frame: "<<endl;
+            frame.appendToStream(cout, pdb)<<endl;
+        }
+#endif
+
+        ProofStatement replaced;
+        success=applyFrame(ProofStatement(proofcommand.typecode,proofcommand.symbols),
+                    frame,replaced,pdb);
+        if(!success){
+            cerr << "Error in proof command " << proofcommand.label 
+                 << ". Unification succeeded, but unsubstituted variables are left over." <<endl;
+            return false;
+        }
+#ifdef VERBOSE
+        replaced.appendToStream(cout<<"Pushing to stack: ", pdb)<<endl;
+#endif
+        proofstack.push_back(replaced);
+    }
+    if(proofstack.size()!=1) {
+        cerr << "Error in proof " << proof.label 
+             << ". Reached end of proof stack, but proof stack size differs from 1 element!!" <<endl;
+        return false;
+    }
+    if(!proofstack[0].equals(target)){
+        cerr << "Error in proof " << proof.label 
+             << ". Reached end of proof stack, but final statements disagree!" <<endl;
+        cerr<<"stack:  ";
+        proofstack[0].appendToStream(cerr, pdb)<<endl;
+        cerr<<"target: ";
+        target.appendToStream(cerr,pdb)<<endl;
+        return false;
     }
     return true;
 }
 
 void checkProofs(ProofDatabase &pdb){
-    for(int i=0; pdb.statements.size(); i++){
-        if(pdb.statements[i].statementType==StatementType::PROOF){
-            Statement &proof=pdb.statements[i];
-            std::vector<StatementID> &proofcommands=pdb.statements[i].statements;
-            MathSymbolString target(pdb.statements[i].symbols);
-            vector<MathSymbolString> proofstack;
-            for(StatementID foo : proofcommands) {
-                Statement &proofcommand=pdb.statements[foo];
-                // If it's a hypothesis, we just push it to the stack
-                if(proofcommand.statementType==StatementType::ESSENTIAL
-                    || proofcommand.statementType==StatementType::FLOATING) {
-                    proofstack.push_back(proofcommand.symbols);
-                } else {
-                    // If it's an assertion, we need to do unification among the mandatory 
-                    // hypotheses, and things we pop from the stack.
-                    /* Everything in the list of mandatory hypotheses and foo.symbols gets 
-                    relabeled, then the mandatory hypotheses are unified with things popped from 
-                    the stack. Then, foo.symbols is replaced according to the unficiation, and 
-                    pushed to the stack. */
-
-                    vector<MathSymbolString> mandatory;
-                    vector<MathSymbolString> popped;
-                    for(int i=proofcommand.mandatory.size();i>=0;i--) {
-                        StatementID mandatoryID=proofcommand.mandatory[i];
-                        mandatory.push_back(pdb.statements.at(mandatoryID).symbols);
-                        if(proofstack.size()==0) {
-                            cerr<<"Error: proof command "<<proofcommand.label<<" requires mandatory hypothesis "<<pdb.statements.at(mandatoryID).label<<", but proof stack is empty."<<endl;
-                            return;
-                        }
-                        popped.push_back(proofstack.back());
-                        proofstack.pop_back();
-                    }
-                    ReplacementList rl = unify(mandatory, popped);
-
-                }
-            }
+    bool valid=true;
+    for(int i=0; i<pdb.statements.size(); i++){
+        Statement &stat=pdb.statements[i];
+        if(stat.statementType!=StatementType::PROOF)
+            continue;
+        valid=valid && checkProof(stat,pdb);
+        if(!valid){
+            cerr<<"Error at proof oh no 🥵🥵🥵🥵🥵🥵🥵🥵"<<endl;
+            return;
         }
     }
+    cout<<"Proof checking succeeded! Yippee!"<<endl;
 }
+
+
 
 int main(int argc, char** argv){
     if(argc<2){
@@ -984,6 +1227,8 @@ int main(int argc, char** argv){
     cout<<endl;
 
     mm.pdb.printDatabase();
+    checkProofs(mm.pdb);
+    cout<<"Done!"<<endl;
     return 0;
 }
 

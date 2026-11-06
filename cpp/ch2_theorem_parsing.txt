@@ -1,0 +1,246 @@
+g++ main.cpp -g -o main
+./main demo0.mm
+
+ =============== 
+ === Symbols === 
+ =============== 
+0: 0 (constant)
+1: + (constant)
+2: = (constant)
+3: -> (constant)
+4: ( (constant)
+5: ) (constant)
+6: term (constant)
+7: wff (constant)
+8: |- (constant)
+9: t (variable)
+10: r (variable)
+11: s (variable)
+12: P (variable)
+13: Q (variable)
+
+ ================== 
+ === Statements === 
+ ================== 
+0: tt $f 6 9 $. (floating hypothesis)
+1: tr $f 6 10 $. (floating hypothesis)
+2: ts $f 6 11 $. (floating hypothesis)
+3: wp $f 7 12 $. (floating hypothesis)
+4: wq $f 7 13 $. (floating hypothesis)
+5: tze $a 6 0 $. (axiom)
+6: tpl $a 6 4 9 1 10 5 $. (axiom)
+7: weq $a 7 9 2 10 $. (axiom)
+8: wim $a 7 4 12 3 13 5 $. (axiom)
+9: a1 $a 8 4 9 2 10 3 4 9 2 11 3 10 2 11 5 5 $. (axiom)
+10: a2 $a 8 4 9 1 0 5 2 9 $. (axiom)
+11: min $e 8 12 $. (essential hypothesis)
+12: maj $e 8 4 12 3 13 5 $. (essential hypothesis)
+13: mp $a 8 13 $. (axiom)
+14: th1 $p 8 9 2 9 
+$= 0 5 6 0 7 0 0 7 0 10 0 5 6 0 7 0 5 6 0 7 0 0 7 8 0 10 0 5 6 0 0 9 13 13 $.
+Pushing to stack: term t
+Pushing to stack: term 0
+
+Parsing statement tpl $a term ( t + r ) $.
+Mandatory hypotheses: 
+  term r
+  term t
+Popped from stack: 
+  term 0
+  term t
+Unifying Frame: 
+  t replace with t
+  r replace with 0
+Pushing to stack: term ( t + 0 )
+Pushing to stack: term t
+
+Parsing statement weq $a wff t = r $.
+Mandatory hypotheses: 
+  term r
+  term t
+Popped from stack: 
+  term t
+  term ( t + 0 )
+Unifying Frame: 
+  t replace with ( t + 0 )
+  r replace with t
+Pushing to stack: wff ( t + 0 ) = t
+Pushing to stack: term t
+Pushing to stack: term t
+
+Parsing statement weq $a wff t = r $.
+Mandatory hypotheses: 
+  term r
+  term t
+Popped from stack: 
+  term t
+  term t
+Unifying Frame: 
+  t replace with t
+  r replace with t
+Pushing to stack: wff t = t
+Pushing to stack: term t
+
+Parsing statement a2 $a |- ( t + 0 ) = t $.
+Mandatory hypotheses: 
+  term t
+Popped from stack: 
+  term t
+Unifying Frame: 
+  t replace with t
+Pushing to stack: |- ( t + 0 ) = t
+Pushing to stack: term t
+Pushing to stack: term 0
+
+Parsing statement tpl $a term ( t + r ) $.
+Mandatory hypotheses: 
+  term r
+  term t
+Popped from stack: 
+  term 0
+  term t
+Unifying Frame: 
+  t replace with t
+  r replace with 0
+Pushing to stack: term ( t + 0 )
+Pushing to stack: term t
+
+Parsing statement weq $a wff t = r $.
+Mandatory hypotheses: 
+  term r
+  term t
+Popped from stack: 
+  term t
+  term ( t + 0 )
+Unifying Frame: 
+  t replace with ( t + 0 )
+  r replace with t
+Pushing to stack: wff ( t + 0 ) = t
+Pushing to stack: term t
+Pushing to stack: term 0
+
+Parsing statement tpl $a term ( t + r ) $.
+Mandatory hypotheses: 
+  term r
+  term t
+Popped from stack: 
+  term 0
+  term t
+Unifying Frame: 
+  t replace with t
+  r replace with 0
+Pushing to stack: term ( t + 0 )
+Pushing to stack: term t
+
+Parsing statement weq $a wff t = r $.
+Mandatory hypotheses: 
+  term r
+  term t
+Popped from stack: 
+  term t
+  term ( t + 0 )
+Unifying Frame: 
+  t replace with ( t + 0 )
+  r replace with t
+Pushing to stack: wff ( t + 0 ) = t
+Pushing to stack: term t
+Pushing to stack: term t
+
+Parsing statement weq $a wff t = r $.
+Mandatory hypotheses: 
+  term r
+  term t
+Popped from stack: 
+  term t
+  term t
+Unifying Frame: 
+  t replace with t
+  r replace with t
+Pushing to stack: wff t = t
+
+Parsing statement wim $a wff ( P -> Q ) $.
+Mandatory hypotheses: 
+  wff Q
+  wff P
+Popped from stack: 
+  wff t = t
+  wff ( t + 0 ) = t
+Unifying Frame: 
+  P replace with ( t + 0 ) = t
+  Q replace with t = t
+Pushing to stack: wff ( ( t + 0 ) = t -> t = t )
+Pushing to stack: term t
+
+Parsing statement a2 $a |- ( t + 0 ) = t $.
+Mandatory hypotheses: 
+  term t
+Popped from stack: 
+  term t
+Unifying Frame: 
+  t replace with t
+Pushing to stack: |- ( t + 0 ) = t
+Pushing to stack: term t
+Pushing to stack: term 0
+
+Parsing statement tpl $a term ( t + r ) $.
+Mandatory hypotheses: 
+  term r
+  term t
+Popped from stack: 
+  term 0
+  term t
+Unifying Frame: 
+  t replace with t
+  r replace with 0
+Pushing to stack: term ( t + 0 )
+Pushing to stack: term t
+Pushing to stack: term t
+
+Parsing statement a1 $a |- ( t = r -> ( t = s -> r = s ) ) $.
+Mandatory hypotheses: 
+  term s
+  term r
+  term t
+Popped from stack: 
+  term t
+  term t
+  term ( t + 0 )
+Unifying Frame: 
+  t replace with ( t + 0 )
+  r replace with t
+  s replace with t
+Pushing to stack: |- ( ( t + 0 ) = t -> ( ( t + 0 ) = t -> t = t ) )
+
+Parsing statement mp $a |- Q $.
+Mandatory hypotheses: 
+  |- ( P -> Q )
+  |- P
+  wff Q
+  wff P
+Popped from stack: 
+  |- ( ( t + 0 ) = t -> ( ( t + 0 ) = t -> t = t ) )
+  |- ( t + 0 ) = t
+  wff ( ( t + 0 ) = t -> t = t )
+  wff ( t + 0 ) = t
+Unifying Frame: 
+  P replace with ( t + 0 ) = t
+  Q replace with ( ( t + 0 ) = t -> t = t )
+Pushing to stack: |- ( ( t + 0 ) = t -> t = t )
+
+Parsing statement mp $a |- Q $.
+Mandatory hypotheses: 
+  |- ( P -> Q )
+  |- P
+  wff Q
+  wff P
+Popped from stack: 
+  |- ( ( t + 0 ) = t -> t = t )
+  |- ( t + 0 ) = t
+  wff t = t
+  wff ( t + 0 ) = t
+Unifying Frame: 
+  P replace with ( t + 0 ) = t
+  Q replace with t = t
+Pushing to stack: |- t = t
+Proof checking succeeded! Yippee!
+Done!
