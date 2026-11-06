@@ -4,6 +4,10 @@ _tmp/
 node_modules
 package-lock.json
 *.swp
+
+/ai
+
 /src/book/frege/
 /html/book/frege/
-/ai
+/src/book/hirst/
+/html/book/hirst/

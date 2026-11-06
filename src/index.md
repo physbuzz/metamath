@@ -43,4 +43,4 @@ I'll probably reorganize this at some point. Studying chapter-by-chapter isn't r
 
 Planned:
 
-- [04 Looking at set.mm](04-setmm.html)
+- [04 Studying Propositional Calculus with Metamath](04-propmm.html)

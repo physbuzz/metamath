@@ -7,7 +7,7 @@ title: "03 Writing a Metamath Interpreter (Megill ch4)"
 <nav class="nav">
     <span class="activenav"><a href="02-sicp-logic.html">← Previous</a></span>
     <span class="activenav"><a href="index.html">↑ Up</a></span>
-    <span class="activenav"><a href="04-setmm.html">Next →</a></span>
+    <span class="activenav"><a href="04-propmm.html">Next →</a></span>
 </nav>
 
 [Read in html](book/metamath.html#the-metamath-language) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf#page=129)
@@ -74,7 +74,15 @@ Note: My parser has exploded in complexity, while [David Wheeler's Python implem
 something to be discouraged in real proof databases and ignoring it makes it easier to parse.
 
 
-## Writing the parser
+## Pass 1
+
+First it's natural to write a parser and proof checker with no support for disjoint variables
+or compression. This is just to get the lay of the land, write stupid inefficient algorithms,
+and show that we know what's going on. The output of my program in  `#define SUPER_ULTRA_VERBOSE` mode is shown in [this github file](https://github.com/physbuzz/metamath/blob/master/cpp/ch2_theorem_parsing.txt), which is nice to let us know we're doing correct things and using terms correctly, even if the parser and checker certainly have some bugs in them, given how sloppy my coding style was.
+
+Pass 1 was completed on Nov 6, 2026. 
+
+### Writing the parser
 
 When writing the parser, I found it easiest to distinguish between the following enum classes and structs. If you're 
 writing your own parser, starting from these terms isn't the worst idea. 
@@ -171,10 +179,19 @@ questions about what datatypes to use, whether to store each
 data type in its own array, and so on. This works well enough and it
 took me a few passes to wind up at these data structures.
 
-## Writing the proof checker
+### Writing the proof checker
 
+TODO: 
 
+- List out the structs that I found useful.
+- List out the unification
+- List out things I'd change (one place I needed StatementType::FLOATING? To me this signifies that my struct definitions could be better). Separating out into more files is a given.
 
+##  Future work
+
+Disjoint variables, and proof compression are the next big things to implement. However it doesn't really make sense to implement them before we're doing proofs that need them. So let's 
+study propositional calculus proofs a little bit before getting to
+disjoint variables. 
 
 
 
