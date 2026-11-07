@@ -25,9 +25,9 @@ title: "01 Working through a Metamath Proof by Hand (Megill ch2)"
 
 Notes while trying to understand the metamath proof in ch2:
 
- - `tze $a term 0 $.` This is an axiomatic hypothesis, as opposed to the floating hypotheses earlier. The floating hypotheses were not "axioms" because they refer to metavariables. But 0 is an actual term of the language (?) so we need an actual axiom.
+ - `tze $a term 0 $.` This is an axiomatic hypothesis, as opposed to the floating hypotheses earlier. The floating hypotheses were not "axioms" because they refer to metavariables. But `0` is an actual term of the language (?) so we need an actual axiom.
 - `tpl $a term ( t + r ) $.` Here parentheses are just constants, not actual metamath syntax. though the concept of parentheses aren't in the language, can I come up with an example where the addition of parentheses changes the way in which expression parsing occurs? 
-- "$a is a constant followed by arbitrary seq of math symbols" -- The definition is simple, no tricks. I don't think there is any invalid axiom we can write by this definition. (Later when we introduce the `$d` symbol maybe? Unsure if this puts constraints on the axiom itself, or simply on what is allowed to be substited in for the mandatory hypotheses of an axiom.) 
+- "`$a` is a constant followed by arbitrary seq of math symbols" -- The definition is simple, no tricks. I don't think there is any invalid axiom we can write by this definition. (Later when we introduce the `$d` symbol maybe? Unsure if this puts constraints on the axiom itself, or simply on what is allowed to be substited in for the mandatory hypotheses of an axiom.)
 - In the statement `tpl $a term ( t + r ) $.` constants `( + )` don't need any hypotheses. `t` and `r` need hypotheses because they are metavariables. These are satisfied by the hypotheses `$f term t $.` and `$f term r $.`
 - Metamath's `show` command can show you a statement's mandatory hypotheses, very useful for just
 starting out when I've been unsure of what a statement's mhs are.
@@ -81,11 +81,11 @@ For example, two sequences that occur a few times in the proof are:
 - `tt weq` (occurs 5 times)
 
 Let's look at the first one. First, `tt` is our floating hypothesis (`$f`) which
- declares `t` as a variable of typecode `term`, so `term t` is pushed to the stack. (Note: the word "typecode" is not used until chapter 4!! I thought of it as the "tag" for t, but typecode is the usual term)
+ declares `t` as a variable of typecode `term`, so `term t` is pushed to the stack. (Note: the word "typecode" is not used until chapter 4!! I thought of it as the "tag" for `t`, but typecode is the usual term)
 
 Second, `term 0` is pushed to the stack.
 
-Third, we want to push `tpl` to the stack. tpl's definition is `tpl $a term ( t + r ) $.`, which has two placeholders/variables t and r. The real way to phrase this is that we have two *mandatory hypotheses*. We pop from the stack to substitute our term 0 in for the second placeholder (the most recent mandatory hypothesis). We pop from the stack to substitute our secondmost recent mandatory hypothesis. And we're left with `term ( t + 0 )`. 
+Third, we want to push `tpl` to the stack. `tpl`'s definition is `tpl $a term ( t + r ) $.`, which has two placeholders/variables `t` and `r`. The real way to phrase this is that we have two *mandatory hypotheses*. We pop from the stack to substitute our `term 0` in for the second placeholder (the most recent mandatory hypothesis). We pop from the stack to substitute our secondmost recent mandatory hypothesis. And we're left with `term ( t + 0 )`.
 
 Up to the last two statements, this is the whole procedure of the proof. push terms, pop terms when we need to substitute variables. There are no surprises or nonsequiturs up until the modus ponens rules. Just before we parse the first `mp`, the stack looks like the following. All the impenetrable work has gone into building these expressions, and I cannot stress enough that it is not that interesting (which means if you're confused, you should work through this by hand to convince yourself yeah, it's just substituting stuff in). 
 
@@ -99,9 +99,9 @@ wff ( ( t + 0 ) = t -> t = t )
 |- ( ( t + 0 ) = t -> ( ( t + 0 ) = t -> t = t ) ) 
 ```
 
-When we parse `mp`, I initially thought we had two mandatory hypotheses meaning we pop two things from the stack (the most recent two turnstiles) and deduce what P and Q must be. But in fact, we don't do deductions like that in Metamath!
-The substitutions for P and Q must be given explicitly, they are not deduced. 
-Therefore we need to pop four things from the stack in total. In order, the things we pop (the four mandatory hypotheses for `mp`) are `|- ( P -> Q )`, `|- P`, `Q`, `P`. The order is because this is the reverse order of how they appear in the database. This is established on page 130, section 4.2.5, of the Metamath book. Okay, so we pop four things from the stack, do our substitutions, and push turnstile Q. The proof stack now looks like this:
+When we parse `mp`, I initially thought we had two mandatory hypotheses meaning we pop two things from the stack (the most recent two turnstiles) and deduce what `P` and `Q` must be. But in fact, we don't do deductions like that in Metamath!
+The substitutions for `P` and `Q` must be given explicitly, they are not deduced.
+Therefore we need to pop four things from the stack in total. In order, the things we pop (the four mandatory hypotheses for `mp`) are `|- ( P -> Q )`, `|- P`, `Q`, `P`. The order is because this is the reverse order of how they appear in the database. This is established on page 130, section 4.2.5, of the Metamath book. Okay, so we pop four things from the stack, do our substitutions, and push turnstile `Q`. The proof stack now looks like this:
 
 ```
 wff ( t + 0 ) = t
@@ -122,7 +122,7 @@ QED!
 
 Especially useful stuff in the interactive CLI:
 - `prove theorem1` -> `delete all` to practice.
-- `assign 1 mp` -> Assign proof line 1 to the hypothesis mp.
+- `assign 1 mp` -> Assign proof line 1 to the hypothesis `mp`.
 - `improve all` -> used in ch2 for, when the "proof structure" is complete, there's still a lot of statements to fill, so `improve` can automatically construct those statements.
 
 
@@ -130,27 +130,27 @@ Especially useful stuff in the interactive CLI:
 
 ## Quiz Questions
 
-### Q
+### Question
 In Metamath, what does a typecode refer to?
-#### A
+#### Answer
 A typecode is a constant defined first inside `$c mytypecode $.` It is used to assign a type in a floating hypothesis, `hypoth $f mytypecode x $.` This is a hypothesis which states that the variable `x` is of type `mytypecode`. Note that there is no complicated "type system", so this is really just a label that is associated with `x` whenever we apply `hypoth`.
 
-### Q
+### Question
 In Metamath, what does the symbol `$c` mean, and how is it used?
-#### A
-c stands for constant. These are user-defined, and the user needs to define things like typecodes `wff`, `term`, and the other primitive symbols you want to define like `(`, `)`, `|-`, `->`. Like all Metamath statements, `$c` must be closed with a `$.` symbol. For example: `$c wff term ( ) |- -> $.` 
+#### Answer
+`c` stands for constant. These are user-defined, and the user needs to define things like typecodes `wff`, `term`, and the other primitive symbols you want to define like `(`, `)`, `|-`, `->`. Like all Metamath statements, `$c` must be closed with a `$.` symbol. For example: `$c wff term ( ) |- -> $.`
 
-### Q
+### Question
 In Metamath, what does the symbol `$v` mean, and how is it used?
-#### A
-v stands for variable. These are user-defined. Every variable that you want to use must be declared. The statement `$v` must be closed with a `$.` symbol. For example, `$v t r s P Q $.` 
+#### Answer
+`v` stands for variable. These are user-defined. Every variable that you want to use must be declared. The statement `$v` must be closed with a `$.` symbol. For example, `$v t r s P Q $.`
 
 When variables occur in an essential hypothesis or axiom, they must be filled (satisfied) by other mandatory hypotheses. (??? Not sure if this is correct or if it's the correct phrasing of what I mean).
 
-### Q
+### Question
 In Metamath, what does the symbol `$e` mean, and how is it used?
-#### A
-e stands for essential hypothesis. It is also called a logical hypothesis. It must have a label, and can be followed by any number of math symbols, eg.
+#### Answer
+`e` stands for essential hypothesis. It is also called a logical hypothesis. It must have a label, and can be followed by any number of math symbols, eg.
 `mytheorem $e |- ( P -> Q ) $.`
 
 ### Question
@@ -180,18 +180,18 @@ wp $f wff P $.
 tze $a term 0 $.
 ```
 
-Why was the statement declaring 0 a term an axiomatic assertion, whereas the statement declaring `t` a term
+Why was the statement declaring `0` a term an axiomatic assertion, whereas the statement declaring `t` a term
 a floating hypothesis?
 
 #### Answer
 
 A floating hypothesis may only have one math symbol after its typecode, and that symbol must be a variable.
-However `0` is a constant. Instead, we are able to push "term 0" to the proof stack by using an axiom which
+However `0` is a constant. Instead, we are able to push `term 0` to the proof stack by using an axiom which
 has no essential hypotheses, `tze`. 
 
-It is also important that $tze is not a hypothesis. When the mandatory hypothesis of some axiom or theorem
+It is also important that `tze` is not a hypothesis. When the mandatory hypothesis of some axiom or theorem
 is a floating hypothesis, this can end up giving us a replacement rule telling us what a given variable
-gets replaced by. This process--unification--makes no sense to apply to the constant 0.
+gets replaced by. This process--unification--makes no sense to apply to the constant `0`.
 
 ### Question
 
@@ -218,7 +218,7 @@ In Metamath, in the middle of a proof, an axiom is `a2 $a |- ( t + 0 ) = t $.`.
 The mandatory hypothesis of `a2` is `tt $f term t $.` and the term on the top of the proof stack is
 `term ( r + 0 )`. What is the resulting expression after applying `a2`? 
 
-Assume conventions of set.mm, so things like `|-` and `term` and so on are constants.
+Assume conventions of `set.mm`, so things like `|-` and `term` and so on are constants.
 
 #### Answer
 
@@ -283,10 +283,10 @@ wff ( x y z )
 ```
 
 Normally in mathematics we think of modus ponens as having two premises. And indeed we could imagine that just given
-the two entries off the top of the stack, we can infer what must fill the mandatory hypotheses P and Q.
+the two entries off the top of the stack, we can infer what must fill the mandatory hypotheses `P` and `Q`.
 But Metamath doesn't figure this kind of thing out for us (in other words: it doesn't have a complex unification algorithm), instead the floating hypotheses tell us exactly how things are parsed. First we unify
-`wff ( a b c )` with the mandatory hypothesis `$f wff P $.` to figure out that P should be replaced with `( a b c )`.
-Next, we unify `wff ( x y z )` with mandatory hypothesis `$f wff Q $.` to figure out that Q should be replaced 
+`wff ( a b c )` with the mandatory hypothesis `$f wff P $.` to figure out that `P` should be replaced with `( a b c )`.
+Next, we unify `wff ( x y z )` with mandatory hypothesis `$f wff Q $.` to figure out that `Q` should be replaced
 with `( x y z )`. For the next two mandatory hypotheses `min` and `maj`, we simply have to check that the 
 replacements found from our unification
 are consistent with the substitutions we already found. 
@@ -311,9 +311,9 @@ assistant to go through the steps yourself from memory.
 #### Hint
 
 The second part of the question is section 2.4. It might be useful to open up the proof assistant and recreate 
-the demo0.mm proof. In the metamath CLI, commands `prove th1`, `delete all`, and the command `show new_proof` 
+the `demo0.mm` proof. In the metamath CLI, commands `prove th1`, `delete all`, and the command `show new_proof`
 with arguments `/lemmon` or `/all` can be useful. From there, you'll want to use the command `assign n label`
-to assign line n to proof step label. Finally, you can get it to a point where `improve all` can take over.
+to assign line `n` to proof step `label`. Finally, you can get it to a point where `improve all` can take over.
 
 #### Answer
 
