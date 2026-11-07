@@ -201,91 +201,52 @@ disjoint variables.
 
 ### Question
 
-In Metamath, are `( P -> Q )` and `(P->Q)` the same sequence of math symbols? What about `P Q` and `PQ`? Can a parser split tokens by recognizing familiar logical punctuation?
+In Metamath, what separates one math symbol from another? If we have declared `(`, `)`, `P`, `Q`, and `->`, can we
+write `(P->Q)` in place of `( P -> Q )`? What about writing `PQ` in place of `P Q`?
 
 #### Answer
 
-Tokens are separated by whitespace. `( P -> Q )` contains five tokens, whereas `(P->Q)` is one token. Likewise, `P Q` contains two tokens and `PQ` contains one. The single tokens could be separately declared math symbols, but declarations of their apparent pieces do not declare them.
+Whitespace separates tokens. `( P -> Q )` contains five math symbols, whereas `(P->Q)` is a single token. Similarly,
+`P Q` contains two tokens and `PQ` contains one. Declaring `P` and `Q` does not declare `PQ`.
 
-The parser must not split tokens using logical punctuation. The database defines its symbols; parentheses and arrows do not have built-in lexical roles within math expressions.
+We could separately declare `(P->Q)` as a math symbol, but it would still be one symbol. The parser doesn't split it
+up by recognizing the parentheses or implication arrow.
 
 ### Question
 
-In Metamath, assume the following declarations. Consider each proposed floating hypothesis independently. Which are legal, and why? After adding `fx $f term x $.`, could another `$f` for `x` be added inside a nested block?
-
-```metamath
-$c term wff 0 $.
-$v x y $.
-```
-
-1. `h $f term x $.`
-2. `h $f term 0 $.`
-3. `h $f term x y $.`
-4. `h $f x y $.`
+In Metamath, what is the difference between a math symbol and a statement label? Can a label have the same name as a
+math symbol? Can we reuse the label of a hypothesis after its block has closed?
 
 #### Answer
 
-Only the first is legal. A `$f` must contain exactly two math symbols: an active constant, then an active variable. The second uses a constant in the variable position; the third has too many symbols; the fourth uses a variable in the typecode position.
+Math symbols are the constants and variables declared with `$c` and `$v`. They occur in the expressions we construct.
+Labels name the `$f`, `$e`, `$a`, and `$p` statements that we refer to in proofs. For example, in `tt $f term t $.`,
+`tt` is the label, while `term` and `t` are math symbols.
 
-There cannot be two active `$f` statements for the same variable, even if they give the same typecode. A nested block does not hide an outer floating hypothesis, so adding another `$f` for `x` while `fx` is active is invalid.
+A label cannot have the same name as a math symbol. Labels must also be unique throughout the database, even when the
+statements they label are no longer active. Closing a block does not let us reuse its hypothesis labels.
 
 ### Question
 
-In Metamath, what are the requirements for declaring an essential hypothesis with `$e`? Explain its expression shape, required variable typing, scope, and effect on later assertions. Distinguish using its label directly in a proof from satisfying it when applying an assertion.
+In Metamath, what does it mean for a math symbol to be active? When do declarations made with `$c` and `$v` become
+active, and when do they stop being active? Can a symbol be declared again?
 
 #### Answer
 
-An essential hypothesis has the form `label $e typecode symbols $.`. The label must be unique and must not also be a math symbol. The typecode must be an active constant; it is followed by zero or more active math symbols. Every variable used must already have an active `$f` hypothesis. The typecode need not be `|-`.
+A math symbol is active from its declaration until the end of the block containing that declaration. Outside all
+blocks, it stays active through the end of the database. We can only use active math symbols when writing a new
+hypothesis or assertion. Opening a nested block does not hide the declarations from the enclosing block.
 
-The hypothesis is active from its declaration to the end of its enclosing block, or to the end of the database if declared outside all blocks. It is mandatory for every subsequent assertion declared while it is active, even if its expression appears irrelevant to the conclusion.
-
-Referencing an active `$e` label in a proof pushes its expression unchanged. Applying an assertion that has this `$e` as a mandatory hypothesis instead consumes a stack entry that must match the hypothesis after the assertion's substitution. The hypothesis is an assumption while proving within its scope and an obligation when applying the resulting assertion elsewhere.
-
-### Question
-
-In this Metamath database, what are the mandatory variables and the ordered mandatory hypotheses of `rule`? Which active floating hypothesis is omitted? Would collecting all mandatory `$f` statements first and all `$e` statements second give the right order?
-
-```metamath
-$c wff |- ( ) -> $.
-$v x y z $.
-wx $f wff x $.
-hx $e |- x $.
-wy $f wff y $.
-wz $f wff z $.
-hy $e |- y $.
-rule $a |- ( x -> x ) $.
-```
-
-#### Answer
-
-The mandatory variables are `x` and `y`: take the variables in the assertion together with those in all active essential hypotheses. Thus `y` is mandatory even though it is absent from the conclusion.
-
-The ordered mandatory hypotheses are `wx hx wy hy`, preserving database order. `wz` is omitted because `z` occurs in neither the assertion nor an active essential hypothesis. Both essential hypotheses are included. Grouping by statement kind would incorrectly produce `wx wy hx hy`.
+Constants must be declared outside all `${ ... $}` blocks, and cannot be declared again. Variables can be declared
+inside blocks. A variable cannot be declared again while it is active, but it can be declared again as a variable
+after its earlier declaration becomes inactive. We cannot change a variable into a constant by redeclaring it.
 
 ### Question
 
-In this Metamath database, is the proof of `th` valid? Does `th` have a mandatory hypothesis even though its proof never references `h`? After the block closes, can a later proof obtain `|- B` by using `th` with an empty stack?
+In Metamath, when are hypotheses and assertions active? In the following database, what happens to `x`, `fx`, `h`, and
+`pass` when we reach `$}`? How would we use `pass` afterward, substituting `t` for `x`?
 
-```metamath
-$c |- A B $.
-b $a |- B $.
-${
-    h $e |- A $.
-    th $p |- B $= b $.
-$}
-```
-
-#### Answer
-
-The proof is valid: `b` has no hypotheses and leaves exactly `|- B` on the stack.
-
-Nevertheless, `h` is a mandatory hypothesis of `th` because it was active when `th` was declared. Mandatory hypotheses are determined from the declaration's context, not by analyzing which assumptions its proof uses. A later application of `th` must consume an entry `|- A`; applying it to an empty stack fails. The caller could instead use `b` directly.
-
-### Question
-
-In this Metamath database, what happens to `x`, `fx`, `h`, and `pass` after `$}`? Can a later proof use `h` directly? What must it supply to apply `pass` with `t` substituted for `x`?
-
-```metamath
+```mm
 $c term |- $.
 $v t $.
 ft $f term t $.
@@ -299,158 +260,265 @@ $}
 
 #### Answer
 
-The declaration of `x` and the hypotheses `fx` and `h` become inactive. A later expression cannot use `x` on the strength of this expired declaration, and a later proof cannot reference `fx` or `h` directly.
+Hypotheses `$f` and `$e` are active from their declaration until the end of their enclosing block. Assertions `$a` and
+`$p` remain active through the end of the database, even if they were declared inside a block.
 
-The assertion `pass` remains available with its original mandatory hypotheses `fx h`. To apply it with `x` replaced by `t`, a proof supplies `term t` followed by `|- t`; `pass` consumes both and pushes `|- t`.
+Here, `x`, `fx`, and `h` become inactive. We cannot use `x` in a new statement without declaring it again, and we cannot
+refer to `fx` or `h` directly in a later proof. But `pass` is still available, with mandatory hypotheses `fx h`.
 
-The parser must therefore retain `pass`'s expression and ordered mandatory hypotheses after leaving the block. Removing hypotheses from the active context must not destroy the assertion's stored requirements.
+To apply `pass` with `t` replacing `x`, the top two proof-stack entries must be `term t` followed by `|- t`. These
+satisfy `pass`'s original hypotheses after substitution. We pop both entries and push `|- t`.
+
+So when writing a parser, we must keep the expression and mandatory hypotheses of `pass` even after the block closes.
+They are still needed when applying the assertion, although the hypotheses themselves are no longer active.
 
 ### Question
 
-In this Metamath database, trace the proof of `th`. Why does `drop` require a floating hypothesis for `b`, although `b` is absent from its conclusion? What are the mandatory hypotheses of `th` itself, and must a later caller supply the floating hypotheses used inside its proof?
+In Metamath, can a variable have two active floating hypotheses, perhaps one inside a nested block? Does it matter
+whether they give it the same typecode? Also, is declaring a variable with `$v` enough to use it in an `$e` statement,
+or can its floating hypothesis be supplied later?
 
-```metamath
-$c term |- $.
-$v a b $.
-fa $f term a $.
-fb $f term b $.
+#### Answer
+
+A variable cannot occur in two active floating hypotheses, even if both give it the same typecode. An inner block does
+not hide an outer floating hypothesis. For example, if `tt $f term t $.` is still active, we cannot add another `$f`
+for `t` inside that block.
+
+Declaring a variable with `$v` does not supply a floating hypothesis. Every variable used in an `$e`, `$a`, or `$p`
+statement must already have an active `$f` statement. Defining its floating hypothesis later does not fix the earlier
+statement. A variable can be declared without a floating hypothesis if we do not yet use it in those statements.
+
+### Question
+
+In Metamath, how do we determine an assertion's mandatory variables and mandatory hypotheses? How are the hypotheses
+ordered? What are optional hypotheses, and can an essential hypothesis be optional?
+
+#### Answer
+
+The mandatory variables are all variables occurring in the assertion's expression or in any essential hypothesis
+active at that assertion.
+
+The mandatory hypotheses are all active essential hypotheses, together with the active floating hypotheses for the
+mandatory variables. We keep these hypotheses in the order they were declared in the database. We do not sort them by
+label, by variable name, or by whether they are floating or essential.
+
+The remaining active floating hypotheses are optional hypotheses. A theorem's proof may use them, but a later
+application of that theorem does not need to supply inputs for them. Every active essential hypothesis is mandatory;
+there are no optional essential hypotheses.
+
+### Question
+
+In the following Metamath database, what are the mandatory variables and mandatory hypotheses of `rule`? Give the
+hypotheses in the order they must be satisfied on the proof stack, from bottom to top.
+
+```mm
+$c wff |- ( ) -> $.
+$v x y z $.
+wx $f wff x $.
+hx $e |- x $.
+wy $f wff y $.
+wz $f wff z $.
+hy $e |- y $.
+rule $a |- ( x -> x ) $.
+```
+
+#### Answer
+
+The mandatory variables are `x` and `y`. Although `y` does not occur in the assertion's expression, it occurs in the
+active essential hypothesis `hy`, so its floating hypothesis is required too.
+
+The mandatory hypotheses, in order, are `wx hx wy hy`. Both essential hypotheses are required. `wz` is not mandatory
+because `z` occurs in neither the assertion nor an active essential hypothesis.
+
+Notice that the order is not `wx wy hx hy`. Floating and essential hypotheses can be interleaved, and we preserve
+their declaration order.
+
+### Question
+
+In Metamath, does an essential hypothesis still become mandatory if the theorem's proof doesn't use it? Consider the
+following example. Is `th` proved correctly, and could we later apply `th` to an empty proof stack?
+
+```mm
+$c |- A B $.
+b $a |- B $.
 ${
-    hb $e |- b $.
-    drop $a |- $.
+    h $e |- A $.
+    th $p |- B $= b $.
 $}
-seed $a |- a $.
-th $p |- $= fa fa seed drop $.
+```
+
+#### Answer
+
+The proof of `th` is correct. `b` has no mandatory hypotheses, so it pushes `|- B`, which is exactly what we need.
+
+But `h` is still a mandatory hypothesis of `th`. It was active when `th` was declared, regardless of whether its proof
+used it. A later application of `th` must consume an entry `|- A` before pushing `|- B`. Applying `th` to an empty
+stack would fail. We could instead apply `b`, which has no mandatory hypotheses.
+
+### Question
+
+In the following Metamath database, how many mandatory hypotheses does `remove_variable` have? Trace the proof of
+`proof_of_turnstile`. How many mandatory hypotheses does that theorem have, even though its proof uses `term_a`?
+
+```mm
+$c term |- $.
+$v a b c $.
+term_a $f term a $.
+term_b $f term b $.
+term_c $f term c $.
+${
+    stmnt_b2 $e |- b $.
+    remove_variable $a |- $.
+$}
+chaos_axiom $a |- c $.
+proof_of_turnstile $p |- $= term_a term_a chaos_axiom remove_variable $.
 ```
 
 #### Hint
 
-Compute `drop`'s and `th`'s mandatory hypotheses separately. Then track which of the two copies of `term a` is consumed by `seed`.
+Work out the mandatory hypotheses of `remove_variable` and `proof_of_turnstile` separately. In the proof, keep track
+of which copy of `term a` is consumed by `chaos_axiom`.
 
 #### Answer
 
-`drop` has mandatory hypotheses `fb hb`: the variable `b` occurs in its essential hypothesis. Its conclusion consists only of the constant `|-`, which is a legal expression.
+`remove_variable` has two mandatory hypotheses, `term_b stmnt_b2`. The variable `b` occurs in its essential hypothesis,
+so we need `term_b` even though `b` does not occur in the conclusion. An expression consisting only of a typecode,
+such as `|-`, is allowed.
 
-The proof proceeds as follows, with stacks listed from bottom to top:
+The proof proceeds as follows:
 
-1. `fa`: `term a`.
-2. `fa`: `term a`, `term a`.
-3. `seed`: consumes the top `term a` and pushes `|- a`, leaving `term a`, `|- a`.
-4. `drop`: uses `a` as the replacement for `b`, checks `|- a` against its substituted essential hypothesis, consumes both entries, and pushes `|-`.
+1. The two `term_a` steps push two copies of `term a`.
+2. `chaos_axiom` consumes the top `term a`, replacing `c` by `a`, and pushes `|- a`.
+3. The stack now contains `term a` followed by `|- a`.
+4. `remove_variable` consumes these two entries. The first gives the replacement `b := a`, and the second matches
+   `|- b` after that substitution. We push the conclusion, `|-`.
 
-`th` has no mandatory hypotheses: its conclusion has no variables, and no essential hypotheses are active at its declaration. The active floating hypotheses `fa` and `fb` are optional hypotheses of `th`; its proof uses `fa`. A later caller of `th` supplies no stack entries. A theorem's internal proof can use optional hypotheses without adding them to the theorem's mandatory inputs.
+`proof_of_turnstile` has no mandatory hypotheses. Its expression contains no variables, and no essential hypotheses
+are active at its declaration. Its active floating hypotheses are optional, and the proof uses `term_a`. A later proof
+can apply `proof_of_turnstile` without supplying any inputs for these internal steps.
 
 ### Question
 
-A Metamath implementation parses the whole database before checking proofs. Is it enough to accept any proof label found in its final global statement table? Which references are legal in a theorem's uncompressed proof, and what context must the implementation preserve?
+In Metamath, which statement labels may occur in an uncompressed proof? Can a theorem refer to itself, to a statement
+later in the file, or to a hypothesis whose block has closed? If we parse the entire database before checking proofs,
+is finding the label in the database enough?
 
 #### Answer
 
-A proof may reference hypotheses active at the theorem's declaration and assertions appearing earlier in the database. It may not reference the theorem itself, a later assertion, or a hypothesis whose scope has already ended. An earlier assertion remains available even if its declaring block has closed.
+A proof may refer to hypotheses active at the theorem's declaration, including optional floating hypotheses, and to
+earlier assertions. It cannot refer to the theorem itself, to later statements, or to inactive hypotheses. An earlier
+assertion remains available even if its block has closed.
 
-A final global table alone does not establish these conditions. The implementation must enforce them while parsing or retain enough declaration order and scope information to check them later. It must also allow active optional floating hypotheses, not just the theorem's mandatory hypotheses.
+Finding the label is not enough. If parsing and proof checking are separate passes, we must either check these
+restrictions while parsing or retain the information needed to check them later. The theorem's position and scope
+matter; a statement's existence somewhere in the database does not make it available to that proof.
 
 ### Question
 
-While verifying a Metamath proof, an assertion application substitutes `0` for a variable `t`. The next proof label is the active hypothesis `tt $f term t $.`. Does `tt` now push `term 0` or `term t`? Does that earlier substitution modify future uses of the assertion?
+In Metamath, what does the verifier do when a proof step applies an axiom or a previously proved theorem with $n$
+mandatory hypotheses? Describe how to obtain the replacement rules and check the hypotheses, including what happens
+when $n=0$.
+
+Note: Ignore disjoint-variable restrictions for this question.
 
 #### Answer
 
-`tt` pushes `term t`, unchanged. Each assertion application constructs its own substitution; it does not assign a persistent value to a database variable or modify a stored statement. A later use of the same assertion obtains its substitutions from the stack entries supplied for that later use.
+First, there must be at least $n$ entries on the proof stack. The last mandatory hypothesis corresponds to the top
+entry, the second-to-last to the entry below that, and so on. We cannot search farther down the stack for a match.
+
+For each floating hypothesis, the corresponding entry must begin with the same typecode. Everything after that
+typecode is the replacement for the hypothesis's variable. The typecode itself is not part of the replacement.
+
+Next, apply these replacement rules to the essential hypotheses. Each resulting expression must match its
+corresponding stack entry exactly. We do not obtain new replacement rules from the essential hypotheses.
+
+We pop the $n$ entries, apply the same replacements to the assertion's expression, and push the result. Entries below
+those $n$ inputs stay on the stack. If we pop entries before doing the checks, we must keep their contents available
+for computing and checking the substitutions.
+
+When $n=0$, we pop nothing and push the assertion's expression unchanged. Applying a proved theorem uses its mandatory
+hypotheses and conclusion in the same way as applying an axiom; we do not rerun its proof on the current proof stack.
 
 ### Question
 
-In a Metamath database with no disjoint-variable restrictions, describe the complete stack operation for applying an `$a` or an already verified `$p` with (n) mandatory hypotheses. How are the inputs paired with hypotheses, how is the substitution determined, and what happens when (n=0)?
-
-#### Answer
-
-1. Require at least (n) entries. Use the top (n), pairing them from bottom to top with the mandatory hypotheses in database order. If physically popping, the first popped entry corresponds to the last hypothesis.
-2. For every mandatory `$f`, check that the paired entry starts with the required typecode. Map its variable to the remaining symbol sequence, excluding that typecode.
-3. Apply this substitution to each mandatory `$e` and require exact equality with its paired stack entry.
-4. Remove the (n) input entries and push the assertion's expression with the same substitution applied. Entries below these inputs remain untouched.
-
-The substitution is simultaneous and replaces variables only. Hypothesis order may interleave `$f` and `$e`; collecting the `$f` mappings before checking `$e` expressions avoids dependence on the direction in which the stack is traversed.
-
-For (n=0), consume nothing and push the assertion's expression unchanged. Applying a `$p` uses its stored hypotheses and conclusion; it does not splice its internal proof into the caller's stack.
-
-### Question
-
-In a Metamath assertion application, suppose the floating-hypothesis inputs establish these substitutions:
+In Metamath, suppose an assertion application gives us the following replacement rules. What does `wff ( P -> Q )`
+become? Do we also replace the `P` and `Q` inside the expression that replaces `P`?
 
 ```text
 P := ( Q -> P )
 Q := R
 ```
 
-What does `wff ( P -> Q )` become? Should the verifier keep replacing `P` and `Q` inside the inserted expression? Assume all required typing evidence has been supplied and there are no disjoint-variable restrictions.
+If the next proof step is the active floating hypothesis `wp $f wff P $.`, what does it push?
+
+Note: Assume the required floating hypotheses have been satisfied and there are no disjoint-variable restrictions.
 
 #### Answer
 
-The result is:
+The result is `wff ( ( Q -> P ) -> R )`. Substitution is simultaneous: we replace each variable in the original
+expression, without repeating the substitution inside the expressions we insert. The `Q` and `P` inside the
+replacement for `P` stay as written. It is fine for a replacement to contain the variable being replaced.
 
-```text
-wff ( ( Q -> P ) -> R )
-```
-
-Substitution is simultaneous: replace occurrences in the original expression, without recursively substituting into the sequences inserted. The `P` and `Q` inside the replacement for `P` remain as written. A replacement may contain the very variable being replaced; this does not create an infinite substitution process.
+The next `wp` step pushes `wff P`, unchanged. The replacement rules belong to one application of an assertion; they do
+not change the stored hypotheses or assign permanent values to variables. A later assertion application gets its own
+replacement rules from the inputs supplied for that application.
 
 ### Question
 
-In this Metamath database, why does the proof fragment `ft wp wi` fail? Would it help if the symbol sequence `t` could also be proved to be a `wff` elsewhere in the database?
+In Metamath, suppose an assertion has the following mandatory hypotheses and conclusion:
 
-```metamath
-$c term wff ( ) -> $.
-$v t P Q $.
-ft $f term t $.
+```mm
 wp $f wff P $.
-wq $f wff Q $.
-wi $a wff ( P -> Q ) $.
+h $e |- ( P -> P ) $.
+rule $a |- P $.
 ```
 
-#### Answer
-
-`wi` has mandatory hypotheses `wp wq`. The fragment supplies `term t` and `wff P`, in that order. Its first input must start with `wff`, but starts with `term`, so the application fails before essential-hypothesis checking is relevant.
-
-The verifier does not search the database for alternative typing evidence or convert an existing stack entry automatically. A proof of `wff t` would have to be explicitly placed on the stack in the required position.
-
-### Question
-
-In Metamath, a rule has these mandatory hypotheses, in order:
-
-```text
-wp: wff P
-h:  |- ( P -> P )
-```
-
-Its conclusion is `|- P`. Assume `A` and `B` are distinct constant tokens and the following two entries have been legitimately obtained. Can the rule consume them? Could it infer different replacements from the essential hypothesis to make the application succeed?
+We try to apply `rule` to the following proof stack, listed from bottom to top. Does it work? If we change `B` to `A`,
+does it work then? What if we also change the first entry's typecode from `wff` to `term`?
 
 ```text
 wff A
 |- ( A -> B )
 ```
 
-#### Answer
-
-No. The floating input fixes `P := A`, so the essential input must be exactly `|- ( A -> A )`. The actual entry is `|- ( A -> B )`.
-
-The verifier cannot choose a new replacement for the second occurrence of `P`, nor can it change the substitution inferred from the floating input. All hypotheses and the conclusion use one consistent substitution.
-
-### Question
-
-In Metamath, an axiom has conclusion `wff ( P -> Q )` and mandatory hypotheses `wp $f wff P $.` followed by `wq $f wff Q $.`. A proof supplies `wff A` followed by `wff B`, where `A` and `B` are distinct symbol sequences. What happens if the declarations of `wp` and `wq` are swapped without changing the proof?
+Note: `A` and `B` are distinct constants. Assume all symbols are declared and the displayed entries have been
+constructed by earlier steps in a larger database. Only the two hypotheses shown are mandatory for `rule`.
 
 #### Answer
 
-Originally the application uses `P := A` and `Q := B`, producing `wff ( A -> B )`.
+The original application fails. The floating hypothesis gives `P := A`, so the essential hypothesis requires
+`|- ( A -> A )`. That does not match `|- ( A -> B )`. We cannot choose a different replacement for the second
+occurrence of `P` to make it work.
 
-After the declarations are swapped, the mandatory order is `wq wp`. The same inputs now give `Q := A` and `P := B`, producing `wff ( B -> A )`. Both inputs have the right typecode, so the application itself can succeed while producing a different expression. A later hypothesis check or the final theorem check may then fail.
+Changing `B` to `A` makes the application succeed, leaving `|- A` on the stack.
 
-Mandatory order comes from hypothesis declarations, not from variable order in the conclusion or alphabetical order of labels.
+Changing the first typecode to `term` makes it fail again. That entry must match the typecode `wff` of `wp`. The
+verifier does not convert it to a `wff`, even if a proof of `wff A` is available elsewhere in the database.
 
 ### Question
 
-Is this Metamath proof valid? What gets substituted for `x`, and what error would a verifier make if it required at least one symbol after every stack entry's typecode?
+In Metamath, an axiom has expression `wff ( P -> Q )` and mandatory hypotheses `wp $f wff P $.` followed by
+`wq $f wff Q $.`. We apply it with `wff A` followed by `wff B` on the proof stack. What happens if we swap the
+hypothesis declarations in the database without changing the proof?
 
-```metamath
+Note: `A` and `B` stand for distinct symbol sequences whose required constructions have already been supplied.
+
+#### Answer
+
+Originally, we get `P := A` and `Q := B`, so the result is `wff ( A -> B )`.
+
+After swapping the declarations, the mandatory order is `wq wp`. The same stack now gives `Q := A` and `P := B`, so the
+result is `wff ( B -> A )`. Both typecodes still match, so this application can succeed while producing the wrong
+expression for the rest of the proof. A later hypothesis check or the final theorem check may then fail.
+
+The order comes from the hypothesis declarations, not from the order of variables in the axiom's expression.
+
+### Question
+
+In Metamath, can we replace a variable with an empty sequence of math symbols? Is the following proof valid, and what
+replaces `x` when we apply `wrap`?
+
+```mm
 $c term ( ) $.
 $v x $.
 fx $f term x $.
@@ -461,55 +529,78 @@ th $p term ( ) $= empty wrap $.
 
 #### Answer
 
-The proof is valid. `empty` pushes the one-symbol expression `term`. When `wrap` consumes it for `fx`, the typecode matches and the remainder is the empty sequence. Thus `x` is replaced by no symbols, and `wrap` pushes `term ( )`, exactly the theorem's expression.
+Yes. `empty` has no mandatory hypotheses, so it pushes the one-symbol expression `term`. When applying `wrap`, we
+compare this with the floating hypothesis `term x`. The typecodes match, and there is nothing after the typecode, so
+`x` is replaced by the empty sequence.
 
-Metamath permits empty replacements. Requiring a nonempty remainder would reject this valid proof. The typecode itself is still present; it is the variable's replacement that is empty.
+The result is `term ( )`, exactly what `th` claims. The proof is valid. The expression on the stack is not empty;
+it is the replacement for `x` that is empty.
 
 ### Question
 
-In Metamath, assume `a $a |- A $.` and `b $a |- B $.` have no mandatory hypotheses. For a theorem with target expression `|- B`, which of the proof sequences `a`, `a b`, and `b` succeeds? Assume all symbols are properly declared. Why is checking only the top stack entry insufficient?
+In Metamath, what conditions must the proof stack satisfy when a proof is finished? Suppose `a $a |- A $.` and
+`b $a |- B $.` have no mandatory hypotheses. Which of the proof sequences `a`, `a b`, and `b` proves `|- B`?
+
+Note: Assume all symbols are declared, `A` and `B` are distinct constants, and each proof starts with an empty stack.
 
 #### Answer
 
-Only `b` succeeds.
+The stack must contain exactly one expression, and that expression must match the theorem's expression, including its
+typecode. Only `b` succeeds.
 
-- `a` leaves a single entry, but it is `|- A`, not the target.
-- `a b` leaves `|- A` and `|- B`. The top entry matches, but the stack has an extra entry.
+- `a` leaves one entry, but it is `|- A`, which does not match the theorem.
+- `a b` leaves two entries. The top entry matches, but the extra entry makes the proof invalid.
 - `b` leaves exactly one entry, `|- B`.
 
-After processing the whole proof, the stack must contain exactly one expression, identical token for token to the theorem's expression, including its typecode. The verifier cannot discard leftover entries or accept merely equivalent formulas.
+It is not enough that the desired expression occurred somewhere during the proof, or that it is the top entry at the
+end. We must finish with just that expression on the stack.
 
 ### Question
 
-Is the following a legal Metamath database, even though `( -> )` would not be a formula in ordinary propositional notation? Must an `$a` with typecode `|-` have a separate proof that its remaining expression is a `wff`?
+In Metamath, is the following a legal axiom? Does the verifier require a separate construction showing that the
+expression after `|-` is a well-formed formula?
 
-```metamath
+```mm
 $c |- ( ) -> $.
 odd $a |- ( -> ) $.
 ```
 
 #### Answer
 
-Yes, it is legal. The assertion begins with an active constant and contains only declared math symbols. There are no variables needing floating hypotheses. Metamath does not impose a built-in propositional grammar or demand a separate well-formedness proof when an axiom is declared.
+It is a legal axiom. Its expression starts with a declared constant, and all its math symbols are active. There are no
+variables requiring floating hypotheses. Metamath does not require a separate `wff` construction when declaring an
+axiom, and does not check that these symbols make sense as ordinary propositional logic.
 
-A database's syntax axioms and floating hypotheses control which replacements can be supplied in its proofs. They do not make the verifier independently parse every axiom as an intended logical formula. Legality as Metamath source does not establish that an axiom expresses sensible mathematics.
-
-### Question
-
-In Metamath, a database has a proved equality `|- a = b`, where `a` and `b` are distinct constants. A rule requires the essential hypothesis `|- F a`, but the supplied stack entry is `|- F b`. Does the equality make these match automatically? Would calling the equality a definition change the verifier's behavior?
-
-#### Answer
-
-No. Essential hypotheses must match exactly after the rule's variable substitution. Constants are not substitution placeholders, so the verifier cannot replace `a` by `b` during this check.
-
-The proof must explicitly use suitable assertions from the database to derive the required expression. Calling a statement a definition does not give it automatic unfolding or rewriting behavior in the core verifier.
+We decide which axioms to put in the database. The verifier checks applications of those axioms according to their
+mandatory hypotheses; it does not establish that our chosen axioms express the mathematics we intended.
 
 ### Question
 
-A Metamath database contains an unfinished theorem whose proof is `?`. A later theorem applies it with correctly matched mandatory hypotheses and reaches its own target expression. Is that enough to claim that the later theorem has a fully verified proof from the axioms? What must a checker distinguish?
+In Metamath, suppose we have proved `|- a = b`, where `a` and `b` are distinct constants. An assertion requires the
+essential hypothesis `|- F a`, but we have `|- F b` on the proof stack. Does the equality let these match? What if
+`|- a = b` was introduced as a definition?
+
+Note: Assume all symbols are declared. The expressions shown contain only constants.
 
 #### Answer
 
-No. The later application can satisfy the local stack and substitution checks while relying on a theorem whose proof is unfinished. `?` marks an unknown proof step; it does not establish the claimed assertion.
+No. Satisfying the essential hypothesis requires an exact match after substitution, and substitution does not replace
+constants. The verifier will not use the equality automatically.
 
-A checker must distinguish an incomplete proof, a locally correct application of an assertion, and a complete verification of the required dependency chain. It should report incompleteness rather than present a proof that depends on an unresolved theorem as fully verified from the axioms.
+We would need to apply suitable equality rules from the database to obtain `|- F a` explicitly. Calling an assertion
+a definition does not give it any special rewriting behavior in the verifier.
+
+### Question
+
+In Metamath, a theorem `lemma` has an unfinished proof containing `?`. A later theorem uses `lemma`, satisfies its
+mandatory hypotheses correctly, and ends with the right expression on the proof stack. Have we now proved the later
+theorem from the axioms?
+
+#### Answer
+
+No. The application of `lemma` can pass the stack and substitution checks, but its conclusion has not yet been
+established by a complete proof. The later theorem still depends on that unfinished proof.
+
+To claim a complete proof from the axioms and the theorem's hypotheses, we also need complete proofs of the earlier
+theorems it uses, including their dependencies. A locally correct application of a theorem does not by itself verify
+that theorem's proof.

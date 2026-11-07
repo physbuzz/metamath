@@ -138,53 +138,55 @@ In Metamath, what does a typecode refer to?
 
 A typecode is a constant defined first inside `$c mytypecode $.` It is used to assign a type in a floating hypothesis,
 `hypoth $f mytypecode x $.` This is a hypothesis which states that the variable `x` is of type `mytypecode`. Note that
-there is no complicated "type system", so this is really just a label that is associated with `x` whenever we apply
+there is no complicated "type system", so this is really just a constant that is associated with `x` whenever we apply
 `hypoth`.
+
+Note: For some reason, "typecode" isn't defined until chapter 4.1! But it's the correct term, so I'm using it from 
+the beginning.
 
 ### Question
 
-In Metamath, what does the symbol `$c` mean, and how is it used?
+In Metamath, what does the statement `$c` mean and how is it used?
 
 #### Answer
 
 `c` stands for constant. These are user-defined, and the user needs to define things like typecodes `wff`, `term`, and
-the other primitive symbols you want to define like `(`, `)`, `|-`, `->`. Like all Metamath statements, `$c` must be
-closed with a `$.` symbol. For example: `$c wff term ( ) |- -> $.`
+the other primitive symbols you want to define like `(`, `)`, `|-`, `->`. The `$c` statement must be closed with a `$.`
+symbol. For example: `$c wff term ( ) |- -> $.`
 
 ### Question
 
-In Metamath, what does the symbol `$v` mean, and how is it used?
+In Metamath, what does the statement `$v` mean and how is it used?
 
 #### Answer
 
 `v` stands for variable. These are user-defined. Every variable that you want to use must be declared. The statement
 `$v` must be closed with a `$.` symbol. For example, `$v t r s P Q $.`
 
-When variables occur in an essential hypothesis or axiom, they must be filled (satisfied) by other mandatory hypotheses.
-(??? Not sure if this is correct or if it's the correct phrasing of what I mean).
+Every variable used in an essential hypothesis or assertion must have an active floating hypothesis specifying its typecode.
+When applying an assertion, the proof must supply expressions satisfying its mandatory hypotheses.
 
 ### Question
 
-In Metamath, what does the symbol `$e` mean, and how is it used?
+In Metamath, what does the statement `$e` mean and how is it used?
 
 #### Answer
 
-`e` stands for essential hypothesis. It is also called a logical hypothesis. It must have a label, and can be followed
-by any number of math symbols, eg. `mytheorem $e |- ( P -> Q ) $.`
+`e` stands for essential hypothesis. It is also called a logical hypothesis. It must have a label, followed by `$e`, a
+typecode constant, and any number of math symbols, ending with `$.`, eg. `mytheorem $e |- ( P -> Q ) $.`
 
-### Question (review)
+### Question
 
-In Metamath, what does the symbol `$f` mean, and how is it used?
+In Metamath, what does the statement `$f` mean and how is it used?
 
 #### Answer
 
 `f` stands for floating hypothesis. It is also called a variable-type hypothesis. It must have a label, followed by
-`$f`, a typecode constant, and a variable, ending with `$.`. For example: `tt $f term t $.` This states that the
-variable `t` is of type `term`. Both `term` and `t` must already be declared.
+`$f`, a typecode constant, and a variable, ending with `$.`. eg. `tt $f term t $.`
 
-### Question (review)
+### Question
 
-In Metamath, what does the symbol `$a` mean, and how is it used?
+In Metamath, what does the statement `$a` mean and how is it used?
 
 #### Answer
 
@@ -192,7 +194,7 @@ In Metamath, what does the symbol `$a` mean, and how is it used?
 a typecode constant, and zero or more math symbols, ending with `$.`. For example: `tze $a term 0 $.` This asserts that
 `0` is a term. Axiomatic assertions can express syntax rules as well as logical axioms and inference rules.
 
-### Question (review)
+### Question
 
 In Metamath, what does the symbol `$p` mean, and how is it used?
 
@@ -202,7 +204,7 @@ In Metamath, what does the symbol `$p` mean, and how is it used?
 symbols. These are followed by `$=`, a proof, and `$.`. The proof must establish the stated expression from the
 available hypotheses and earlier assertions.
 
-For example, given the hypothesis-free axiom `tze $a term 0 $.`, the statement `th $p term 0 $= tze $.` proves `term 0`.
+For example, given the mandatory-hypothesis-free axiom `tze $a term 0 $.`, the statement `th $p term 0 $= tze $.` proves `term 0`.
 
 ### Question
 
@@ -211,21 +213,38 @@ hypotheses that must be satisfied before being used?
 
 #### Answer
 
-`$a` and `$p` are both *assertions*. They are labeled statements followed by a typecode and any number of math
+Similarities: `$a` and `$p` are both *assertions*. They are labeled statements followed by a typecode and any number of math
 *symbols*.
 
 The axiom statement `$a` must end with a `$.` after its math symbols. But the proof statement `$p` has its math symbols
 followed by `$=` and then a sequence of labels, signifying the Metamath proof steps, followed by `$.` A Metamath proof
-may also contain a `?` signifying the proof is incomplete and not to be fully checked.
+may also contain a `?` signifying the proof is incomplete.
 
 Both kinds of assertion can have hypotheses that must be satisfied when the assertion is used.
+
+### Question
+
+What are the differences and similarities between the Metamath statements `$f` and `$e`? Can they have mandatory
+hypotheses that must be satisfied before being used?
+
+#### Answer
+
+Similarities: `$f` and `$e` are both *hypotheses*. They are labeled statements with a typecode constant at the start of their
+expressions. Both end with `$.` and have no proof attached.
+
+A floating hypothesis `$f` has exactly one variable after its typecode, specifying that variable's type, eg.
+`tt $f term t $.` An essential hypothesis `$e` has any number of math symbols after its typecode and supplies a logical
+premise, eg. `min $e |- P $.`
+
+Neither statement has mandatory hypotheses of its own. When a hypothesis is used in a proof, its expression
+is pushed onto the proof stack unchanged.
 
 ### Question
 
 Recall the Metamath database of Megill ch2, which included statements such as...
 
 ```mm
-$v t p $. $c term wff 0 $.
+$v t P $. $c term wff 0 $.
 tt $f term t $.
 wp $f wff P $.
 tze $a term 0 $.
@@ -246,30 +265,39 @@ This process--unification--makes no sense to apply to the constant `0`.
 
 ### Question
 
-In Metamath, consider the axiom `tpl $a term ( t + r ) $.`, where `t` and `r` are variables and `term`, `(`, `+`, and
-`)` are constants. How many mandatory hypotheses does it require? How would you apply it in a proof?
+In Metamath, consider the axiom `tpl $a term ( t + r ) $.`, how many mandatory hypotheses are required?
+How would you apply it in a proof?
+
+Note: Assume standard terminology as used in set.mm or demo0.mm. So `t` and `r` are variables with active
+floating hypotheses defining their typecodes, appropriate symbols are constants, and so on. Assume there 
+are no active essential hypotheses.
 
 #### Answer
 
-Two, one for each variable `t` and `r`. When applying `tpl` in a proof step, the mandatory hypotheses must be satisfied
-by floating hypotheses which define the typecodes of `t` and `r` and which are the only floating hypotheses containin
-`t` or `r`. Here is an example of a trivial proof ("proving" the axiom, given the axiom, by applying it once).
+Two mandatory hypotheses are required, one for each variable that occurs in the axiom's symbol list. 
+When applying `tpl` in a proof step, 
+we pop two entries from the proof stack which must match with the typecodes of `t` and `r`, and which 
+give us the rules about how to replace the variables `t` and `r` in the proof statement. 
+
+Here is an example of a trivial proof demonstrating this symbol replacement.
 
 ```mm
-$c term ( + ) $. $v t r $.
+$c term ( + ) $. $v t r u v $.
 tt $f term t $.
 tr $f term r $.
+tu $f term u $.
+tv $f term v $.
 tpl $a term ( t + r ) $.
-tpl.vacuous $p term ( t + r ) $= tt tr tpl $.
+tpl.vacuous $p term ( u + v ) $= tu tv tpl $.
 ```
 
-### Question
+### Question 
 
 In Metamath, in the middle of a proof, an axiom is `a2 $a |- ( t + 0 ) = t $.`. The mandatory hypothesis of `a2` is
 `tt $f term t $.` and the term on the top of the proof stack is `term ( r + 0 )`. What is the resulting expression after
 applying `a2`?
 
-Assume conventions of `set.mm`, so things like `|-` and `term` and so on are constants.
+Assume conventions of `demo0.mm`, so things like `|-` and `term` and so on are constants.
 
 #### Answer
 
@@ -305,7 +333,7 @@ The proof fragment constructs `wff ( t + 0 ) = t` and pushes it to the proof sta
 4. `tt` pushes `term t`.
 5. `weq` consumes the two terms and pushes `wff ( t + 0 ) = t`.
 
-### Question
+### Question 
 
 In the following Metamath database, how many mandatory hypotheses does `mp` have? How does this differ from the way we
 normally think about modus ponens in mathematics?
@@ -335,13 +363,13 @@ wff ( x y z )
 ```
 
 Normally in mathematics we think of modus ponens as having two premises. And indeed we could imagine that just given the
-two entries off the top of the stack, we can infer what must fill the mandatory hypotheses `P` and `Q`. But Metamath
-doesn't figure this kind of thing out for us (in other words: it doesn't have a complex unification algorithm), instead
-the floating hypotheses tell us exactly how things are parsed. First we unify `wff ( a b c )` with the mandatory
+two entries off the top of the stack, we can infer what must replace the variables `P` and `Q`. But the Metamath
+verifier doesn't figure this kind of thing out for us (in other words: it doesn't have a complex unification algorithm),
+instead the floating hypotheses tell us exactly how things are parsed. First we unify `wff ( a b c )` with the mandatory
 hypothesis `$f wff P $.` to figure out that `P` should be replaced with `( a b c )`. Next, we unify `wff ( x y z )` with
 mandatory hypothesis `$f wff Q $.` to figure out that `Q` should be replaced with `( x y z )`. For the next two
-mandatory hypotheses `min` and `maj`, we simply have to check that the replacements found from our unification are
-consistent with the substitutions we already found.
+mandatory hypotheses `min` and `maj`, we simply have to check that their expressions, after substitution, match the
+corresponding proof-stack entries.
 
 ### Question
 
@@ -382,19 +410,22 @@ $$
 $$
 
 To construct this proof in the proof assistant, work backwards from $t=t:$ assign `mp` to the final goal, then another
-`mp` to the implication needed as its major premise.
+`mp` to the implication needed as its major premise. For the second-to-last `mp`, we know its major premise comes from
+an application of `a1`, so we also assign `a1` to that goal.
 
 Where we need `term t`, we assign `tt`. Where we need $(t+0)=t$ we assign `a2` and use `tt` as applicable (otherwise
-we'll just get `( $5 + 0 ) = $5 )` for example). Finally, if all logical steps are satisfied then we can write
-`improve all` to finish the proof. This is a brief explanation so this answer may be insufficient, in which case refer
-to Megill ch2.4 and follow the CLI usage.
+we'll just get `( $5 + 0 ) = $5` for example). Finally, if all logical steps are satisfied then we can write
+`improve all` to finish the proof. 
+
+This is a brief explanation so this answer may be insufficient. If you get stuck reproducing the proof in the proof
+explorer, refer to [Megill ch2.4](book/metamath.html#2.4-your-first-proof) and follow the CLI usage.
 
 ### Question
 
 In the Metamath CLI, remember the ch2 example:
 
 ```mm
-$( demo0 .mm excerpt $)
+$( demo0.mm excerpt $)
 a1 $a |- ( t = r -> ( t = s -> r = s ) ) $.
 a2 $a |- ( t + 0 ) = t $.
 ${
