@@ -444,6 +444,10 @@ public:
                     parserError("Floating hypothesis must have exactly one symbol.", line, token);
                     return;
                 }
+                if(!pdb.isVariable(ps.currentStatement.symbols.at(0))){
+                    parserError("Floating hypothesis symbol must be a variable.", line, token);
+                    return;
+                }
                 if(ps.currentStatement.statements.size()!=0){
                     parserError("Floating hypothesis cannot have statements.", line, token );
                     return;
@@ -556,10 +560,8 @@ public:
         }
         StatementID statementIDLookup=pdb.getStatementID(ps.currentLabel);
         if(statementIDLookup!=-1){
-            if(stype==StatementType::FLOATING){
-                parserError("Statement " + ps.currentLabel + " already defined.", line, word);
-                return;
-            }
+            parserError("Statement " + ps.currentLabel + " already defined.", line, word);
+            return;
         }
         ps.parserState=CurrentParserState::STATEMENT;
         ps.currentStatement.label=ps.currentLabel;

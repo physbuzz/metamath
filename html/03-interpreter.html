@@ -247,6 +247,212 @@ took me a few passes to wind up at these data structures.</p>
 <p>Disjoint variables, and proof compression are the next big things to implement. However it doesn't really make sense to implement them before we're doing proofs that need them. So let's 
 study propositional calculus proofs a little bit before getting to
 disjoint variables. </p>
+<h2 id="suggested-questions">suggested questions</h2>
+<h3 id="question">Question</h3>
+<p>In Metamath, are <code>( P -&gt; Q )</code> and <code>(P-&gt;Q)</code> the same sequence of math symbols? What about <code>P Q</code> and <code>PQ</code>? Can a parser split tokens by recognizing familiar logical punctuation?</p>
+<h4 id="answer">Answer</h4>
+<p>Tokens are separated by whitespace. <code>( P -&gt; Q )</code> contains five tokens, whereas <code>(P-&gt;Q)</code> is one token. Likewise, <code>P Q</code> contains two tokens and <code>PQ</code> contains one. The single tokens could be separately declared math symbols, but declarations of their apparent pieces do not declare them.</p>
+<p>The parser must not split tokens using logical punctuation. The database defines its symbols; parentheses and arrows do not have built-in lexical roles within math expressions.</p>
+<h3 id="question-2">Question</h3>
+<p>In Metamath, assume the following declarations. Consider each proposed floating hypothesis independently. Which are legal, and why? After adding <code>fx $f term x $.</code>, could another <code>$f</code> for <code>x</code> be added inside a nested block?</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$c</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="p">$.</span>
+<span class="k">$v</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<ol>
+<li><code>h $f term x $.</code></li>
+<li><code>h $f term 0 $.</code></li>
+<li><code>h $f term x y $.</code></li>
+<li><code>h $f x y $.</code></li>
+</ol>
+<h4 id="answer-2">Answer</h4>
+<p>Only the first is legal. A <code>$f</code> must contain exactly two math symbols: an active constant, then an active variable. The second uses a constant in the variable position; the third has too many symbols; the fourth uses a variable in the typecode position.</p>
+<p>There cannot be two active <code>$f</code> statements for the same variable, even if they give the same typecode. A nested block does not hide an outer floating hypothesis, so adding another <code>$f</code> for <code>x</code> while <code>fx</code> is active is invalid.</p>
+<h3 id="question-3">Question</h3>
+<p>In Metamath, what are the requirements for declaring an essential hypothesis with <code>$e</code>? Explain its expression shape, required variable typing, scope, and effect on later assertions. Distinguish using its label directly in a proof from satisfying it when applying an assertion.</p>
+<h4 id="answer-3">Answer</h4>
+<p>An essential hypothesis has the form <code>label $e typecode symbols $.</code>. The label must be unique and must not also be a math symbol. The typecode must be an active constant; it is followed by zero or more active math symbols. Every variable used must already have an active <code>$f</code> hypothesis. The typecode need not be <code>|-</code>.</p>
+<p>The hypothesis is active from its declaration to the end of its enclosing block, or to the end of the database if declared outside all blocks. It is mandatory for every subsequent assertion declared while it is active, even if its expression appears irrelevant to the conclusion.</p>
+<p>Referencing an active <code>$e</code> label in a proof pushes its expression unchanged. Applying an assertion that has this <code>$e</code> as a mandatory hypothesis instead consumes a stack entry that must match the hypothesis after the assertion's substitution. The hypothesis is an assumption while proving within its scope and an obligation when applying the resulting assertion elsewhere.</p>
+<h3 id="question-4">Question</h3>
+<p>In this Metamath database, what are the mandatory variables and the ordered mandatory hypotheses of <code>rule</code>? Which active floating hypothesis is omitted? Would collecting all mandatory <code>$f</code> statements first and all <code>$e</code> statements second give the right order?</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$c</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="p">$.</span>
+<span class="k">$v</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wx</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">hx</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wy</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wz</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">hy</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">rule</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<h4 id="answer-4">Answer</h4>
+<p>The mandatory variables are <code>x</code> and <code>y</code>: take the variables in the assertion together with those in all active essential hypotheses. Thus <code>y</code> is mandatory even though it is absent from the conclusion.</p>
+<p>The ordered mandatory hypotheses are <code>wx hx wy hy</code>, preserving database order. <code>wz</code> is omitted because <code>z</code> occurs in neither the assertion nor an active essential hypothesis. Both essential hypotheses are included. Grouping by statement kind would incorrectly produce <code>wx wy hx hy</code>.</p>
+<h3 id="question-5">Question</h3>
+<p>In this Metamath database, is the proof of <code>th</code> valid? Does <code>th</code> have a mandatory hypothesis even though its proof never references <code>h</code>? After the block closes, can a later proof obtain <code>|- B</code> by using <code>th</code> with an empty stack?</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$c</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">b</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">${</span>
+<span class="w">    </span><span class="nl">h</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">th</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">b</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<h4 id="answer-5">Answer</h4>
+<p>The proof is valid: <code>b</code> has no hypotheses and leaves exactly <code>|- B</code> on the stack.</p>
+<p>Nevertheless, <code>h</code> is a mandatory hypothesis of <code>th</code> because it was active when <code>th</code> was declared. Mandatory hypotheses are determined from the declaration's context, not by analyzing which assumptions its proof uses. A later application of <code>th</code> must consume an entry <code>|- A</code>; applying it to an empty stack fails. The caller could instead use <code>b</code> directly.</p>
+<h3 id="question-6">Question</h3>
+<p>In this Metamath database, what happens to <code>x</code>, <code>fx</code>, <code>h</code>, and <code>pass</code> after <code>$}</code>? Can a later proof use <code>h</code> directly? What must it supply to apply <code>pass</code> with <code>t</code> substituted for <code>x</code>?</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$c</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="p">$.</span>
+<span class="k">$v</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">ft</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">${</span>
+<span class="w">    </span><span class="k">$v</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">fx</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">h</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">pass</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<h4 id="answer-6">Answer</h4>
+<p>The declaration of <code>x</code> and the hypotheses <code>fx</code> and <code>h</code> become inactive. A later expression cannot use <code>x</code> on the strength of this expired declaration, and a later proof cannot reference <code>fx</code> or <code>h</code> directly.</p>
+<p>The assertion <code>pass</code> remains available with its original mandatory hypotheses <code>fx h</code>. To apply it with <code>x</code> replaced by <code>t</code>, a proof supplies <code>term t</code> followed by <code>|- t</code>; <code>pass</code> consumes both and pushes <code>|- t</code>.</p>
+<p>The parser must therefore retain <code>pass</code>'s expression and ordered mandatory hypotheses after leaving the block. Removing hypotheses from the active context must not destroy the assertion's stored requirements.</p>
+<h3 id="question-7">Question</h3>
+<p>In this Metamath database, trace the proof of <code>th</code>. Why does <code>drop</code> require a floating hypothesis for <code>b</code>, although <code>b</code> is absent from its conclusion? What are the mandatory hypotheses of <code>th</code> itself, and must a later caller supply the floating hypotheses used inside its proof?</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$c</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="p">$.</span>
+<span class="k">$v</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">fa</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">fb</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">${</span>
+<span class="w">    </span><span class="nl">hb</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">    </span><span class="nl">drop</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+<span class="nl">seed</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">th</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">fa</span><span class="w"> </span><span class="nl">fa</span><span class="w"> </span><span class="nl">seed</span><span class="w"> </span><span class="nl">drop</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<h4 id="hint">Hint</h4>
+<p>Compute <code>drop</code>'s and <code>th</code>'s mandatory hypotheses separately. Then track which of the two copies of <code>term a</code> is consumed by <code>seed</code>.</p>
+<h4 id="answer-7">Answer</h4>
+<p><code>drop</code> has mandatory hypotheses <code>fb hb</code>: the variable <code>b</code> occurs in its essential hypothesis. Its conclusion consists only of the constant <code>|-</code>, which is a legal expression.</p>
+<p>The proof proceeds as follows, with stacks listed from bottom to top:</p>
+<ol>
+<li><code>fa</code>: <code>term a</code>.</li>
+<li><code>fa</code>: <code>term a</code>, <code>term a</code>.</li>
+<li><code>seed</code>: consumes the top <code>term a</code> and pushes <code>|- a</code>, leaving <code>term a</code>, <code>|- a</code>.</li>
+<li><code>drop</code>: uses <code>a</code> as the replacement for <code>b</code>, checks <code>|- a</code> against its substituted essential hypothesis, consumes both entries, and pushes <code>|-</code>.</li>
+</ol>
+<p><code>th</code> has no mandatory hypotheses: its conclusion has no variables, and no essential hypotheses are active at its declaration. The active floating hypotheses <code>fa</code> and <code>fb</code> are optional hypotheses of <code>th</code>; its proof uses <code>fa</code>. A later caller of <code>th</code> supplies no stack entries. A theorem's internal proof can use optional hypotheses without adding them to the theorem's mandatory inputs.</p>
+<h3 id="question-8">Question</h3>
+<p>A Metamath implementation parses the whole database before checking proofs. Is it enough to accept any proof label found in its final global statement table? Which references are legal in a theorem's uncompressed proof, and what context must the implementation preserve?</p>
+<h4 id="answer-8">Answer</h4>
+<p>A proof may reference hypotheses active at the theorem's declaration and assertions appearing earlier in the database. It may not reference the theorem itself, a later assertion, or a hypothesis whose scope has already ended. An earlier assertion remains available even if its declaring block has closed.</p>
+<p>A final global table alone does not establish these conditions. The implementation must enforce them while parsing or retain enough declaration order and scope information to check them later. It must also allow active optional floating hypotheses, not just the theorem's mandatory hypotheses.</p>
+<h3 id="question-9">Question</h3>
+<p>While verifying a Metamath proof, an assertion application substitutes <code>0</code> for a variable <code>t</code>. The next proof label is the active hypothesis <code>tt $f term t $.</code>. Does <code>tt</code> now push <code>term 0</code> or <code>term t</code>? Does that earlier substitution modify future uses of the assertion?</p>
+<h4 id="answer-9">Answer</h4>
+<p><code>tt</code> pushes <code>term t</code>, unchanged. Each assertion application constructs its own substitution; it does not assign a persistent value to a database variable or modify a stored statement. A later use of the same assertion obtains its substitutions from the stack entries supplied for that later use.</p>
+<h3 id="question-10">Question</h3>
+<p>In a Metamath database with no disjoint-variable restrictions, describe the complete stack operation for applying an <code>$a</code> or an already verified <code>$p</code> with (n) mandatory hypotheses. How are the inputs paired with hypotheses, how is the substitution determined, and what happens when (n=0)?</p>
+<h4 id="answer-10">Answer</h4>
+<ol>
+<li>Require at least (n) entries. Use the top (n), pairing them from bottom to top with the mandatory hypotheses in database order. If physically popping, the first popped entry corresponds to the last hypothesis.</li>
+<li>For every mandatory <code>$f</code>, check that the paired entry starts with the required typecode. Map its variable to the remaining symbol sequence, excluding that typecode.</li>
+<li>Apply this substitution to each mandatory <code>$e</code> and require exact equality with its paired stack entry.</li>
+<li>Remove the (n) input entries and push the assertion's expression with the same substitution applied. Entries below these inputs remain untouched.</li>
+</ol>
+<p>The substitution is simultaneous and replaces variables only. Hypothesis order may interleave <code>$f</code> and <code>$e</code>; collecting the <code>$f</code> mappings before checking <code>$e</code> expressions avoids dependence on the direction in which the stack is traversed.</p>
+<p>For (n=0), consume nothing and push the assertion's expression unchanged. Applying a <code>$p</code> uses its stored hypotheses and conclusion; it does not splice its internal proof into the caller's stack.</p>
+<h3 id="question-11">Question</h3>
+<p>In a Metamath assertion application, suppose the floating-hypothesis inputs establish these substitutions:</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>P := ( Q -&gt; P )
+Q := R
+</code></pre></div>
+
+<p>What does <code>wff ( P -&gt; Q )</code> become? Should the verifier keep replacing <code>P</code> and <code>Q</code> inside the inserted expression? Assume all required typing evidence has been supplied and there are no disjoint-variable restrictions.</p>
+<h4 id="answer-11">Answer</h4>
+<p>The result is:</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>wff ( ( Q -&gt; P ) -&gt; R )
+</code></pre></div>
+
+<p>Substitution is simultaneous: replace occurrences in the original expression, without recursively substituting into the sequences inserted. The <code>P</code> and <code>Q</code> inside the replacement for <code>P</code> remain as written. A replacement may contain the very variable being replaced; this does not create an infinite substitution process.</p>
+<h3 id="question-12">Question</h3>
+<p>In this Metamath database, why does the proof fragment <code>ft wp wi</code> fail? Would it help if the symbol sequence <code>t</code> could also be proved to be a <code>wff</code> elsewhere in the database?</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$c</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="p">$.</span>
+<span class="k">$v</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">P</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">ft</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wp</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">P</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wq</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wi</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">P</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<h4 id="answer-12">Answer</h4>
+<p><code>wi</code> has mandatory hypotheses <code>wp wq</code>. The fragment supplies <code>term t</code> and <code>wff P</code>, in that order. Its first input must start with <code>wff</code>, but starts with <code>term</code>, so the application fails before essential-hypothesis checking is relevant.</p>
+<p>The verifier does not search the database for alternative typing evidence or convert an existing stack entry automatically. A proof of <code>wff t</code> would have to be explicitly placed on the stack in the required position.</p>
+<h3 id="question-13">Question</h3>
+<p>In Metamath, a rule has these mandatory hypotheses, in order:</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>wp: wff P
+h:  |- ( P -&gt; P )
+</code></pre></div>
+
+<p>Its conclusion is <code>|- P</code>. Assume <code>A</code> and <code>B</code> are distinct constant tokens and the following two entries have been legitimately obtained. Can the rule consume them? Could it infer different replacements from the essential hypothesis to make the application succeed?</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>wff A
+|- ( A -&gt; B )
+</code></pre></div>
+
+<h4 id="answer-13">Answer</h4>
+<p>No. The floating input fixes <code>P := A</code>, so the essential input must be exactly <code>|- ( A -&gt; A )</code>. The actual entry is <code>|- ( A -&gt; B )</code>.</p>
+<p>The verifier cannot choose a new replacement for the second occurrence of <code>P</code>, nor can it change the substitution inferred from the floating input. All hypotheses and the conclusion use one consistent substitution.</p>
+<h3 id="question-14">Question</h3>
+<p>In Metamath, an axiom has conclusion <code>wff ( P -&gt; Q )</code> and mandatory hypotheses <code>wp $f wff P $.</code> followed by <code>wq $f wff Q $.</code>. A proof supplies <code>wff A</code> followed by <code>wff B</code>, where <code>A</code> and <code>B</code> are distinct symbol sequences. What happens if the declarations of <code>wp</code> and <code>wq</code> are swapped without changing the proof?</p>
+<h4 id="answer-14">Answer</h4>
+<p>Originally the application uses <code>P := A</code> and <code>Q := B</code>, producing <code>wff ( A -&gt; B )</code>.</p>
+<p>After the declarations are swapped, the mandatory order is <code>wq wp</code>. The same inputs now give <code>Q := A</code> and <code>P := B</code>, producing <code>wff ( B -&gt; A )</code>. Both inputs have the right typecode, so the application itself can succeed while producing a different expression. A later hypothesis check or the final theorem check may then fail.</p>
+<p>Mandatory order comes from hypothesis declarations, not from variable order in the conclusion or alphabetical order of labels.</p>
+<h3 id="question-15">Question</h3>
+<p>Is this Metamath proof valid? What gets substituted for <code>x</code>, and what error would a verifier make if it required at least one symbol after every stack entry's typecode?</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$c</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="k">$v</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">fx</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">empty</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wrap</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">th</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">empty</span><span class="w"> </span><span class="nl">wrap</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<h4 id="answer-15">Answer</h4>
+<p>The proof is valid. <code>empty</code> pushes the one-symbol expression <code>term</code>. When <code>wrap</code> consumes it for <code>fx</code>, the typecode matches and the remainder is the empty sequence. Thus <code>x</code> is replaced by no symbols, and <code>wrap</code> pushes <code>term ( )</code>, exactly the theorem's expression.</p>
+<p>Metamath permits empty replacements. Requiring a nonempty remainder would reject this valid proof. The typecode itself is still present; it is the variable's replacement that is empty.</p>
+<h3 id="question-16">Question</h3>
+<p>In Metamath, assume <code>a $a |- A $.</code> and <code>b $a |- B $.</code> have no mandatory hypotheses. For a theorem with target expression <code>|- B</code>, which of the proof sequences <code>a</code>, <code>a b</code>, and <code>b</code> succeeds? Assume all symbols are properly declared. Why is checking only the top stack entry insufficient?</p>
+<h4 id="answer-16">Answer</h4>
+<p>Only <code>b</code> succeeds.</p>
+<ul>
+<li><code>a</code> leaves a single entry, but it is <code>|- A</code>, not the target.</li>
+<li><code>a b</code> leaves <code>|- A</code> and <code>|- B</code>. The top entry matches, but the stack has an extra entry.</li>
+<li><code>b</code> leaves exactly one entry, <code>|- B</code>.</li>
+</ul>
+<p>After processing the whole proof, the stack must contain exactly one expression, identical token for token to the theorem's expression, including its typecode. The verifier cannot discard leftover entries or accept merely equivalent formulas.</p>
+<h3 id="question-17">Question</h3>
+<p>Is the following a legal Metamath database, even though <code>( -&gt; )</code> would not be a formula in ordinary propositional notation? Must an <code>$a</code> with typecode <code>|-</code> have a separate proof that its remaining expression is a <code>wff</code>?</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$c</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">odd</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<h4 id="answer-17">Answer</h4>
+<p>Yes, it is legal. The assertion begins with an active constant and contains only declared math symbols. There are no variables needing floating hypotheses. Metamath does not impose a built-in propositional grammar or demand a separate well-formedness proof when an axiom is declared.</p>
+<p>A database's syntax axioms and floating hypotheses control which replacements can be supplied in its proofs. They do not make the verifier independently parse every axiom as an intended logical formula. Legality as Metamath source does not establish that an axiom expresses sensible mathematics.</p>
+<h3 id="question-18">Question</h3>
+<p>In Metamath, a database has a proved equality <code>|- a = b</code>, where <code>a</code> and <code>b</code> are distinct constants. A rule requires the essential hypothesis <code>|- F a</code>, but the supplied stack entry is <code>|- F b</code>. Does the equality make these match automatically? Would calling the equality a definition change the verifier's behavior?</p>
+<h4 id="answer-18">Answer</h4>
+<p>No. Essential hypotheses must match exactly after the rule's variable substitution. Constants are not substitution placeholders, so the verifier cannot replace <code>a</code> by <code>b</code> during this check.</p>
+<p>The proof must explicitly use suitable assertions from the database to derive the required expression. Calling a statement a definition does not give it automatic unfolding or rewriting behavior in the core verifier.</p>
+<h3 id="question-19">Question</h3>
+<p>A Metamath database contains an unfinished theorem whose proof is <code>?</code>. A later theorem applies it with correctly matched mandatory hypotheses and reaches its own target expression. Is that enough to claim that the later theorem has a fully verified proof from the axioms? What must a checker distinguish?</p>
+<h4 id="answer-19">Answer</h4>
+<p>No. The later application can satisfy the local stack and substitution checks while relying on a theorem whose proof is unfinished. <code>?</code> marks an unknown proof step; it does not establish the claimed assertion.</p>
+<p>A checker must distinguish an incomplete proof, a locally correct application of an assertion, and a complete verification of the required dependency chain. It should report incompleteness rather than present a proof that depends on an unresolved theorem as fully verified from the axioms.</p>
     </article>
   </main>
   <script>
