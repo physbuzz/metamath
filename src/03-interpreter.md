@@ -231,7 +231,7 @@ the variable may not change upon redeclaration.
 ### Question
 
 In the following database, which statements go inactive at the end of the block `$}`? 
-What are `pass`'s essential hypotheses, and what does applying it in a proof outside of the block do?
+What are `pass`'s mandatory hypotheses, and what does applying it in a proof outside of the block do?
 
 ```mm
 $c term |- $.
@@ -358,180 +358,66 @@ mandatory hypothesis for consistency.
 
 ### Question
 
-*Note:* This question was AI generated and has not been reviewed.
+In Metamath, describe how the verifier processes the statement labels in a proof (ignoring disjoint variable restrictions).
 
-In the following Metamath database, how many mandatory hypotheses does `remove_variable` have? Trace the proof of
-`proof_of_turnstile`. How many mandatory hypotheses does that theorem have, even though its proof uses `term_a`?
+#### Answer
+
+First we initialize the proof stack to be empty, then we start reading the proof labels from left to right.
+
+If we encounter a hypothesis, we push the expression onto the stack unchanged.
+
+If we encounter an assertion, we must use the top entries on the proof stack to satisfy its mandatory hypotheses
+in order, with the last mandatory hypothesis matching the most recent entry on the proof stack.
+
+We then have to unify the mandatory hypotheses with the proof stack, which means finding a consistent replacement rule 
+that replaces the variables in the mandatory hypothesis list with other lists of math symbols, such that we get the 
+exact expressions on the proof stack in order with matching typecodes. In other languages "unification" can be 
+complicated, but in this context unification is particularly simple, so we always either succeed or find that the 
+statements can't be unified (in which case the proof is invalid).
+
+Once a valid replacement is found, we make sure those elements we used are removed from the proof stack, then
+we push the result of applying our replacement rule to the assertion's expression.
+
+The proof succeeds if every step is valid and the final stack contains only the theorem's expression.
+
+### Question
+
+In Metamath, suppose we're in a database, in the middle of verifying a proof.
+We have the following database and proof stack: 
 
 ```mm
-$c term |- $.
-$v a b c $.
-term_a $f term a $.
-term_b $f term b $.
-term_c $f term c $.
-${
-    stmnt_b2 $e |- b $.
-    remove_variable $a |- $.
-$}
-chaos_axiom $a |- c $.
-proof_of_turnstile $p |- $= term_a term_a chaos_axiom remove_variable $.
-```
-
-#### Hint
-
-Work out the mandatory hypotheses of `remove_variable` and `proof_of_turnstile` separately. In the proof, keep track
-of which copy of `term a` is consumed by `chaos_axiom`.
-
-#### Answer
-
-`remove_variable` has two mandatory hypotheses, `term_b stmnt_b2`. The variable `b` occurs in its essential hypothesis,
-so we need `term_b` even though `b` does not occur in the conclusion. An expression consisting only of a typecode,
-such as `|-`, is allowed.
-
-The proof proceeds as follows:
-
-1. The two `term_a` steps push two copies of `term a`.
-2. `chaos_axiom` consumes the top `term a`, replacing `c` by `a`, and pushes `|- a`.
-3. The stack now contains `term a` followed by `|- a`.
-4. `remove_variable` consumes these two entries. The first gives the replacement `b := a`, and the second matches
-   `|- b` after that substitution. We push the conclusion, `|-`.
-
-`proof_of_turnstile` has no mandatory hypotheses. Its expression contains no variables, and no essential hypotheses
-are active at its declaration. Its active floating hypotheses are optional, and the proof uses `term_a`. A later proof
-can apply `proof_of_turnstile` without supplying any inputs for these internal steps.
-
-### Question
-
-*Note:* This question was AI generated and has not been reviewed.
-
-In Metamath, which statement labels may occur in an uncompressed proof? Can a theorem refer to itself, to a statement
-later in the file, or to a hypothesis whose block has closed? If we parse the entire database before checking proofs,
-is finding the label in the database enough?
-
-#### Answer
-
-A proof may refer to hypotheses active at the theorem's declaration, including optional floating hypotheses, and to
-earlier assertions. It cannot refer to the theorem itself, to later statements, or to inactive hypotheses. An earlier
-assertion remains available even if its block has closed.
-
-Finding the label is not enough. If parsing and proof checking are separate passes, we must either check these
-restrictions while parsing or retain the information needed to check them later. The theorem's position and scope
-matter; a statement's existence somewhere in the database does not make it available to that proof.
-
-### Question
-
-*Note:* This question was AI generated and has not been reviewed.
-
-In Metamath, what does the verifier do when a proof step applies an axiom or a previously proved theorem with $n$
-mandatory hypotheses? Describe how to obtain the replacement rules and check the hypotheses, including what happens
-when $n=0$.
-
-Note: Ignore disjoint-variable restrictions for this question.
-
-#### Answer
-
-First, there must be at least $n$ entries on the proof stack. The last mandatory hypothesis corresponds to the top
-entry, the second-to-last to the entry below that, and so on. We cannot search farther down the stack for a match.
-
-For each floating hypothesis, the corresponding entry must begin with the same typecode. Everything after that
-typecode is the replacement for the hypothesis's variable. The typecode itself is not part of the replacement.
-
-Next, apply these replacement rules to the essential hypotheses. Each resulting expression must match its
-corresponding stack entry exactly. We do not obtain new replacement rules from the essential hypotheses.
-
-We pop the $n$ entries, apply the same replacements to the assertion's expression, and push the result. Entries below
-those $n$ inputs stay on the stack. If we pop entries before doing the checks, we must keep their contents available
-for computing and checking the substitutions.
-
-When $n=0$, we pop nothing and push the assertion's expression unchanged. Applying a proved theorem uses its mandatory
-hypotheses and conclusion in the same way as applying an axiom; we do not rerun its proof on the current proof stack.
-
-### Question
-
-*Note:* This question was AI generated and has not been reviewed.
-
-In Metamath, suppose an assertion application gives us the following replacement rules. What does `wff ( P -> Q )`
-become? Do we also replace the `P` and `Q` inside the expression that replaces `P`?
-
-```text
-P := ( Q -> P )
-Q := R
-```
-
-If the next proof step is the active floating hypothesis `wp $f wff P $.`, what does it push?
-
-Note: Assume the required floating hypotheses have been satisfied and there are no disjoint-variable restrictions.
-
-#### Answer
-
-The result is `wff ( ( Q -> P ) -> R )`. Substitution is simultaneous: we replace each variable in the original
-expression, without repeating the substitution inside the expressions we insert. The `Q` and `P` inside the
-replacement for `P` stay as written. It is fine for a replacement to contain the variable being replaced.
-
-The next `wp` step pushes `wff P`, unchanged. The replacement rules belong to one application of an assertion; they do
-not change the stored hypotheses or assign permanent values to variables. A later assertion application gets its own
-replacement rules from the inputs supplied for that application.
-
-### Question
-
-*Note:* This question was AI generated and has not been reviewed.
-
-In Metamath, suppose an assertion has the following mandatory hypotheses and conclusion:
-
-```mm
+$c wff |- ( ) -> A B $.
+$v P $.
 wp $f wff P $.
-h $e |- ( P -> P ) $.
-rule $a |- P $.
+${
+    h $e |- ( P -> P ) $.
+    rule $a |- P $.
+$}
 ```
 
-We try to apply `rule` to the following proof stack, listed from bottom to top. Does it work? If we change `B` to `A`,
-does it work then? What if we also change the first entry's typecode from `wff` to `term`?
+The proof stack, from bottom to top:
 
 ```text
 wff A
 |- ( A -> B )
 ```
 
-Note: `A` and `B` are distinct constants. Assume all symbols are declared and the displayed entries have been
-constructed by earlier steps in a larger database. Only the two hypotheses shown are mandatory for `rule`.
+Does applying `rule` to the stack below succeed; if so, what gets pushed? If not, what could we change
+on the stack to make it succeed?
 
 #### Answer
 
-The original application fails. The floating hypothesis gives `P := A`, so the essential hypothesis requires
-`|- ( A -> A )`. That does not match `|- ( A -> B )`. We cannot choose a different replacement for the second
-occurrence of `P` to make it work.
+The application fails. The floating hypothesis gives `P := A`, so the essential hypothesis requires `|- ( A -> A )`.
+That cannot be unified with `|- ( A -> B )` because both occurrences of `P` must receive the same replacement.
 
-Changing `B` to `A` makes the application succeed, leaving `|- A` on the stack.
-
-Changing the first typecode to `term` makes it fail again. That entry must match the typecode `wff` of `wp`. The
-verifier does not convert it to a `wff`, even if a proof of `wff A` is available elsewhere in the database.
+If the second stack entry were `|- ( A -> A )`, the application would succeed. It would consume both entries and push
+`|- A`.
 
 ### Question
 
 *Note:* This question was AI generated and has not been reviewed.
 
-In Metamath, an axiom has expression `wff ( P -> Q )` and mandatory hypotheses `wp $f wff P $.` followed by
-`wq $f wff Q $.`. We apply it with `wff A` followed by `wff B` on the proof stack. What happens if we swap the
-hypothesis declarations in the database without changing the proof?
-
-Note: `A` and `B` stand for distinct symbol sequences whose required constructions have already been supplied.
-
-#### Answer
-
-Originally, we get `P := A` and `Q := B`, so the result is `wff ( A -> B )`.
-
-After swapping the declarations, the mandatory order is `wq wp`. The same stack now gives `Q := A` and `P := B`, so the
-result is `wff ( B -> A )`. Both typecodes still match, so this application can succeed while producing the wrong
-expression for the rest of the proof. A later hypothesis check or the final theorem check may then fail.
-
-The order comes from the hypothesis declarations, not from the order of variables in the axiom's expression.
-
-### Question
-
-*Note:* This question was AI generated and has not been reviewed.
-
-In Metamath, can we replace a variable with an empty sequence of math symbols? Is the following proof valid, and what
-replaces `x` when we apply `wrap`?
+In Metamath, is the following proof valid?
 
 ```mm
 $c term ( ) $.
@@ -548,36 +434,14 @@ Yes. `empty` has no mandatory hypotheses, so it pushes the one-symbol expression
 compare this with the floating hypothesis `term x`. The typecodes match, and there is nothing after the typecode, so
 `x` is replaced by the empty sequence.
 
-The result is `term ( )`, exactly what `th` claims. The proof is valid. The expression on the stack is not empty;
-it is the replacement for `x` that is empty.
+The result is `term ( )`, exactly what `th` claims. Metamath allows empty replacements. The expression on the stack is
+not empty; it is the replacement for `x` that is empty.
 
 ### Question
 
 *Note:* This question was AI generated and has not been reviewed.
 
-In Metamath, what conditions must the proof stack satisfy when a proof is finished? Suppose `a $a |- A $.` and
-`b $a |- B $.` have no mandatory hypotheses. Which of the proof sequences `a`, `a b`, and `b` proves `|- B`?
-
-Note: Assume all symbols are declared, `A` and `B` are distinct constants, and each proof starts with an empty stack.
-
-#### Answer
-
-The stack must contain exactly one expression, and that expression must match the theorem's expression, including its
-typecode. Only `b` succeeds.
-
-- `a` leaves one entry, but it is `|- A`, which does not match the theorem.
-- `a b` leaves two entries. The top entry matches, but the extra entry makes the proof invalid.
-- `b` leaves exactly one entry, `|- B`.
-
-It is not enough that the desired expression occurred somewhere during the proof, or that it is the top entry at the
-end. We must finish with just that expression on the stack.
-
-### Question
-
-*Note:* This question was AI generated and has not been reviewed.
-
-In Metamath, is the following a legal axiom? Does the verifier require a separate construction showing that the
-expression after `|-` is a well-formed formula?
+In Metamath, is the following axiom declaration valid?
 
 ```mm
 $c |- ( ) -> $.
@@ -597,33 +461,14 @@ mandatory hypotheses; it does not establish that our chosen axioms express the m
 
 *Note:* This question was AI generated and has not been reviewed.
 
-In Metamath, suppose we have proved `|- a = b`, where `a` and `b` are distinct constants. An assertion requires the
-essential hypothesis `|- F a`, but we have `|- F b` on the proof stack. Does the equality let these match? What if
-`|- a = b` was introduced as a definition?
-
-Note: Assume all symbols are declared. The expressions shown contain only constants.
+Suppose a Metamath proof passes its local stack and substitution checks but uses a theorem whose proof contains `?`;
+what has been established?
 
 #### Answer
 
-No. Satisfying the essential hypothesis requires an exact match after substitution, and substitution does not replace
-constants. The verifier will not use the equality automatically.
+We have checked that the conclusion follows from the hypotheses and assertions used by this proof. We have not
+established it from the axioms and the theorem's hypotheses, because one of the assertions used still has an unfinished
+proof.
 
-We would need to apply suitable equality rules from the database to obtain `|- F a` explicitly. Calling an assertion
-a definition does not give it any special rewriting behavior in the verifier.
-
-### Question
-
-*Note:* This question was AI generated and has not been reviewed.
-
-In Metamath, a theorem `lemma` has an unfinished proof containing `?`. A later theorem uses `lemma`, satisfies its
-mandatory hypotheses correctly, and ends with the right expression on the proof stack. Have we now proved the later
-theorem from the axioms?
-
-#### Answer
-
-No. The application of `lemma` can pass the stack and substitution checks, but its conclusion has not yet been
-established by a complete proof. The later theorem still depends on that unfinished proof.
-
-To claim a complete proof from the axioms and the theorem's hypotheses, we also need complete proofs of the earlier
-theorems it uses, including their dependencies. A locally correct application of a theorem does not by itself verify
-that theorem's proof.
+To claim a complete proof, we also need complete proofs of the earlier theorems it uses, including their dependencies.
+A locally correct application of a theorem does not by itself verify that theorem's proof.
