@@ -19,10 +19,6 @@ title: "04 Studying Propositional Calculus with Metamath"
 Now that we're set on the intricacies of Metamath, sans 
 disjoint variables and compressed proofs, I want to familiarize myself with the lingua franca of logic. 
 
-Some things I want to know are:
-
-## Fool's Errand: Equivalence of Lukas... and Meredith's theorems.
-I call this a fool's errand because it might take a lot of search.
 
 
 
