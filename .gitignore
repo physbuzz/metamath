@@ -5,6 +5,9 @@ node_modules
 package-lock.json
 *.swp
 
+# Metamath rotating source backups.
+*.mm~[1-9]
+
 /ai
 
 /src/book/frege/

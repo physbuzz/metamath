@@ -1,5 +1,5 @@
 MD2HTML ?= md2html
-PORT ?= 8001
+PORT ?= 8002
 HOST ?= 127.0.0.1
 
 .PHONY: all build html markdown rebuild serve watch clean
@@ -17,6 +17,7 @@ rebuild:
 
 serve:
 	$(MD2HTML) -es --host $(HOST) --port $(PORT)
+
 
 watch:
 	$(MD2HTML) --watch

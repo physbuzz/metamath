@@ -44,13 +44,18 @@
   </script>
   
   <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/code.css">
+  <link rel="stylesheet" href="assets/math.css">
+  <link rel="stylesheet" href="assets/toc.css">
+  <link rel="stylesheet" href="assets/highlight.css">
   
   <style>
 
   </style>
+  <link rel="stylesheet" href="assets/mathjax-chtml.css">
   
   <style>
-
+mjx-c.mjx-c33{padding:0.665em 0.5em 0.022em 0}mjx-c.mjx-c2E{padding:0.12em 0.278em 0 0}mjx-c.mjx-c1D440{padding:0.683em 1.051em 0 0}mjx-c.mjx-c28{padding:0.75em 0.389em 0.25em 0}mjx-c.mjx-c1D44E{padding:0.441em 0.529em 0.01em 0}mjx-c.mjx-c2C{padding:0.121em 0.278em 0.194em 0}mjx-c.mjx-c1D44F{padding:0.694em 0.429em 0.011em 0}mjx-c.mjx-c1D450{padding:0.442em 0.433em 0.011em 0}mjx-c.mjx-c1D451{padding:0.694em 0.523em 0.01em 0}mjx-c.mjx-c1D452{padding:0.442em 0.466em 0.011em 0}mjx-c.mjx-c29{padding:0.75em 0.389em 0.25em 0}mjx-c.mjx-c3D{padding:0.367em 0.778em 0 0}mjx-c.mjx-c2192{padding:0.511em 1em 0.011em 0}mjx-c.mjx-cAC{padding:0.356em 0.667em 0 0}mjx-c.mjx-c1D461{padding:0.626em 0.361em 0.011em 0}mjx-c.mjx-c1D435{padding:0.683em 0.759em 0 0}mjx-c.mjx-c1D45D{padding:0.442em 0.503em 0.194em 0}mjx-c.mjx-c1D45E{padding:0.442em 0.46em 0.194em 0}mjx-c.mjx-c1D45F{padding:0.442em 0.451em 0.011em 0}mjx-c.mjx-c1D460{padding:0.442em 0.469em 0.01em 0}mjx-c.mjx-c28.TEX-LO{padding:1.15em 0.597em 0.649em 0}mjx-c.mjx-c29.TEX-LO{padding:1.15em 0.597em 0.649em 0}
   </style>
   
   
@@ -100,9 +105,995 @@
 
 <p><a href="book/metamath.html#abstract-mathematics-revealed">Read in html</a> &nbsp;|&nbsp; <a href="book/metamath.pdf#page=77">Read in pdf</a></p>
 <hr>
-<h1 id="04-studying-propositional-calculus-with-metamath">04 Studying Propositional Calculus with Metamath</h1>
+<blockquote>
+<p>[!WARN]
+These notes have a lot of AI-suggested problems in them that have not yet
+been reviewed</p>
+</blockquote>
+<div class="table-of-contents"><h2>Directory</h2><ul class="toc-list"><li><a href="#4-studying-propositional-calculus-with-metamath">4 Studying Propositional Calculus with Metamath</a><ul class="toc-list"><li><a href="#041-propositional-calculus-in-setmm">04.1 Propositional calculus in <code>set.mm</code></a><ul class="toc-list"><li><a href="#implication-first-proofs-and-useful-derived-rules">Implication: first proofs and useful derived rules</a></li></ul></li><li><a href="#044-more-propositional-calculus">04.4 More propositional calculus</a><ul class="toc-list"><li><a href="#negation-and-classical-propositional-calculus">Negation and classical propositional calculus</a></li></ul></li><li><a href="#045-other-proof-databases">04.5 Other proof databases</a><ul class="toc-list"><li><a href="#isetmm-intuitionistic-negation"><code>iset.mm</code>: intuitionistic negation</a></li><li><a href="#qlmm-an-equational-language"><code>ql.mm</code>: an equational language</a></li><li><a href="#holmm-explicit-contexts"><code>hol.mm</code>: explicit contexts</a></li></ul></li><li><a href="#046-optional-merediths-single-axiom">04.6 Optional: Meredith's single axiom</a></li></ul></li><li><a href="#05-metatheorems-notation-and-history">05 Metatheorems, notation, and history</a><ul class="toc-list"><li><a href="#object-language-and-metalanguage">Object language and metalanguage</a></li><li><a href="#notation">Notation</a></li><li><a href="#more-vocabulary">More vocabulary</a></li><li><a href="#the-miu-system">The MIU system</a></li><li><a href="#the-deduction-theorem">The deduction theorem</a></li><li><a href="#sequent-calculus">Sequent calculus</a></li><li><a href="#a-note-on-holmm">A note on hol.mm</a></li><li><a href="#threads-to-research">Threads to research</a></li><li><a href="#claims-left-for-later-formalization">Claims left for later formalization</a></li><li><a href="#additional-exercises-for-later-requires-quantifiers-and-d">Additional exercises for later (requires quantifiers and <code>$d</code>)</a></li><li><a href="#other-proof-system-puzzles-to-revisit">Other proof-system puzzles to revisit</a></li><li><a href="#formalization-work-to-recover-later">Formalization work to recover later</a></li><li><a href="#source-and-reading-pointers-retained-from-the-earlier-exercises">Source and reading pointers retained from the earlier exercises</a></li><li><a href="#answers-and-further-work">Answers and further work</a></li></ul></li></ul></div>
+<h1 id="4-studying-propositional-calculus-with-metamath">4 Studying Propositional Calculus with Metamath</h1>
 <p>Now that we're set on the intricacies of Metamath, sans 
-disjoint variables and compressed proofs, I want to familiarize myself with the lingua franca of logic. </p>
+disjoint variables and compressed proofs, I want to familiarize myself with logic with Metamath as grounding. 
+This includes:</p>
+<ul>
+<li>The theorems and conventions in set.mm, up to predicate calculus.</li>
+<li>Other "propositional-like" proof databases.</li>
+<li>Proving substantive statements with a proof assistant (built-in proof assistant, or Yamma, or mmj2).</li>
+</ul>
+<p>So, we'll work through basic formal systems, as far as we can get until
+our patience runs out, or we can no longer avoid disjoint variables.</p>
+<h2 id="041-propositional-calculus-in-setmm">04.1 Propositional calculus in <code>set.mm</code></h2>
+<p>Let's start by building up some of the basic theorems and machinery of <code>set.mm</code>. We'll
+pick apart and cannibalize the usual set proof database, but you still might find it useful
+to visit <a href="https://us.metamath.org/mpeuni/mmtheorems1.html">the Metamath Proof Explorer, page 1 of 513</a>,
+which is good reading. </p>
+<p>Here's the start of set.mm, which we'll use to build up a bunch of theorems.</p>
+<p>I'll leave this as a series of guided exercises, with solutions and hints at the end.
+Each proof can build off of the last proofs, so they're not meant to be independent exercises.</p>
+<p>If you're stuck on a proof and the hints don't help, you can view the proof
+solution by editing the url <code>https://us.metamath.org/mpeuni/&lt;label&gt;.html</code>.
+The proof database's proof might differ from the method suggested by the hints.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$c</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="k">$v</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="n">ta</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wph</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wps</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wch</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wth</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wta</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">ta</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wn</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wi</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">min</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">maj</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-mp</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+<span class="nl">ax-1</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">ax-2</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span>
+<span class="w">             </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">ax-3</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<h3 id="implication-first-proofs-and-useful-derived-rules">Implication: first proofs and useful derived rules</h3>
+<p><strong>Question 1.</strong> Prove <code>a1i</code>, which adds an antecedent.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="cm">$( Add an antecedent $)</span>
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">a1i.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">a1i</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="cm">$( Distribute an antecedent $)</span>
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">a2i.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">a2i</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="cm">$( Modus ponens under shared antecedent $)</span>
+<span class="cm">$( You'll use it constantly! $)</span>
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">mpd.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">mpd.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">mpd</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="cm">$( syllogism, or "hypothetical syllogism" $)</span>
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">syl.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">syl.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">syl</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>Hints (Resp.)</p>
+<ul>
+<li><em>Hint:</em> one instance of <code>ax-1</code>, then <code>ax-mp</code>.</li>
+<li><em>Hint:</em> <code>ax-2</code>, then <code>ax-mp</code>.</li>
+<li><em>Hint:</em> feed <code>mpd.2</code> to <code>a2i</code>, then use <code>ax-mp</code> with <code>mpd.1</code>.</li>
+<li><em>Hint:</em> <code>a1i</code> turns <code>syl.2</code> into <code>( ph -&gt; ( ps -&gt; ch ) )</code>. Then use <code>mpd</code>.</li>
+</ul>
+<p><strong>Question 5.</strong> Prove identity, <code>idALT</code>, using only the axioms and <code>ax-mp</code>. This is the
+standard first proof in Hilbert-style textbooks: set.mm's comment on it says it is
+Lemma 1.8 of Mendelson and "Our first proof" in Hirst &amp; Hirst.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">idALT</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><em>Hint:</em> use the instances <code>ax-1</code> with <code>ps := ( ph -&gt; ph )</code>, <code>ax-2</code> with
+<code>ps := ( ph -&gt; ph )</code> and <code>ch := ph</code>, and <code>ax-1</code> with <code>ps := ph</code>, joined by two
+<code>ax-mp</code>s.</p>
+<p><strong>Question 6.</strong> Prove the same theorem again as <code>id</code>, this time using <code>mpd</code>, and
+compare the lengths.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">id</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><em>Hint:</em> <code>mpd</code> with two <code>ax-1</code> instances.</p>
+<p><strong>Question 7.</strong> Prove <code>pm2.43i</code>, which removes a repeated antecedent. (<code>pm2.43</code> is
+Theorem *2.43 of <em>Principia Mathematica</em>; logicians call this <em>contraction</em>.)</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">pm2.43i.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">pm2.43i</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> <code>mpd</code>, with an instance of <code>id</code> as the other premise.</p>
+<p><strong>Question 8.</strong> Prove the deduction forms of <code>a1i</code> and <code>a2i</code>, <code>a1d</code> and <code>a2d</code>. A
+deduction form puts the same antecedent <code>ph -&gt;</code> in front of every hypothesis and the
+conclusion.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">a1d.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">a1d</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">a2d.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">a2d</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> each is <code>syl</code> with an axiom instance.</p>
+<p><strong>Question 9.</strong> Prove <code>sylcom</code>.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">sylcom.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">sylcom.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">sylcom</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> apply <code>a2i</code> to <code>sylcom.2</code>, then use <code>syl</code>.</p>
+<p><strong>Question 10.</strong> Prove <code>com12</code>, which commutes two antecedents.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">com12.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">com12</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> <code>a2i</code> gives <code>( ( ph -&gt; ps ) -&gt; ( ph -&gt; ch ) )</code>, and <code>ax-1</code> gives
+<code>( ps -&gt; ( ph -&gt; ps ) )</code>. Chain them with <code>syl</code>.</p>
+<p><strong>Question 11.</strong> Prove <code>pm2.27</code>, the closed form of modus ponens. A closed form states
+a rule as a single theorem with no hypotheses.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">pm2.27</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><em>Hint:</em> apply <code>com12</code> to an instance of <code>id</code>.</p>
+<p><strong>Question 12.</strong> Prove <code>imim2i</code> ("imim" is short for implication of implications).</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">imim2i.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">imim2i</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> <code>a1i</code>, then <code>a2i</code>.</p>
+<h2 id="044-more-propositional-calculus">04.4 More propositional calculus</h2>
+<p><strong>Question 13.</strong> Prove the deduction forms of <code>mpd</code> and <code>syl</code>, <code>mpdd</code> and <code>syld</code>.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">mpdd.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">mpdd.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">mpdd</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">syld.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">syld.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">syld</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> for <code>mpdd</code>, apply <code>a2d</code> to <code>mpdd.2</code>, then use <code>mpd</code>. For <code>syld</code>, apply <code>a1d</code>
+to <code>syld.2</code>, then use <code>mpdd</code>.</p>
+<p><strong>Question 14.</strong> Turn a hypothesis into an antecedent. set.mm proves <code>syl</code> by applying
+<code>a1i</code> to <code>syl.2</code> and then using <code>mpd</code> with <code>syl.1</code>. Rewrite that proof so that <code>syl.2</code>
+becomes an antecedent instead of a hypothesis:</p>
+<ul>
+<li><code>syl.2</code> itself becomes <code>id</code>, with <code>ph := ( ps -&gt; ch )</code>.</li>
+<li>The <code>a1i</code> step becomes <code>a1d</code>.</li>
+<li><code>syl.1</code> gets an <code>a1i</code> in front.</li>
+<li>The <code>mpd</code> step becomes <code>mpdd</code>.</li>
+</ul>
+<p>The result is <code>imim1i</code>:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">imim1i.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">imim1i</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>Turning a hypothesis into an antecedent like this is what the <em>deduction theorem</em> is
+about, and logicians use the deduction theorem about as often as modus ponens. Doing
+it for one proof, as here, is a Metamath exercise. Saying it works for <em>every</em> proof requires talking about proofs as data.
+We have not built that representation yet; Chapter 05 keeps the question open.</p>
+<p><strong>Question 15.</strong> Prove these closed forms.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">imim2</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="nl">imim1</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="nl">pm2.43</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="nl">pm2.04</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><em>Hints:</em></p>
+<ul>
+<li><code>imim2</code>: <code>syl</code> of the <code>ax-1</code> instance <code>( ( ph -&gt; ps ) -&gt; ( ch -&gt; ( ph -&gt; ps ) ) )</code>
+  and an <code>ax-2</code> instance.</li>
+<li><code>imim1</code>: <code>com12</code> applied to an instance of <code>imim2</code>.</li>
+<li><code>pm2.43</code>: <code>a2i</code> applied to <code>pm2.27</code>.</li>
+<li><code>pm2.04</code> is the closed form of <code>com12</code>. <code>ax-2</code> takes <code>( ph -&gt; ( ps -&gt; ch ) )</code> to
+  <code>( ( ph -&gt; ps ) -&gt; ( ph -&gt; ch ) )</code>. To trade <code>( ph -&gt; ps )</code> for <code>ps</code>, apply <code>imim1i</code>
+  to the <code>ax-1</code> instance <code>( ps -&gt; ( ph -&gt; ps ) )</code>. Then use <code>syl</code>.</li>
+</ul>
+<p>From here on we also use <code>ax-3</code>.</p>
+<h3 id="negation-and-classical-propositional-calculus">Negation and classical propositional calculus</h3>
+<p><strong>Question 16.</strong> Prove the inference and deduction forms of <code>ax-3</code>, <code>con4i</code> and <code>con4d</code>.
+("con" is for contraposition.)</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">con4i.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">con4i</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">con4d.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">con4d</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> <code>ax-3</code> with <code>ax-mp</code>, and with <code>syl</code>.</p>
+<p><strong>Question 17.</strong> Prove that a contradiction implies anything (<em>explosion</em>, or <em>ex
+falso quodlibet</em>).</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">pm2.21i.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">pm2.21i</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">pm2.24ii.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">pm2.24ii.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">pm2.24ii</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> for <code>pm2.21i</code>, <code>a1i</code> gives <code>( -. ps -&gt; -. ph )</code>, then use <code>con4i</code>.</p>
+<p><strong>Question 18.</strong> Prove the deduction form and closed forms of explosion.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">pm2.21d.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">pm2.21d</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="nl">pm2.21</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="nl">pm2.24</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><em>Hint:</em> <code>pm2.21d</code> is <code>a1d</code> followed by <code>con4d</code>. <code>pm2.21</code> is <code>pm2.21d</code> applied to an
+instance of <code>id</code>. <code>pm2.24</code> is <code>com12</code> of <code>pm2.21</code>.</p>
+<p><strong>Question 19.</strong> Prove the <em>Clavius law</em>: if a formula follows from its own negation,
+it's true. This is the first question where you need a plan.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">pm2.18</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><em>Hint:</em> write H for <code>( -. ph -&gt; ph )</code>. Work with H as a shared antecedent, and aim for
+<code>( H -&gt; ( -. ph -&gt; -. H ) )</code>; then <code>con4d</code> gives <code>( H -&gt; ( H -&gt; ph ) )</code>.</p>
+<p><em>Second hint:</em> <code>id</code> gives <code>( H -&gt; ( -. ph -&gt; ph ) )</code>, and <code>pm2.21</code> gives
+<code>( -. ph -&gt; ( ph -&gt; -. H ) )</code>. Combine them with <code>sylcom</code>, then use <code>con4d</code>, and
+finish with <code>pm2.43i</code>.</p>
+<p><strong>Question 20.</strong> Prove double negation elimination and introduction.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">notnotr</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="nl">notnot</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><em>Hint:</em> <code>notnotr</code> is <code>syl</code> of the <code>pm2.21</code> instance <code>( -. -. ph -&gt; ( -. ph -&gt; ph ) )</code>
+and <code>pm2.18</code>. <code>notnot</code> is <code>con4i</code> applied to the <code>notnotr</code> instance
+<code>( -. -. -. ph -&gt; -. ph )</code>.</p>
+<p><strong>Question 21.</strong> Prove the other three contraposition rules.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">con2i.a</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">con2i</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">con1i.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">con1i</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">con3i.a</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">con3i</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> in each case, use <code>syl</code> with <code>notnotr</code> or <code>notnot</code> (both, for <code>con3i</code>) to get
+the hypothesis into the form <code>( -. A -&gt; -. B )</code>, then use <code>con4i</code>.</p>
+<p><strong>Question 22.</strong> Prove <code>mto</code> (<em>modus tollens</em>).</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">mto.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">mto.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">mto</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> <code>con3i</code>, then <code>ax-mp</code>.</p>
+<p><strong>Question 23.</strong> Prove <code>pm2.61i</code> (<em>proof by cases</em>). An ordinary proof that splits into
+"suppose <code>ph</code>" and "suppose not <code>ph</code>" goes through this.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">pm2.61i.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">pm2.61i.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">pm2.61i</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> <code>con3i</code> on the first hypothesis, then <code>syl</code> with the second, gives
+<code>( -. ps -&gt; ps )</code>. Finish with <code>pm2.18</code>.</p>
+<p><strong>Question 24.</strong> Prove <code>pm2.65i</code> (<em>reductio ad absurdum</em>).</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">pm2.65i.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">pm2.65i.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">pm2.65i</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> get <code>( ph -&gt; -. ph )</code> with <code>con2i</code> and <code>syl</code>, then <code>( -. -. ph -&gt; -. ph )</code> with
+<code>notnotr</code>. Finish with <code>pm2.18</code> at <code>ph := -. ph</code>.</p>
+<p><strong>Question 25.</strong> Prove <em>Peirce's law</em>. It uses only <code>-&gt;</code>, but your proof will have to
+go through negation. Why that can't be avoided is a chapter 05 topic.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">peirce</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><em>Hint:</em> use <code>pm2.61i</code>, splitting on <code>ph</code>. In the <code>ph</code> case, an <code>ax-1</code> instance does
+it. In the <code>-. ph</code> case, <code>pm2.21</code> gives <code>( ph -&gt; ps )</code>, and an instance of <code>pm2.27</code>
+takes it the rest of the way. Chain these with <code>syl</code>.</p>
+<h2 id="045-other-proof-databases">04.5 Other proof databases</h2>
+<p>The important comparison is what <em>the same Metamath verifier</em> does with very
+different statements and primitive rules. Keep these exercises in separate
+practice files: <code>id</code>, <code>mpd</code>, and even <code>|-</code> need not have the same role in
+different databases. The links go to the actual source databases; where only
+a small fragment is displayed, use that fragment as a new <code>.mm</code> file.</p>
+<h3 id="isetmm-intuitionistic-negation"><code>iset.mm</code>: intuitionistic negation</h3>
+<p><a href="https://github.com/metamath/set.mm/blob/develop/iset.mm"><code>iset.mm</code></a>
+uses familiar <code>wff</code>, <code>|-</code>, <code>-&gt;</code>, and <code>-.</code> notation, but begins its negation
+development with <code>ax-in1</code> and <code>ax-in2</code> rather than <code>set.mm</code>'s <code>ax-3</code>:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">ax-in1</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">ax-in2</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p>Assume we have already proved <code>id</code>, and <code>con2i</code>, whose premise and conclusion
+are <code>|- ( ph -&gt; -. ps )</code> and <code>|- ( ps -&gt; -. ph )</code>. Prove the actual
+<a href="https://us.metamath.org/ileuni/notnot.html"><code>notnot</code></a>:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">notnot</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><em>Hint:</em> apply <code>id</code> to <code>-. ph</code>, then <code>con2i</code>. In this case, the same result
+holds in classical <code>set.mm</code> and intuitionistic <code>iset.mm</code>, although its proof
+need not use the same rules. The converse is a different question.</p>
+<h3 id="qlmm-an-equational-language"><code>ql.mm</code>: an equational language</h3>
+<p>The beginning of <a href="https://github.com/metamath/set.mm/blob/develop/ql.mm"><code>ql.mm</code></a>
+is an equational system for ortholattices, with <code>term</code> variables and
+orthocomplement written <code>'</code>. Its first <code>id</code> proof uses this small fragment:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$c</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">'</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="p">$.</span>
+<span class="k">$v</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wva</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wvb</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wvc</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wn</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">term</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">'</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wb</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">ax-a1</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">'</span><span class="w"> </span><span class="n">'</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">r1.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-r1</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">r2.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">r2.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-r2</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="nl">id</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><em>Hint:</em> use double orthocomplementation, reverse that equation, and compose.
+The proof uses neither implication nor a propositional modus ponens rule.</p>
+<h3 id="holmm-explicit-contexts"><code>hol.mm</code>: explicit contexts</h3>
+<p><a href="https://github.com/metamath/set.mm/blob/develop/hol.mm"><code>hol.mm</code></a>
+uses simply typed terms. Statements look like <code>|- R |= S</code>, with an explicit
+context <code>R</code>. <code>( S , T )</code> combines context assumptions, and <code>[ S ==&gt; T ]</code>
+is a term built using defined implication.</p>
+<p>The actual early theorem <a href="https://us.metamath.org/holuni/syl2anc.html"><code>syl2anc</code></a>
+is (below, only its essential hypotheses and target are shown):</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">syl2anc.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="n">|=</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">syl2anc.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="n">|=</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">syl2anc.3</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="n">,</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">|=</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">syl2anc</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="n">|=</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>Use the primitive context-combination rule <code>ax-jca</code> and the primitive
+transitivity rule <code>ax-syl</code>. The point is to construct <code>( S , T )</code> in context
+<code>R</code>, then apply the third hypothesis. In the actual database there are type
+hypotheses and syntax declarations in addition to the excerpt above.</p>
+<p>Now the particularly good example: <strong>modus ponens is itself a proved theorem
+in <code>hol.mm</code>.</strong> Its primitive inference mechanism includes equality transport
+(<code>ax-eqmp</code>); implication has been <em>defined</em>. The actual theorem is
+<a href="https://us.metamath.org/holuni/mpd.html"><code>mpd</code></a> (with its essential
+hypotheses shown, but not the earlier <code>hol.mm</code> declarations):</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">mp.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">:</span><span class="w"> </span><span class="n">*</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">mp.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="n">|=</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">mp.3</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="n">|=</span><span class="w"> </span><span class="n">[</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="n">==&gt;</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">]</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">mpd</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="n">|=</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>For this puzzle, use the preceding results <code>imval</code>, <code>a1i</code>, <code>mpbi</code>,
+<code>mpbir</code>, <code>dfan2</code>, and <code>simprd</code>. <code>imval</code> rewrites implication as an equality
+involving conjunction; <code>mpbi</code>/<code>mpbir</code> move along such equalities;
+<code>dfan2</code> relates Boolean conjunction to context conjunction; <code>simprd</code>
+projects the right conjunct. Starting with the two premises, obtain
+<code>R |= [ [ S /\ T ] = S ]</code>, then <code>R |= [ S /\ T ]</code>, then <code>R |= ( S , T )</code>,
+and finally <code>R |= T</code>.</p>
+<p>This is a puzzle about <em>the actual rule dependencies</em>, not a claim that
+one database has a special privilege to define what modus ponens 'really is'.</p>
+<h2 id="046-optional-merediths-single-axiom">04.6 Optional: Meredith's single axiom</h2>
+<p>This is an advanced substitution puzzle, not a prerequisite to Chapter 05.
+The <a href="https://us.metamath.org/mpeuni/meredith.html">Metamath development of Meredith's axiom</a>
+is unusually striking: using <code>-&gt;</code>, <code>-.</code>, and modus ponens, it connects
+one very large axiom schema with familiar sets of three schemas. The
+<code>set.mm</code> labels below are real labels; start from a separate small system
+where the Meredith schema is available, rather than using the earlier
+<code>set.mm</code> theorems to short-circuit the exercise.</p>
+<p>Write <code>M(a,b,c,d,e)</code> for the schema</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$
+M(a,b,c,d,e) =
+\left(\left(\left((a\to b)\to(\neg c\to\neg d)\right)\to c\right)\to e\right)
+\to\left((e\to a)\to(d\to a)\right).
+$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mi><mjx-c class="mjx-c1D440">𝑀</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D44E">𝑎</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c2C">,</mjx-c></mjx-mo><mjx-mi space="2"><mjx-c class="mjx-c1D44F">𝑏</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c2C">,</mjx-c></mjx-mo><mjx-mi space="2"><mjx-c class="mjx-c1D450">𝑐</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c2C">,</mjx-c></mjx-mo><mjx-mi space="2"><mjx-c class="mjx-c1D451">𝑑</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c2C">,</mjx-c></mjx-mo><mjx-mi space="2"><mjx-c class="mjx-c1D452">𝑒</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c3D">=</mjx-c></mjx-mo><mjx-mrow space="4"><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mrow><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mrow><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D44E">𝑎</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D44F">𝑏</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-cAC">¬</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D450">𝑐</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-cAC">¬</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D451">𝑑</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo></mjx-mrow><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D450">𝑐</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo></mjx-mrow><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D452">𝑒</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo></mjx-mrow><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mrow space="4"><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D452">𝑒</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D44E">𝑎</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D451">𝑑</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D44E">𝑎</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo></mjx-mrow><mjx-mo space="2"><mjx-c class="mjx-c2E">.</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<p>As a compact exercise sequence, use the supplied intermediate lemmas.
+Their proofs in <code>set.mm</code> are deliberately <em>not</em> homework here. The difficult
+part of the original discovery has already been done; reconstruct the
+specified substitutions and modus-ponens steps.</p>
+<p><strong><code>merlem1</code>.</strong> Derive</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$
+((c\to(\neg a\to b))\to t)\to(a\to t).
+$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D450">𝑐</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-cAC">¬</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D44E">𝑎</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D44F">𝑏</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D461">𝑡</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D44E">𝑎</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D461">𝑡</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo><mjx-c class="mjx-c2E">.</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<p>For a guided reconstruction, let
+<code>N = (¬a → b)</code>, <code>X = (¬t → ¬c)</code>,
+<code>Y = ((N → (¬X → ¬¬N)) → X) → t</code>, and
+<code>Z = (t → ¬a) → (¬N → ¬a)</code>.
+Use <code>M(¬a,b,X,¬N,t)</code>, <code>M(N,(¬X → ¬¬N),t,c,Z)</code>,
+and <code>M(t,¬a,N,a,(c → N))</code>, in that order. See
+<a href="https://us.metamath.org/mpeuni/merlem1.html"><code>merlem1</code></a>.</p>
+<p><strong><code>luk-3</code>.</strong> Derive <code>a → (¬a → b)</code> from <code>merlem1</code> and the supplied
+<a href="https://us.metamath.org/mpeuni/merlem11.html"><code>merlem11</code></a>,
+<code>(x → (x → y)) → (x → y)</code>. Use <code>merlem11</code> with <code>(x,y)=(¬a,b)</code>;
+then use <code>merlem1</code> with <code>c = ¬a</code> and <code>t = (¬a → b)</code>.
+<a href="https://us.metamath.org/mpeuni/luk-3.html">Result: <code>luk-3</code></a>.</p>
+<p><strong><code>luk-2</code>.</strong> Derive <code>(¬a → a) → a</code>. You may use these lemmas, already
+obtained from <code>M</code>:</p>
+<ul>
+<li><a href="https://us.metamath.org/mpeuni/merlem4.html"><code>merlem4</code></a>: <code>F(p,d,t) = t → ((t → p) → (d → p))</code>.</li>
+<li><a href="https://us.metamath.org/mpeuni/merlem5.html"><code>merlem5</code></a>: <code>D(p,q) = (p → q) → (¬¬p → q)</code>.</li>
+<li><code>merlem11</code>: <code>W(p,q) = (p → (p → q)) → (p → q)</code>.</li>
+</ul>
+<p>Put <code>N=(¬a → a)</code>, <code>R=(a → ¬N) → (¬¬a → ¬N)</code>, and <code>Q=(R → ¬a)</code>.
+Use <code>D(a,¬N)</code>, <code>F(¬a,Q,R)</code>, <code>W(Q,¬a)</code>, <code>M(a,¬N,¬a,N,¬a)</code>, and
+<code>W(N,a)</code>. <a href="https://us.metamath.org/mpeuni/luk-2.html">Result: <code>luk-2</code></a>.</p>
+<p><strong><code>luk-1</code>.</strong> Derive <code>(a → b) → ((b → c) → (a → c))</code>. The supplied lemma
+<a href="https://us.metamath.org/mpeuni/merlem13.html"><code>merlem13</code></a> is</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$
+B(p,q,r,s)=(p\to q)\to
+\bigl(((s\to(\neg\neg r\to r))\to\neg\neg p)\to q\bigr).
+$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mi><mjx-c class="mjx-c1D435">𝐵</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D45D">𝑝</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c2C">,</mjx-c></mjx-mo><mjx-mi space="2"><mjx-c class="mjx-c1D45E">𝑞</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c2C">,</mjx-c></mjx-mo><mjx-mi space="2"><mjx-c class="mjx-c1D45F">𝑟</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c2C">,</mjx-c></mjx-mo><mjx-mi space="2"><mjx-c class="mjx-c1D460">𝑠</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c3D">=</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D45D">𝑝</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D45E">𝑞</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-TeXAtom space="4" texclass="OPEN"><mjx-mo><mjx-c class="mjx-c28 TEX-LO">(</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D460">𝑠</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-cAC">¬</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-cAC">¬</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D45F">𝑟</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D45F">𝑟</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-cAC">¬</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-cAC">¬</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D45D">𝑝</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D45E">𝑞</mjx-c></mjx-mi><mjx-TeXAtom texclass="CLOSE"><mjx-mo><mjx-c class="mjx-c29 TEX-LO">)</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mo><mjx-c class="mjx-c2E">.</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<p>Set <code>S=(a → b)</code>, <code>T=(b → c) → (a → c)</code>,
+<code>U=((c → c) → (¬¬¬a → ¬a)) → ¬¬a</code>, <code>V=(U → b)</code>, and
+<code>Z=((T → a) → (¬¬¬S → ¬S)) → ¬¬S</code>.
+Use <code>M(c,c,¬¬a,a,b)</code>, <code>B(a,b,¬a,(c → c))</code>,
+<code>B(S,V,¬S,(T → a))</code>, and <code>M(T,a,¬¬S,S,V)</code>.
+<a href="https://us.metamath.org/mpeuni/luk-1.html">Result: <code>luk-1</code></a>.</p>
+<p><code>luk-1</code>, <code>luk-2</code>, and <code>luk-3</code> are the three Łukasiewicz schemas used
+in this comparison, distinct from the <code>ax-1</code>, <code>ax-2</code>, and <code>ax-3</code> presentation
+we began with. Deriving the three actual statements is suitable work here;
+the <em>general assertion</em> that the presentations admit exactly the same
+provable schemas is a Chapter 05 question. For the reverse derivations, see
+<a href="https://us.metamath.org/mpeuni/ax1.html"><code>ax1</code></a>,
+<a href="https://us.metamath.org/mpeuni/ax2.html"><code>ax2</code></a>, and
+<a href="https://us.metamath.org/mpeuni/ax3.html"><code>ax3</code></a>.</p>
+<hr>
+<h1 id="05-metatheorems-notation-and-history">05 Metatheorems, notation, and history</h1>
+<p><em>Working notes and problems to revisit. This chapter is intentionally unfinished;
+sections need not yet form a continuous exposition.</em></p>
+<p>Chapter 04 was mostly code, with the program Metamath as the foundation. It's
+difficult to talk about the history of logic without talking about things that are
+surprisingly distant from this bootstrapping, and that take much, much more effort to
+get to.</p>
+<p>For these notes, our grounding is the 02 verifier and concrete proof files it
+accepts. We can also discuss ordinary mathematical arguments, proposed
+algorithms, and historical claims; none of those discussions is being
+presented as a verified Metamath proof. I mark such claims <strong>(to formalize)</strong>.
+The eventual task is to represent syntax, derivations, and verification as
+data in a suitable Metamath database, and prove facts about them there.
+That is much later work, perhaps around Chapter 14. Mario Carneiro's
+formalizations and Metamath Zero are useful future references.</p>
+<p>Three distinct achievements should not be conflated: (1) checking one
+particular proof; (2) writing a program that takes proofs as input and emits
+proofs as output; (3) proving inside a formal system that the program works
+for all valid inputs. We can pursue them in that order.</p>
+<h2 id="object-language-and-metalanguage">Object language and metalanguage</h2>
+<p>Logicians separate two levels. The <em>object language</em> is the formulas being studied;
+in Metamath, these are the strings inside statements. The <em>metalanguage</em> is the
+language used to talk <em>about</em> those formulas: English plus a few symbols. Statements
+such as "this <code>$p</code> verifies" or "no proof of <code>|- M U</code> exists" belong to the
+metalanguage. A large part of reading logic texts is noticing which level a symbol
+belongs to. We can eventually make the metalanguage itself a formal
+object language, by encoding formulas and proofs as data.</p>
+<h2 id="notation">Notation</h2>
+<p><strong><code>⊢ φ</code></strong> conventionally means "φ is a theorem." This is a statement
+about derivability, not a connective inside φ. Metamath's <code>|-</code> is just
+a constant at the front of an expression. A Metamath statement
+<code>|- ph</code> is distinct from a metalanguage claim
+about the existence of a proof of some formula; it is the object we ask the
+verifier to derive. We can later define an explicit <code>Provable(code)</code>
+predicate in another formal language.</p>
+<p><strong><code>Γ ⊢ φ</code></strong> means "φ is deducible from Γ," where Γ is a set of
+formulas. A <code>$p</code> with <code>$e</code> hypotheses gives an immediately useful
+analogue, though the correspondence depends on the chosen encoding of
+substitutions and hypotheses. Enderton uses <code>Γ; α</code> for adjoining an
+assumption to Γ.</p>
+<p><strong>Rule notation.</strong> A rule of inference is often drawn with its premises above a line
+and its conclusion below. Modus ponens:</p>
+<div class="codehilite fenced-code" data-language=""><pre><code>  φ      φ → ψ
+ ───────────────  MP
+        ψ
+</code></pre></div>
+
+<p>This is the <code>ax-mp</code> block. A proof stacks rules like these into a tree. Metamath's
+RPN proof is that tree written out in postorder, which is what the stack in the 02
+verifier evaluates.</p>
+<p><strong>Arrows.</strong> The connective <code>→</code> is set.mm's <code>-&gt;</code>. Older books write it <code>⊃</code>, and
+Mendelson writes it <code>⇒</code>. Elsewhere <code>⇒</code> means something else entirely: the sequent
+arrow (see the sequent calculus section below), or just English "implies" in prose.</p>
+<p><strong><code>⊨</code>.</strong> Conventional <code>Γ ⊨ φ</code> means that every valuation satisfying all
+of Γ also satisfies φ; <code>⊨ φ</code> means that φ is valid under all valuations.
+To investigate this concretely, define valuations, evaluation of syntax,
+and then the satisfaction relation. Metamath can host those definitions;
+we have not yet constructed them. <code>hol.mm</code> uses the characters <code>|=</code>
+for something else: they are part of its actual assertions <code>|- R |= S</code>.</p>
+<p><strong>Book differences.</strong> Enderton's deductive calculus is in his first-order chapter, and
+its propositional part takes every tautology (and its generalizations) as an axiom.
+For a three-axiom Hilbert-style system like set.mm's, Mendelson's chapter 1 is the
+closer match.</p>
+<h2 id="more-vocabulary">More vocabulary</h2>
+<p><strong>Schema vs. atom.</strong> In a textbook, a sentence symbol such as A₁ or p is one
+particular propositional variable of the object language, while α ranges over all
+formulas. set.mm has only the second kind. So every set.mm theorem is what a textbook
+calls a <em>theorem schema</em>. Some authors call these "metatheorems," a weaker sense of
+the word than the one below.</p>
+<p><strong>"Deduction."</strong> set.mm uses "inference" for a rule with bare hypotheses and
+"deduction form" (suffix <code>d</code>) for the shared-antecedent version. A logician's
+"deduction" is Enderton's: a finite sequence of formulas, each either in Γ, a logical
+axiom, or obtained by modus ponens from earlier ones. A Metamath proof with <code>$e</code>
+hypotheses gives a closely related schematic rule, but the exact
+correspondence depends on how the system, substitutions, and hypotheses
+are encoded. That correspondence is itself a useful question.</p>
+<p><strong>Derivable vs. admissible.</strong> A rule is called <em>derivable</em> when its
+conclusion can be derived from its premises in the chosen calculus; a
+<code>$p</code> with <code>$e</code> hypotheses is one convenient representation. It is
+<em>admissible</em> if every substitution of theorem premises also has a
+theorem conclusion. Derivability gives admissibility. Proving
+admissibility can require a claim about all derivations, which we
+have not formalized here.</p>
+<p><strong>Metatheorem</strong>: a mathematical result <em>about a formal system</em>, often
+quantifying over formulas or derivations. The deduction theorem, MIU
+nonderivability arguments, and cut elimination are examples. This is
+vocabulary to recognize, not a claim that such results are forever
+outside Metamath.</p>
+<h2 id="the-miu-system">The MIU system</h2>
+<p>The MIU system is described in chapter 1 of Hofstadter's <em>Gödel, Escher, Bach</em> (GEB).
+<code>miu.mm</code> has good exposition. (Appendix D of the Metamath book, "The MIU system," is
+just a copy of it, so open <code>miu.mm</code> instead.) There's also
+<a href="https://leanprover-community.github.io/mathlib4_docs/Archive/MiuLanguage/Basic.html">a Lean project</a>
+that states "The principal aim of this project is to give a Lean proof that the
+derivability of a string is a decidable predicate."</p>
+<p>MIU's small rewriting rules make it useful for asking what <em>all possible</em>
+derivations look like. This is a parking place for questions and ideas,
+not a demand to prove nonderivability now.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$c</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="p">$.</span>
+<span class="k">$v</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wx</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wy</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">we</span><span class="w">  </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wM</span><span class="w">  </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wI</span><span class="w">  </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wU</span><span class="w">  </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wxy</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">ax</span><span class="w">  </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">${</span><span class="w"> </span><span class="nl">Ia</span><span class="w">   </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="p">$.</span><span class="w">       </span><span class="nl">I_</span><span class="w">  </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="p">$.</span><span class="w"> </span><span class="p">$}</span>
+<span class="p">${</span><span class="w"> </span><span class="nl">IIa</span><span class="w">  </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">$.</span><span class="w">       </span><span class="nl">II</span><span class="w">  </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">$.</span><span class="w"> </span><span class="p">$}</span>
+<span class="p">${</span><span class="w"> </span><span class="nl">IIIa</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">$.</span><span class="w"> </span><span class="nl">III</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">$.</span><span class="w"> </span><span class="p">$}</span>
+<span class="p">${</span><span class="w"> </span><span class="nl">IVa</span><span class="w">  </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">$.</span><span class="w">   </span><span class="nl">IV</span><span class="w">  </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">$.</span><span class="w"> </span><span class="p">$}</span>
+</code></pre></div>
+
+<p><strong>Question 1.</strong> Prove a theorem (the label is <code>miu.mm</code>'s):</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">theorem1</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><strong>Question 2.</strong> Prove a derived rule:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">II2.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">II2</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><em>Hint:</em> use <code>II</code> twice. The second use substitutes <code>x x</code> for <code>x</code>, which needs <code>wxy</code>.</p>
+<p><strong>Question 3 (later).</strong> For any specific k, construct a proof of
+<code>M I^(2^k)</code> (for example k = 3). A more ambitious claim ranges over
+all k: write a program that produces the corresponding proof, and
+later represent and justify that program's operation formally.</p>
+<p><strong>Question 4 (later).</strong> Formalize the claim that <code>|- M U</code> has no derivation.
+<strong>(to formalize)</strong></p>
+<p><em>Informal lead:</em> count <code>I</code>s modulo 3 and examine how each rule transforms
+that count. GEB gives the conventional argument (p. 260); the future goal
+is an explicit formal theorem about encoded derivations.</p>
+<p><strong>Question 5 (later).</strong> Formalize the proposed complete characterization:
+a string is MIU-derivable exactly when it begins with a single <code>M</code>, has
+only <code>I</code>s and <code>U</code>s thereafter, and its <code>I</code> count is nonzero modulo 3.
+<strong>(to formalize)</strong> The necessity and sufficiency directions require
+different constructions. The earlier guided worksheet suggested
+starting with <code>MI^n</code> for every positive n not divisible by 3 and then
+introducing the target <code>U</code>s by replacing triple <code>I</code>s.</p>
+<p><strong>Question 6 (later).</strong> Consider the proposed rule "from <code>|- M U</code>,
+infer <code>|- U</code>." Investigate its admissibility given Q4 and whether
+the following rule can be derived:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">bad.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">bad</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><strong>(to formalize)</strong>. <em>Informal lead:</em> every string derivable from the
+axiom together with a hypothesis <code>M U</code> begins with <code>M</code>. The precise
+nonderivability and admissibility statements remain to be encoded.</p>
+<h2 id="the-deduction-theorem">The deduction theorem</h2>
+<p>In Enderton's notation:</p>
+<blockquote>
+<p>If Γ; α ⊢ β, then Γ ⊢ (α → β).</p>
+</blockquote>
+<p>The usual informal argument is by induction on the deduction of β. Rewrite every line χ as
+<code>α -&gt; χ</code>. There are three cases, and chapter 04 proved a tool for each:</p>
+<ul>
+<li>the line is α itself: use <code>id</code>.</li>
+<li>the line is an axiom, another hypothesis, or an earlier theorem: use <code>a1i</code>.</li>
+<li>the line follows by modus ponens from earlier lines: use <code>mpd</code>.</li>
+</ul>
+<p>For proofs using derived rules, one can expand them back to primitive
+rules, or arrange suitable deduction-form replacements. This motivates
+the many <code>i</code>/<code>d</code> variants in <code>set.mm</code>. Chapter 04 Question 14 used a
+particular replacement. The general correctness of the transformation
+is <strong>(to formalize)</strong>.</p>
+<p>The proposed proof methods have a useful common shape: reason over an
+arbitrary derivation. MIU's Q4 suggests an invariant preserved by the rules;
+the deduction theorem suggests a procedure transforming proof objects.
+Neither claim is itself one of the ordinary MIU or propositional <code>$p</code>
+statements written so far. Once derivations are represented as data in a
+richer database, both become candidates for explicit formalization. MIU
+has no implication connective in the language shown, so the usual
+implication-form version of the deduction theorem is not a statement in
+that particular language.</p>
+<p>Predicate logic adds a complication. set.mm has the rule <code>ax-gen</code>: from <code>|- ph</code>, infer
+<code>|- A. x ph</code>. Applying the naive deduction theorem to it would give
+<code>|- ( ph -&gt; A. x ph )</code>, which is false when <code>ph</code> is <code>x = y</code>. So with generalization,
+the theorem needs a side condition: you can't generalize on a variable that is free in
+the hypothesis being discharged. Propositional logic has no generalization rule, so
+this never came up in chapter 04.</p>
+<h2 id="sequent-calculus">Sequent calculus</h2>
+<p>A Hilbert-style system manipulates formulas, and assumptions live outside them, in
+the metalanguage. A <em>sequent calculus</em> (Gentzen, 1934) manipulates <em>sequents</em>,
+<code>Γ ⇒ Δ</code>, read as "if everything in Γ holds, then something in Δ holds." Some books
+write <code>Γ ⊢ Δ</code> instead. The assumptions are now part of the object language, so
+moving an assumption into an antecedent becomes an ordinary rule. Each connective
+has a <em>left</em> rule (how to use it) and a <em>right</em> rule (how to prove it). The right
+rule for <code>→</code> is</p>
+<div class="codehilite fenced-code" data-language=""><pre><code>   Γ, φ ⇒ ψ, Δ
+ ───────────────  →R
+   Γ ⇒ φ → ψ, Δ
+</code></pre></div>
+
+<p>Propositional sequent calculus fits in Metamath with no <code>$d</code>:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="k">$c</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="p">$.</span>
+<span class="k">$v</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="p">$.</span>
+<span class="k">$v</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wph</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wps</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wch</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wth</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">vG</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">vH</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">vD</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">vE</span><span class="w"> </span><span class="k">$f</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wn</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">wi</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">wff</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">c0</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">cadd</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">ctx</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="nl">ax-id</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">ax-negl.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-negl</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">ax-negr.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-negr</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">ax-impl.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-impl.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-impl</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">ax-impr.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-impr</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>A <code>ctx</code> is a list of wffs: <code>c0</code> is the empty list, and <code>cadd</code> appends one wff. Every
+wff is a variable, starts with <code>-.</code>, or is wrapped in parentheses, so a list of wffs
+can be split up only one way and needs no commas. <code>G ph H</code> means "a context with <code>ph</code>
+somewhere in it." Every rule acts at any position, so no reordering rule is needed.</p>
+<p><code>ax-id</code> is the axiom <code>φ ⇒ φ</code> with extra context. The other four rules are ¬L, ¬R, →L
+and →R. There are no <em>structural rules</em> (weakening, contraction, exchange); logicians
+call a system like this <em>G3-style</em>.</p>
+<p>Here is <code>ph ⇒ ph</code> turned into <code>⇒ ( ph -&gt; ph )</code>. All four contexts are empty (<code>c0</code>),
+and the first <code>wph wph</code> gives the substitutions for <code>ph</code> and <code>ps</code> in <code>ax-impr</code>:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">seqid</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span>
+<span class="w">  </span><span class="nl">wph</span><span class="w"> </span><span class="nl">wph</span><span class="w"> </span><span class="nl">c0</span><span class="w"> </span><span class="nl">c0</span><span class="w"> </span><span class="nl">c0</span><span class="w"> </span><span class="nl">c0</span><span class="w"> </span><span class="nl">wph</span><span class="w"> </span><span class="nl">c0</span><span class="w"> </span><span class="nl">c0</span><span class="w"> </span><span class="nl">c0</span><span class="w"> </span><span class="nl">c0</span><span class="w"> </span><span class="nl">ax-id</span><span class="w"> </span><span class="nl">ax-impr</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p>A context with two formulas, <code>ph ps</code>, has the syntax proof <code>wps wph c0 cadd cadd</code>.
+Matching a rule like <code>G ph H =&gt; ...</code> against a sequent can succeed in several ways
+(where does <code>G</code> end?), so a proof assistant may ask you to choose, as with <code>miu.mm</code>.
+By default mmj2 expects every <code>|-</code> statement to parse as a <code>wff</code>, so use
+<code>metamath.exe</code> or the 02 checker.</p>
+<p><strong>Question 7.</strong> Prove <code>ax-1</code>, <code>ax-2</code> and <code>ax-3</code> as sequents, then Peirce's law and
+double negation elimination.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">seqax1</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="nl">seqax2</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="nl">seqax3</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="nl">seqpeirce</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="nl">seqnotnotr</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><em>Hint:</em> work from the bottom up (logicians say <em>backward</em> or <em>root-first</em> proof
+search). The last step is always <code>ax-impr</code>. After that, pick any compound formula and
+apply its rule backwards; each step makes the sequent smaller. Stop when the same
+formula appears on both sides, and use <code>ax-id</code>. For <code>seqpeirce</code>, the <code>ax-impl</code> step
+puts <code>( ph -&gt; ps )</code> on the right, next to <code>ph</code>. Compare its five steps with chapter
+04's Question 25.</p>
+<p><strong>Question 8 (later).</strong> Investigate whether weakening can be expressed as a derivable rule in this calculus:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">wk.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">wk</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>Look at the shape of each rule's conclusion. Then show that weakening is admissible
+<strong>(to formalize)</strong>.</p>
+<p><strong>Question 9 (later).</strong> Investigate the attempted modus-ponens sequent rule. Which
+rule could have <code>=&gt; ps</code> as its conclusion?</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">seqmp.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">seqmp.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">seqmp</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>A candidate additional rule is <em>cut</em>, which lets us use a lemma:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">ax-cut.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-cut.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-cut</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p><strong>Question 10.</strong> With <code>ax-cut</code> added, prove <code>seqmp</code>.</p>
+<p><em>Hint:</em> first prove <code>|- ph ( ph -&gt; ps ) =&gt; ps</code> with one <code>ax-impl</code> and two <code>ax-id</code>s.
+Cut that against <code>seqmp.2</code> to get <code>|- ph =&gt; ps</code>, then cut against <code>seqmp.1</code>.</p>
+<p><strong>Cut elimination</strong> (Gentzen's <em>Hauptsatz</em>) says that every sequent derivable with
+<code>ax-cut</code> is derivable without it <strong>(to formalize)</strong>. Like the deduction theorem, it transforms
+derivations. Three consequences, all <strong>(to formalize)</strong>:</p>
+<ul>
+<li><em>The subformula property.</em> Every formula in a cut-free derivation is a piece of the
+  final sequent. That's how <code>seqmp</code> can be admissible without being derivable. Taking
+  modus ponens out of chapter 04's system, by contrast, would leave only axiom
+  instances.</li>
+<li><em>Consistency.</em> No rule concludes the empty sequent <code>|- =&gt;</code>, so it has no cut-free
+  derivation. The sequent proofs of <code>ax-1</code>–<code>ax-3</code>, together with <code>seqmp</code>, translate
+  chapter 04's theorems into sequents. If chapter 04's system proved both φ and <code>-. φ</code>,
+  two cuts would give <code>|- =&gt;</code>. This argument never mentions truth tables.</li>
+<li><em>A decision procedure.</em> Backward search always terminates, because every rule's
+  premises have fewer connectives than its conclusion. A G3 prover in the SICP query
+  language from 03, printing proofs that the 02 checker verifies, would be a good
+  project.</li>
+</ul>
+<p>For quantifiers, the ∀-right rule normally needs the proviso that <code>x</code> doesn't occur in the
+context. In Metamath that's a <code>$d</code>:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="p">$.</span><span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="p">$.</span><span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="p">$.</span><span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-allr.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-allr</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="n">=&gt;</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>Without the <code>$d</code>, this rule would prove <code>ph ⇒ ∀x ph</code>, which is the <code>ax-gen</code> mistake
+from the deduction theorem section, in sequent form.</p>
+<h2 id="a-note-on-holmm">A note on hol.mm</h2>
+<p>hol.mm writes assumptions into its statements, as in <code>|- R |= S</code>, much like a sequent.
+There, modus ponens for <code>==&gt;</code> is a theorem (labeled <code>mpd</code>) proved from the definition
+of implication. The primitive rule is <code>ax-eqmp</code>, modus ponens for equality.</p>
+<h2 id="threads-to-research">Threads to research</h2>
+<ul>
+<li>Gentzen's sequent calculus and cut elimination (1934).</li>
+<li>Church's λ-calculus, Gödel–Herbrand recursive functions and Turing machines:
+  different precise models of computability, related by formal translations.
+  Study which equivalences were established as theorems, and which broader
+  assertions are summarized by the Church–Turing thesis.</li>
+<li>Curry–Howard: study explicit correspondences between selected proof
+  calculi and typed program calculi, not a blanket identity of every
+  notion of proof and program.</li>
+<li>De Bruijn's Automath (from 1967), and the <em>de Bruijn criterion</em>: a
+  small, independently understandable proof-checking component.</li>
+<li>Mizar (1973), LCF (Milner, 1970s), and the Boyer–Moore prover. Shankar
+  mechanically checked Gödel's incompleteness theorem in the Boyer–Moore prover in
+  1986.</li>
+<li>Mario Carneiro: <code>set.mm</code>'s developments about Metamath systems, and
+  Metamath Zero. Find concrete statements, proof encodings, and verified
+  translations to work through.</li>
+<li>Why logic texts state metatheory in English. Mechanization had real
+  historical costs; the traditional mathematical treatment is also an
+  intentional and useful research convention. This project chooses a
+  more operational starting point.</li>
+<li>A useful primary-source example: the introduction to Solovay's
+  <a href="https://raw.githubusercontent.com/pbrosnan/ntg/15332ee0dfe50ada14b6e31e947272232e4dc671/peano.mm">Peano arithmetic <code>peano.mm</code></a>
+  explicitly separates formal Metamath statements from informal
+  metamathematical arguments and observes that those arguments could
+  be formalized in primitive recursive arithmetic. The source even
+  identifies semantic justification of some axioms as work left to the
+  reader. This is an unusually direct historical example of the
+  distinction these notes are tracking.</li>
+</ul>
+<h2 id="claims-left-for-later-formalization">Claims left for later formalization</h2>
+<ul>
+<li><code>⊨</code>, truth tables, and any statement relating them to <code>⊢</code>.</li>
+<li>MIU nonderivability, admissibility, and the complete characterization (Questions 4–6).</li>
+<li>The deduction theorem, for all proofs, and its side condition for generalization.</li>
+<li>Weakening is admissible in the sequent calculus above.</li>
+<li>Cut elimination, the subformula property, the consistency argument, and
+  decidability.</li>
+<li>Peirce's law can't be proved from <code>ax-1</code> and <code>ax-2</code> alone (chapter 04, Question 25).
+  The usual proof uses a many-valued truth table.</li>
+</ul>
+<h2 id="additional-exercises-for-later-requires-quantifiers-and-d">Additional exercises for later (requires quantifiers and <code>$d</code>)</h2>
+<p>The <a href="https://github.com/pbrosnan/ntg">Number Theory Game for Metamath</a>
+by Patrick Brosnan is a <code>.mm</code> development inspired by the Natural Number
+Game, using Robert Solovay's Peano arithmetic. The more detailed practice
+route used the repository at
+<a href="https://github.com/pbrosnan/ntg/blob/15332ee0dfe50ada14b6e31e947272232e4dc671/README.md">commit <code>15332ee...</code></a>.
+These are <strong>not Chapter 04 exercises</strong>: the induction problems require
+quantifiers and disjoint-variable declarations. Retain the following targets
+for a later arithmetic chapter.</p>
+<p>In this database <code>+ a b</code> is prefix notation for <code>a+b</code>, <code>S t</code> is successor,
+and <code>= s t</code> is equality. <code>var</code> is a type for object-language variable names;
+<code>term</code> is the type for arbitrary arithmetic terms. Syntax helpers include
+<code>tvar</code>, <code>tzero</code>, <code>tsucc</code>, <code>binop_plus</code>, <code>tbinop</code>, <code>binpred_equals</code>, and
+<code>wff_atom</code>. The order of proof-stack inputs to <code>tbinop</code> is its two terms,
+then the operator.</p>
+<p><strong><code>nn26l1</code></strong> (<a href="https://github.com/pbrosnan/ntg/blob/15332ee0dfe50ada14b6e31e947272232e4dc671/peano.mm#L2884-L2891">source</a>):
+prove the addition identity <code>(a+b)+0 = a+(b+0)</code> without assuming
+associativity, by composing the zero law with congruence. The old worksheet
+used target <code>expa1</code>, but use the source's actual label when building the
+appropriate exercise database.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">nn26l1</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">+</span><span class="w"> </span><span class="n">+</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="n">+</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">+</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><strong><code>pa_ax3cl2</code></strong> (<a href="https://github.com/pbrosnan/ntg/blob/15332ee0dfe50ada14b6e31e947272232e4dc671/peano.mm#L2817-L2820">source</a>):
+the implication <code>t=0+t -&gt; S(t)=0+S(t)</code>, using successor congruence and
+the addition-successor law. The old worksheet called it <code>expa2</code>.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">pa_ax3cl2</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">implies</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">+</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="n">+</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+</code></pre></div>
+
+<p><strong><code>pa_ax3c</code></strong> (<a href="https://github.com/pbrosnan/ntg/blob/15332ee0dfe50ada14b6e31e947272232e4dc671/peano.mm#L2812-L2835">source</a>):
+use the already proved induction rule <code>nindd</code> to establish <code>t=0+t</code>.
+Its induction interface expects a base case, a successor step, and
+substitution-compatibility lemmas. The old worksheet used <code>expa3</code> and
+supplied <code>pa_ax3cl1</code>, <code>pa_ax3cl3</code>, and <code>expa2</code>. The distinct-variable
+requirements include <code>(x,y)</code>, <code>(y,t)</code>, and restrictions involving the
+formulas substituted for <code>phi</code>.</p>
+<p><strong><code>addcom</code></strong> (<a href="https://github.com/pbrosnan/ntg/blob/15332ee0dfe50ada14b6e31e947272232e4dc671/peano.mm#L2930-L2959">source</a>):
+prove <code>a+b=b+a</code> by induction using the two zero laws and the two
+successor-distribution laws; the worksheet supplied the substitution
+compatibility lemma <code>addcom_sub</code>. Its old target was <code>expa4</code>.</p>
+<p>The former worksheet pointed to support and solved files named
+<a href="sources/ntg-practice-support.mm">sources/ntg-practice-support.mm</a> and
+<a href="sources/ntg-practice-solutions.mm">sources/ntg-practice-solutions.mm</a>.
+<strong>Those paths refer to an external exercise bundle, not files bundled
+with this chapter.</strong> The source repository and linked theorem locations
+are the persistent references.</p>
+<h2 id="other-proof-system-puzzles-to-revisit">Other proof-system puzzles to revisit</h2>
+<p>A small <em>context-sharing</em> sequent calculus in the prior worksheet used
+<code>seq G =&gt; A</code> as its assertion, with <code>sid</code>, implication-left <code>il</code>, and
+<code>cut</code> primitive. There, the target <code>mp</code> (from <code>seq G =&gt; A</code> and
+<code>seq G =&gt; ( A -&gt; B )</code>, derive <code>seq G =&gt; B</code>) can be built with <code>sid</code>,
+<code>il</code>, and <code>cut</code>. Unlike <code>hol.mm</code>'s <code>mpd</code>, this was original instructional
+code, not a named theorem from a published database. Useful when we want
+a minimal alternative architecture.</p>
+<p>The supplementary geometrical exercise is original Metamath code built
+from Tarski-style segment congruence. Its two rules say <code>Cg A B B A</code> and,
+from <code>Cg A B C D</code> with <code>Cg A B E F</code>, infer <code>Cg C D E F</code>. The target is
+<code>Cg A B A B</code>. Keep this as a non-propositional system to implement,
+not as a named theorem from <code>set.mm</code>.
+Sources: <a href="https://us.metamath.org/mpeuni/df-trkg.html"><code>set.mm</code>'s Tarski geometry</a>
+and <a href="https://geocoq.github.io/GeoCoq/html/GeoCoq.Axioms.tarski_axioms.html">GeoCoq's Tarski axioms</a>.</p>
+<p>The last guided Meredith problem was a <strong>claim of equivalence of proof
+systems</strong>, not just a theorem in one system. It compares the Church P₂
+presentation H (<code>ax-1</code>, <code>ax-2</code>, <code>ax-3</code>), Meredith's single-axiom system M,
+and Łukasiewicz's three-axiom system L (<code>luk-1</code>–<code>luk-3</code>). The specific
+derivations are:</p>
+<ul>
+<li>H proves M: see <a href="https://us.metamath.org/mpeuni/meredith.html">Meredith's theorem</a>
+  and the old source path <a href="sources/church-to-meredith.mm">sources/church-to-meredith.mm</a>.</li>
+<li>M proves the three L schemas: <a href="sources/meredith-only.mm">sources/meredith-only.mm</a>.</li>
+<li>L proves the H schemas: <a href="sources/lukasiewicz-only.mm">sources/lukasiewicz-only.mm</a>,
+  with <code>ax1</code>, <code>ax2</code>, <code>ax3</code> as the key labels.</li>
+</ul>
+<p>The further step is to state precisely what 'same theorems' means and build
+a translation that replaces an axiom instance with a known derivation,
+preserving modus-ponens steps. Checking several instance translations is
+one project; formalizing that it works for all proofs is another.
+The <code>sources/</code> links above are retained pointers from the earlier
+exercise collection, <strong>not files included with this Markdown file</strong>.</p>
+<h2 id="formalization-work-to-recover-later">Formalization work to recover later</h2>
+<p>These are project prompts, not conclusions:</p>
+<ul>
+<li>Encode a database's syntax and derivations as data (possibly inside <code>set.mm</code>).
+  Define 'a valid proof of statement X exists', then state MIU's
+  nonderivability result in that language. Investigate the
+  <a href="https://leanprover-community.github.io/mathlib4_docs/Archive/MiuLanguage/Basic.html">Mathlib MIU formalization</a>.</li>
+<li>Compare a <strong>verified proof of one instance</strong>, a <strong>proof-producing program</strong>,
+  and a <strong>verified theorem about all outputs</strong>. The bridge between them is
+  itself a worthwhile formalization target.</li>
+<li>Write proof translators: Hilbert proofs to sequent proofs; proofs with
+  assumptions to implication proofs; proofs using cut to cut-free proofs.
+  Measure proof-size overhead as well as correctness.</li>
+<li>Define a truth assignment as actual data, with an evaluation operation
+  on syntax trees. Study both <code>Γ ⊨ φ</code> and <code>Γ ⊢ φ</code> only after defining
+  their respective objects. Then express soundness and completeness
+  as claims relating the two representations.</li>
+<li>Explore when two different deductive systems are equivalent as sets
+  of derivable formulas, as categories of proofs, or as algorithms for
+  constructing proofs. These are <em>different questions</em>. Explicit
+  translations may eliminate what first appeared to be a disagreement
+  in notation, while leaving genuine computational differences.</li>
+<li>Investigate formalizations of proof checkers and metatheory by
+  Mario Carneiro (including Metamath Zero) before committing to a
+  representation of provability.</li>
+</ul>
+<h2 id="source-and-reading-pointers-retained-from-the-earlier-exercises">Source and reading pointers retained from the earlier exercises</h2>
+<p>The original guided collection links to the following material; keep
+these references even when the associated exercise is deferred:</p>
+<ul>
+<li>Hofstadter's <a href="https://www.ratiocination.org/Courses/phil3505/wp-content/uploads/2017/08/Hofstadter__Godel-Escher-Bach-excerpt-on-MU-puzzle.pdf"><em>GEB</em> Chapter I excerpt</a>,
+  <a href="https://us.metamath.org/downloads/metamath.pdf#page=225"><em>Metamath</em> Appendix D</a>,
+  and <a href="https://us.metamath.org/metamath/miu.mm"><code>miu.mm</code></a>.</li>
+<li>The original small-exercise source locations for <a href="https://us.metamath.org/mpeuni/a1i.html"><code>a1i</code></a>,
+  <a href="https://us.metamath.org/mpeuni/idALT.html"><code>idALT</code></a>,
+  <a href="https://us.metamath.org/mpeuni/mpd.html"><code>mpd</code></a>,
+  <a href="https://us.metamath.org/mpeuni/syl.html"><code>syl</code></a>,
+  <a href="https://us.metamath.org/mpeuni/pm2.43i.html"><code>pm2.43i</code></a>, and
+  <a href="https://us.metamath.org/mpeuni/pm2.21i.html"><code>pm2.21i</code></a>.</li>
+<li>The separate exercise bundle's
+  <a href="sources/hol-practice.mm">sources/hol-practice.mm</a> and
+  <a href="sources/iset-practice.mm">sources/iset-practice.mm</a> are reference names,
+  not files included with this chapter.</li>
+</ul>
+<h2 id="answers-and-further-work">Answers and further work</h2>
+<p>(To be written as exercises are attempted.)</p>
     </article>
   </main>
   <script>
