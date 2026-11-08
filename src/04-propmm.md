@@ -40,14 +40,13 @@ pick apart and cannibalize the usual set proof database, but you still might fin
 to visit [the Metamath Proof Explorer, page 1 of 513](https://us.metamath.org/mpeuni/mmtheorems1.html),
 which is good reading. 
 
-Here's the start of set.mm, which we'll use to build up a bunch of theorems.
+This section is formulated as a series of interdependent exercises which you can use to build up some 
+pieces of set.mm, preferably in the start of a new file like `myset.mm`. There are hints and solutions,
+and you can also find the theorem in `set.mm` or view it by editing the url
+`https://us.metamath.org/mpeuni/<label>.html`. There's usually cool stuff to see in the metamath set 
+explorer.
 
-I'll leave this as a series of guided exercises, with solutions and hints at the end.
-Each proof can build off of the last proofs, so they're not meant to be independent exercises.
-
-If you're stuck on a proof and the hints don't help, you can view the proof
-solution by editing the url `https://us.metamath.org/mpeuni/<label>.html`.
-The proof database's proof might differ from the method suggested by the hints.
+The foundation we'll use is:
 
 ```metamath
 $c wff |- -> -. ( ) $.
@@ -70,9 +69,25 @@ ax-2 $a |- ( ( ph -> ( ps -> ch ) ) ->
 ax-3 $a |- ( ( -. ph -> -. ps ) -> ( ps -> ph ) ) $.
 ```
 
-### Implication: first proofs and useful derived rules
+Also note, metamath proof assistant commands:
 
-**Question 1.** Prove `a1i`, which adds an antecedent.
+- `assign n label`, `delete all`, `prove label`, `save new_proof`, `show new_proof/all/lemmon`, `improve all` should be familiar.
+- `save new_proof` and `write source` to save and modify your target file (eg. myset.mm)
+- `match term [proof step]` is super useful to list available unifications.
+
+### 4.1.1 Implication: first proofs and useful derived rules
+
+To start, here's some basic theorems: `a1i`, `a2i`, `mpd`, `syl`, and `id`.
+(TODO: replace those labels with links to the proof explorer)
+
+Note that here we start seeing some of the conventions of set.mm, where the suffix
+i generally stands for inference form, suffix d stands for deduction form, and no
+suffix generally stands for closed form. This is discussed various places in the proof explorer
+[such as here](https://us.metamath.org/mpeuni/mmnatded.html) and in the book [html page](https://www.mathandcode.com/books/metamath/book/metamath.html#3.9.3-deduction-style) or [pdf page](TODO). The proof explorer
+pages of these are really good, tons of info.
+
+NB: For sections 4.1.1 to 4.1.3, you only need axioms `ax-1`, `ax-2`, and `ax-mp`, 
+making these theorems intuitionistic. 
 
 ```metamath
 $( Add an antecedent $)
@@ -87,8 +102,9 @@ ${
   a2i $p |- ( ( ph -> ps ) -> ( ph -> ch ) ) $= ? $.
 $}
 
-$( Modus ponens under shared antecedent $)
-$( You'll use it constantly! $)
+$( Modus ponens under shared antecedent. AKA modus ponens in deductive form.
+   You'll use it constantly! 
+   Try proving this using a2i $)
 ${
   mpd.1 $e |- ( ph -> ps ) $.
   mpd.2 $e |- ( ph -> ( ps -> ch ) ) $.
@@ -101,162 +117,200 @@ ${
   syl.2 $e |- ( ps -> ch ) $.
   syl $p |- ( ph -> ch ) $= ? $.
 $}
-```
 
-Hints (Resp.)
-
-- *Hint:* one instance of `ax-1`, then `ax-mp`.
-- *Hint:* `ax-2`, then `ax-mp`.
-- *Hint:* feed `mpd.2` to `a2i`, then use `ax-mp` with `mpd.1`.
-- *Hint:* `a1i` turns `syl.2` into `( ph -> ( ps -> ch ) )`. Then use `mpd`.
-
-
-
-**Question 5.** Prove identity, `idALT`, using only the axioms and `ax-mp`. This is the
-standard first proof in Hilbert-style textbooks: set.mm's comment on it says it is
-Lemma 1.8 of Mendelson and "Our first proof" in Hirst & Hirst.
-
-```metamath
-idALT $p |- ( ph -> ph ) $= ? $.
-```
-
-*Hint:* use the instances `ax-1` with `ps := ( ph -> ph )`, `ax-2` with
-`ps := ( ph -> ph )` and `ch := ph`, and `ax-1` with `ps := ph`, joined by two
-`ax-mp`s.
-
-**Question 6.** Prove the same theorem again as `id`, this time using `mpd`, and
-compare the lengths.
-
-```metamath
+$( A standard "first proof" in Hilbert-style textbooks. It's lemma 1.8
+   of Mendelson and "our first proof" in Hirst & Hirst.  $)
 id $p |- ( ph -> ph ) $= ? $.
 ```
 
-*Hint:* `mpd` with two `ax-1` instances.
+#### Hints and My Answers
 
-**Question 7.** Prove `pm2.43i`, which removes a repeated antecedent. (`pm2.43` is
-Theorem *2.43 of *Principia Mathematica*; logicians call this *contraction*.)
+Hints[^1].
+
+[^1]: Unless otherwise stated, hints are given from the perspective of working 
+back from the statement to be proved, so
+"use `ax-mp`" means "assign `ax-mp` to the statement."
+
+- `a1i` follows from modus ponens and an axiom.
+- `a2i` follows from modus ponens and an axiom. 
+- `mpd` can be proved using `a2i` in its proof.
+- A short proof of `syl` doesn't use any axioms explicitly, only the theorems we proved.
+- One theorem, then two axioms. 
+
+I solved this without using the hints, and got the following rather long 
+proofs. 
+
+```mm
+${  a1i.1 $e |- ph $.
+  a1i $p |- ( ps -> ph ) $=
+    wph wps wph wi a1i.1 wph wps ax-1 ax-mp $. $}
+${ a2i.1 $e |- ( ph -> ( ps -> ch ) ) $.
+   a2i $p |- ( ( ph -> ps ) -> ( ph -> ch ) ) $=
+    wph wps wch wi wi wph wps wi wph wch wi wi a2i.1 wph wps wch ax-2 ax-mp $. $}
+${ mpd.1 $e |- ( ph -> ps ) $.
+   mpd.2 $e |- ( ph -> ( ps -> ch ) ) $.
+   mpd $p |- ( ph -> ch ) $=
+    wph wps wi wph wch wi mpd.1 wph wps wch wi wi wph wps wi wph wch wi wi
+    mpd.2 wph wps wch ax-2 ax-mp ax-mp $. $}
+${ syl.1 $e |- ( ph -> ps ) $.
+   syl.2 $e |- ( ps -> ch ) $.
+   syl $p |- ( ph -> ch ) $=
+    wph wps wi wph wch wi syl.1 wph wps wch wi wi wph wps wi wph wch wi wi wps
+    wch wi wph wps wch wi wi syl.2 wps wch wi wph ax-1 ax-mp wph wps wch ax-2
+    ax-mp ax-mp $. $}
+idALT $p |- ( ph -> ph ) $=
+  wph wph wph wi wph wph wph ax-1 wph wph wph wi ax-1 mpd $.
+```
+
+After the hints, we can simplify the proofs of `mpd` and `syl` to be much shorter:
+
+```mm
+mpd $p |- ( ph -> ch ) $=
+  wph wps wi wph wch wi mpd.1 wph wps wch mpd.2 a2i ax-mp $.
+syl $p |- ( ph -> ch ) $=
+  wph wps wch syl.1 wps wch wi wph syl.2 a1i mpd $.
+```
+
+### 4.1.2 More Advanced Implications
+
+Prove  (TODO, hyperlinked to proof explorer).
+
+Starting to get a little more difficult. 
+
 
 ```metamath
+$( Remove repeated antecedent. AKA contraction.
+   This is theorem 2.43 of Principia Mathematica. $)
 ${
   pm2.43i.1 $e |- ( ph -> ( ph -> ps ) ) $.
   pm2.43i $p |- ( ph -> ps ) $= ? $.
 $}
-```
 
-*Hint:* `mpd`, with an instance of `id` as the other premise.
-
-**Question 8.** Prove the deduction forms of `a1i` and `a2i`, `a1d` and `a2d`. A
-deduction form puts the same antecedent `ph ->` in front of every hypothesis and the
-conclusion.
-
-```metamath
+$( The deduction form of a1i. A deduction form puts the same 
+   antecedent `ph ->` in front of every hypothesis and conclusion. $)
 ${
   a1d.1 $e |- ( ph -> ps ) $.
   a1d $p |- ( ph -> ( ch -> ps ) ) $= ? $.
 $}
 
+$( The deduction form of a2i. $)
 ${
   a2d.1 $e |- ( ph -> ( ps -> ( ch -> th ) ) ) $.
   a2d $p |- ( ph -> ( ( ps -> ch ) -> ( ps -> th ) ) ) $= ? $.
 $}
-```
 
-*Hint:* each is `syl` with an axiom instance.
-
-**Question 9.** Prove `sylcom`.
-
-```metamath
+$( Syllogism inference with commutation of antecedents. $)
 ${
   sylcom.1 $e |- ( ph -> ( ps -> ch ) ) $.
   sylcom.2 $e |- ( ps -> ( ch -> th ) ) $.
   sylcom $p |- ( ph -> ( ps -> th ) ) $= ? $.
 $}
-```
 
-*Hint:* apply `a2i` to `sylcom.2`, then use `syl`.
-
-**Question 10.** Prove `com12`, which commutes two antecedents.
-
-```metamath
+$(  Inference that commutes antecedents in an implication. $)
 ${
   com12.1 $e |- ( ph -> ( ps -> ch ) ) $.
   com12 $p |- ( ps -> ( ph -> ch ) ) $= ? $.
 $}
-```
 
-*Hint:* `a2i` gives `( ( ph -> ps ) -> ( ph -> ch ) )`, and `ax-1` gives
-`( ps -> ( ph -> ps ) )`. Chain them with `syl`.
-
-**Question 11.** Prove `pm2.27`, the closed form of modus ponens. A closed form states
-a rule as a single theorem with no hypotheses.
-
-```metamath
+$( "Closed form" of modus ponens $)
 pm2.27 $p |- ( ph -> ( ( ph -> ps ) -> ps ) ) $= ? $.
-```
 
-*Hint:* apply `com12` to an instance of `id`.
-
-**Question 12.** Prove `imim2i` ("imim" is short for implication of implications).
-
-```metamath
+$( implication of implications $)
 ${
   imim2i.1 $e |- ( ph -> ps ) $.
   imim2i $p |- ( ( ch -> ph ) -> ( ch -> ps ) ) $= ? $.
 $}
 ```
 
-*Hint:* `a1i`, then `a2i`.
 
+#### Out of place scratchwork
 
-## 04.4 More propositional calculus
+The differences between the inference form and the deduction form seems
+like there's a metatheorem here. Two ways of phrasing this:
 
+Number one, a statement something like "If we have a proof of propositional
+logic statements of the form `${ foo.1 $e |- ch $. foo $p |- ps $= ? $. $}`
+then we also have a proof of the form `$p |- ch -> ps $.` This is like we have
+assumed chi, proved psi, then discharged the assumption of chi. Because it's a 
+statement about the existence of a proof, it's a metatheorem. 
 
+However, there's another way to think about this, that was is that I suppose
+I have a theory, where I perform deductions, getting psi from chi. Now, 
+I want to reason about those deductions, so I invent the double arrow symbol to mean
+"deduces". Now I start reasoning with statements in the form `$p |- ch => ps $.`,
+but someone comes along and tells me, "oh yeah, that's actually not enough to
+make a statement about deduction, you need a metatheorem." But I literally
+invented the arrow for that purpose! WTF? Is there some philosophical leap to 
+make here, or are we confronted yet again with the notion of, "what if my 
+`=>` properties and axioms that I define, don't fully encompass the consequences
+of my original form of deduction [reaching statements by Metamath replacement rules]?" just like we were confronted at the beginning of our metamath journey,
+"what if the proof checking system that I'm programming has bugs or inadequacies 
+in it, and doesn't capture the colloquial idea of proof?"
 
-**Question 13.** Prove the deduction forms of `mpd` and `syl`, `mpdd` and `syld`.
+#### Hints and My Answers
+
+(TODO, rewrite these hints in the style of 4.1.1 and with respect paid to footnote 1.)
+
+- *Hint:* for `pm2.43i`, apply `mpd` with an instance of `id` as the other premise.
+- *Hint:* for `a1d` and `a2d`, each is `syl` with an axiom instance.
+- *Hint:* for `sylcom`, apply `a2i` to `sylcom.2`, then use `syl`.
+- *Hint:* for `com12` `a2i` gives `( ( ph -> ps ) -> ( ph -> ch ) )`, and `ax-1` gives `( ps -> ( ph -> ps ) )`. Chain them with `syl`.
+- *Hint:* for `pm2.27` apply `com12` to an instance of `id`.
+- *Hint:* for `imim2i`, use `a1i`, then `a2i`.
+
+I didn't spend a bunch of time on finding the simplest proofs.
+
+```mm
+pm2.43i $p |- ( ph -> ps ) $=
+    wph wph wps wph idALT pm2.43i.1 mpd $.
+a1d $p |- ( ph -> ( ch -> ps ) ) $=
+    wph wps wch wps wi a1d.1 wps wch wps wi wi wph wps wch ax-1 a1i mpd $.
+a2d $p |- ( ph -> ( ( ps -> ch ) -> ( ps -> th ) ) ) $=
+  wph wps wch wth wi wi wps wch wi wps wth wi wi a2d.1 wps wch wth ax-2 syl
+  $.
+sylcom $p |- ( ph -> ( ps -> th ) ) $=
+  wph wps wch wi wps wth wi sylcom.1 wph wps wch wth wps wch wth wi wi wph
+  sylcom.2 a1i a2d mpd $.
+com12 $p |- ( ps -> ( ph -> ch ) ) $=
+  wps wph wps wch wps wph ax-1 com12.1 sylcom $.
+pm2.27 $p |- ( ph -> ( ( ph -> ps ) -> ps ) ) $=
+  wph wps wi wph wps wph wps wps wps wps wi wph wps idALT a1i a2i com12 $.
+imim2i $p |- ( ( ch -> ph ) -> ( ch -> ps ) ) $=
+  wch wph wps wph wps wi wch imim2i.1 a1i a2i $.
+```
+
+### 4.1.3 More propositional calculus
+
+Write proofs introducing more propositional calculus tools, (TODO insert links to mpdd and so on) 
+
+I had a tough time on this section, but note that the Metamath proof explorer (TODO link to mmnatded again)
+asserts that "once you have an assertion in deduction form, you can easily convert it to inference form or closed form", with instructions how! You still only need `ax-1`, `ax-2`, and `ax-mp` btw.
 
 ```metamath
+$( Deduction form of mpd $)
 ${
   mpdd.1 $e |- ( ph -> ( ps -> ch ) ) $.
   mpdd.2 $e |- ( ph -> ( ps -> ( ch -> th ) ) ) $.
   mpdd $p |- ( ph -> ( ps -> th ) ) $= ? $.
 $}
 
+$( Deduction form of syl $)
 ${
   syld.1 $e |- ( ph -> ( ps -> ch ) ) $.
   syld.2 $e |- ( ph -> ( ch -> th ) ) $.
   syld $p |- ( ph -> ( ps -> th ) ) $= ? $.
 $}
-```
 
-*Hint:* for `mpdd`, apply `a2d` to `mpdd.2`, then use `mpd`. For `syld`, apply `a1d`
-to `syld.2`, then use `mpdd`.
 
-**Question 14.** Turn a hypothesis into an antecedent. set.mm proves `syl` by applying
-`a1i` to `syl.2` and then using `mpd` with `syl.1`. Rewrite that proof so that `syl.2`
-becomes an antecedent instead of a hypothesis:
-
-- `syl.2` itself becomes `id`, with `ph := ( ps -> ch )`.
-- The `a1i` step becomes `a1d`.
-- `syl.1` gets an `a1i` in front.
-- The `mpd` step becomes `mpdd`.
-
-The result is `imim1i`:
-
-```metamath
+$( Note: This can be viewed as a syllogism but with the hypothesis syl.2
+   "discharged" and turned into an antecedent. $)
 ${
   imim1i.1 $e |- ( ph -> ps ) $.
   imim1i $p |- ( ( ps -> ch ) -> ( ph -> ch ) ) $= ? $.
 $}
-```
 
-Turning a hypothesis into an antecedent like this is what the *deduction theorem* is
-about, and logicians use the deduction theorem about as often as modus ponens. Doing
-it for one proof, as here, is a Metamath exercise. Saying it works for *every* proof requires talking about proofs as data.
-We have not built that representation yet; Chapter 05 keeps the question open.
-
-**Question 15.** Prove these closed forms.
-
-```metamath
+$( The following closed forms of theorems we've already proved do the same
+   trick. We discharge a hypothesis. $)
 imim2 $p |- ( ( ph -> ps ) -> ( ( ch -> ph ) -> ( ch -> ps ) ) ) $= ? $.
 
 imim1 $p |- ( ( ph -> ps ) -> ( ( ps -> ch ) -> ( ph -> ch ) ) ) $= ? $.
@@ -266,20 +320,42 @@ pm2.43 $p |- ( ( ph -> ( ph -> ps ) ) -> ( ph -> ps ) ) $= ? $.
 pm2.04 $p |- ( ( ph -> ( ps -> ch ) ) -> ( ps -> ( ph -> ch ) ) ) $= ? $.
 ```
 
-*Hints:*
+#### Hints and My Answers
 
-- `imim2`: `syl` of the `ax-1` instance `( ( ph -> ps ) -> ( ch -> ( ph -> ps ) ) )`
+(TODO: these hints are awful and incomplete lol. They literally only either handed me the complete answer on
+a silver platter, or left me saying "WTF is this trying to say?" Need a total redo. )
+
+- *Hint:* For `imim2`, `syl` of the `ax-1` instance `( ( ph -> ps ) -> ( ch -> ( ph -> ps ) ) )`
   and an `ax-2` instance.
-- `imim1`: `com12` applied to an instance of `imim2`.
-- `pm2.43`: `a2i` applied to `pm2.27`.
-- `pm2.04` is the closed form of `com12`. `ax-2` takes `( ph -> ( ps -> ch ) )` to
+- *Hint:* For `imim1`, `com12` applied to an instance of `imim2`.
+- *Hint:* For `pm2.43`, `a2i` applied to `pm2.27`.
+- *Hint:* `pm2.04` is the closed form of `com12`. `ax-2` takes `( ph -> ( ps -> ch ) )` to
   `( ( ph -> ps ) -> ( ph -> ch ) )`. To trade `( ph -> ps )` for `ps`, apply `imim1i`
   to the `ax-1` instance `( ps -> ( ph -> ps ) )`. Then use `syl`.
 
-From here on we also use `ax-3`.
+My answers. I didn't get `pm2.04` without help, hah!
 
+```mm
+mpdd $p |- ( ph -> ( ps -> th ) ) $=
+  wph wps wch wi wps wth wi mpdd.1 wph wps wch wth mpdd.2 a2d mpd $.
+syld $p |- ( ph -> ( ps -> th ) ) $=
+  wps wph wth wps wph wch wth wph wps wch syld.1 com12 syld.2 sylcom com12 $.
+imim1i $p |- ( ( ps -> ch ) -> ( ph -> ch ) ) $=
+  wps wch wi wph wps wch wph wps wi wps wch wi imim1i.1 a1i wps wch wi id
+  syld $.
+imim2 $p |- ( ( ph -> ps ) -> ( ( ch -> ph ) -> ( ch -> ps ) ) ) $=
+  wph wps wi wch wph wps wi wi wch wph wi wch wps wi wi wph wps wi wch ax-1 wch
+  wph wps ax-2 syl $.
+imim1 $p |- ( ( ph -> ps ) -> ( ( ps -> ch ) -> ( ph -> ch ) ) ) $=
+  wps wch wi wph wps wi wph wch wi wps wch wph imim2 com12 $.
+pm2.43 $p |- ( ( ph -> ( ph -> ps ) ) -> ( ph -> ps ) ) $=
+  wph wph wps wi wps wph wps pm2.27 a2i $.
+pm2.04 $p |- ( ( ph -> ( ps -> ch ) ) -> ( ps -> ( ph -> ch ) ) ) $=
+  wph wps wch wi wi wph wps wi wph wch wi wi wps wph wch wi wi wph wps wch ax-2
+  wps wph wps wi wph wch wi wps wph ax-1 imim1i syl $.
+```
 
-### Negation and classical propositional calculus
+### 4.1.4 Negation and classical propositional calculus
 
 **Question 16.** Prove the inference and deduction forms of `ax-3`, `con4i` and `con4d`.
 ("con" is for contraposition.)
