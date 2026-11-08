@@ -77,13 +77,14 @@ Also note, metamath proof assistant commands:
 
 ### 4.1.1 Implication: first proofs and useful derived rules
 
-To start, here's some basic theorems: `a1i`, `a2i`, `mpd`, `syl`, and `id`.
-(TODO: replace those labels with links to the proof explorer)
+To start, here's some basic theorems: [`a1i`](https://us.metamath.org/mpeuni/a1i.html),
+[`a2i`](https://us.metamath.org/mpeuni/a2i.html), [`mpd`](https://us.metamath.org/mpeuni/mpd.html),
+[`syl`](https://us.metamath.org/mpeuni/syl.html), and [`id`](https://us.metamath.org/mpeuni/id.html).
 
 Note that here we start seeing some of the conventions of set.mm, where the suffix
 i generally stands for inference form, suffix d stands for deduction form, and no
 suffix generally stands for closed form. This is discussed various places in the proof explorer
-[such as here](https://us.metamath.org/mpeuni/mmnatded.html) and in the book [html page](https://www.mathandcode.com/books/metamath/book/metamath.html#3.9.3-deduction-style) or [pdf page](TODO). The proof explorer
+[such as here](https://us.metamath.org/mpeuni/mmnatded.html) and in the book [html page](https://www.mathandcode.com/books/metamath/book/metamath.html#3.9.3-deduction-style) or [pdf page](book/metamath.pdf#page=115). The proof explorer
 pages of these are really good, tons of info.
 
 NB: For sections 4.1.1 to 4.1.3, you only need axioms `ax-1`, `ax-2`, and `ax-mp`, 
@@ -158,9 +159,13 @@ ${ syl.1 $e |- ( ph -> ps ) $.
     wph wps wi wph wch wi syl.1 wph wps wch wi wi wph wps wi wph wch wi wi wps
     wch wi wph wps wch wi wi syl.2 wps wch wi wph ax-1 ax-mp wph wps wch ax-2
     ax-mp ax-mp $. $}
-idALT $p |- ( ph -> ph ) $=
+id $p |- ( ph -> ph ) $=
   wph wph wph wi wph wph wph ax-1 wph wph wph wi ax-1 mpd $.
 ```
+
+The proof explorer also has [`idALT`](https://us.metamath.org/mpeuni/idALT.html),
+which proves the same statement directly from the axioms, while `id` uses `mpd`.
+We'll use the name `id` regardless of how we prove it.
 
 After the hints, we can simplify the proofs of `mpd` and `syl` to be much shorter:
 
@@ -173,9 +178,12 @@ syl $p |- ( ph -> ch ) $=
 
 ### 4.1.2 More Advanced Implications
 
-Prove  (TODO, hyperlinked to proof explorer).
+Prove [`pm2.43i`](https://us.metamath.org/mpeuni/pm2.43i.html),
+[`a1d`](https://us.metamath.org/mpeuni/a1d.html), [`a2d`](https://us.metamath.org/mpeuni/a2d.html),
+[`sylcom`](https://us.metamath.org/mpeuni/sylcom.html), [`com12`](https://us.metamath.org/mpeuni/com12.html),
+[`pm2.27`](https://us.metamath.org/mpeuni/pm2.27.html), and [`imim2i`](https://us.metamath.org/mpeuni/imim2i.html).
 
-Starting to get a little more difficult. 
+These start to get a little more interesting.
 
 
 ```metamath
@@ -249,41 +257,58 @@ in it, and doesn't capture the colloquial idea of proof?"
 
 #### Hints and My Answers
 
-(TODO, rewrite these hints in the style of 4.1.1 and with respect paid to footnote 1.)
+- For `pm2.43i`, `ax-mp` isn't quite the right tool.
+- `a1d` and `a2d` use syllogism.
+- For `sylcom`, I find this at least a bit clever: use `syl` with `sylcom.1` as its first premise. If you're still
+stuck, use `which step n` to find the other theorem you have to use.
+- `com12` basically yields to 1 theorem, so `which` is your friend.
+- For `pm2.27`, use `com12`. Look carefully at the remaining goal before doing any more work!
+- For `imim2i`, use `a2i`. The remaining goal differs from the hypothesis by just one antecedent.
 
-- *Hint:* for `pm2.43i`, apply `mpd` with an instance of `id` as the other premise.
-- *Hint:* for `a1d` and `a2d`, each is `syl` with an axiom instance.
-- *Hint:* for `sylcom`, apply `a2i` to `sylcom.2`, then use `syl`.
-- *Hint:* for `com12` `a2i` gives `( ( ph -> ps ) -> ( ph -> ch ) )`, and `ax-1` gives `( ps -> ( ph -> ps ) )`. Chain them with `syl`.
-- *Hint:* for `pm2.27` apply `com12` to an instance of `id`.
-- *Hint:* for `imim2i`, use `a1i`, then `a2i`.
 
-I didn't spend a bunch of time on finding the simplest proofs.
+My solns:
 
 ```mm
 pm2.43i $p |- ( ph -> ps ) $=
-    wph wph wps wph idALT pm2.43i.1 mpd $.
+    wph wph wps wph id pm2.43i.1 mpd $.
+
 a1d $p |- ( ph -> ( ch -> ps ) ) $=
     wph wps wch wps wi a1d.1 wps wch wps wi wi wph wps wch ax-1 a1i mpd $.
+
+$( Rewrite after realizing to use syl: $)
+a1d $p |- ( ph -> ( ch -> ps ) ) $=
+  wph wps wch wps wi a1d.1 wps wch ax-1 syl $.
+
 a2d $p |- ( ph -> ( ( ps -> ch ) -> ( ps -> th ) ) ) $=
   wph wps wch wth wi wi wps wch wi wps wth wi wi a2d.1 wps wch wth ax-2 syl
   $.
+
 sylcom $p |- ( ph -> ( ps -> th ) ) $=
   wph wps wch wi wps wth wi sylcom.1 wph wps wch wth wps wch wth wi wi wph
   sylcom.2 a1i a2d mpd $.
+$(improved proof: $)
+sylcom $p |- ( ph -> ( ps -> th ) ) $=
+  wph wps wch wi wps wth wi sylcom.1 wps wch wth sylcom.2 a2i syl $.
+
 com12 $p |- ( ps -> ( ph -> ch ) ) $=
   wps wph wps wch wps wph ax-1 com12.1 sylcom $.
+
 pm2.27 $p |- ( ph -> ( ( ph -> ps ) -> ps ) ) $=
-  wph wps wi wph wps wph wps wps wps wps wi wph wps idALT a1i a2i com12 $.
+  wph wps wi wph wps wph wps wps wps wps wi wph wps id a1i a2i com12 $.
+
 imim2i $p |- ( ( ch -> ph ) -> ( ch -> ps ) ) $=
   wch wph wps wph wps wi wch imim2i.1 a1i a2i $.
 ```
 
 ### 4.1.3 More propositional calculus
 
-Write proofs introducing more propositional calculus tools, (TODO insert links to mpdd and so on) 
+Write proofs introducing more propositional calculus tools,
+[`mpdd`](https://us.metamath.org/mpeuni/mpdd.html), [`syld`](https://us.metamath.org/mpeuni/syld.html),
+[`imim1i`](https://us.metamath.org/mpeuni/imim1i.html), [`imim2`](https://us.metamath.org/mpeuni/imim2.html),
+[`imim1`](https://us.metamath.org/mpeuni/imim1.html), [`pm2.43`](https://us.metamath.org/mpeuni/pm2.43.html),
+and [`pm2.04`](https://us.metamath.org/mpeuni/pm2.04.html).
 
-I had a tough time on this section, but note that the Metamath proof explorer (TODO link to mmnatded again)
+I had a tough time on this section, and only read later that the [Metamath proof explorer](https://us.metamath.org/mpeuni/mmnatded.html)
 asserts that "once you have an assertion in deduction form, you can easily convert it to inference form or closed form", with instructions how! You still only need `ax-1`, `ax-2`, and `ax-mp` btw.
 
 ```metamath
@@ -300,7 +325,6 @@ ${
   syld.2 $e |- ( ph -> ( ch -> th ) ) $.
   syld $p |- ( ph -> ( ps -> th ) ) $= ? $.
 $}
-
 
 $( Note: This can be viewed as a syllogism but with the hypothesis syl.2
    "discharged" and turned into an antecedent. $)
@@ -322,16 +346,19 @@ pm2.04 $p |- ( ( ph -> ( ps -> ch ) ) -> ( ps -> ( ph -> ch ) ) ) $= ? $.
 
 #### Hints and My Answers
 
-(TODO: these hints are awful and incomplete lol. They literally only either handed me the complete answer on
-a silver platter, or left me saying "WTF is this trying to say?" Need a total redo. )
-
-- *Hint:* For `imim2`, `syl` of the `ax-1` instance `( ( ph -> ps ) -> ( ch -> ( ph -> ps ) ) )`
-  and an `ax-2` instance.
-- *Hint:* For `imim1`, `com12` applied to an instance of `imim2`.
-- *Hint:* For `pm2.43`, `a2i` applied to `pm2.27`.
-- *Hint:* `pm2.04` is the closed form of `com12`. `ax-2` takes `( ph -> ( ps -> ch ) )` to
-  `( ( ph -> ps ) -> ( ph -> ch ) )`. To trade `( ph -> ps )` for `ps`, apply `imim1i`
-  to the `ax-1` instance `( ps -> ( ph -> ps ) )`. Then use `syl`.
+- For `mpdd`, use `mpd`, keeping `ph` as the shared antecedent. Compare the remaining
+  premise with the deduction form of `a2i`.
+- For `syld`, try `mpdd`. One hypothesis already fits; the other needs an extra
+  antecedent inside `ph ->`.
+- For `imim1i`, use `syld` with `( ps -> ch )` as the shared antecedent.
+  Remember that a whole implication can take the place of a wff variable.
+- For `imim2`, use `syl`. Look for an intermediate formula that lets `ax-2`
+  supply the second premise.
+- For `imim1`, try commuting the outer two antecedents. The remaining goal is
+  an instance of an earlier theorem, with the variables shuffled around.
+- `pm2.43` has the form of `a2i`'s conclusion, with a compound wff in place of one variable.
+- For `pm2.04`, use `syl` with `ax-2` as its first premise. The other premise keeps
+  `( ph -> ch )` as its consequent; look for an inference that changes an antecedent.
 
 My answers. I didn't get `pm2.04` without help, hah!
 
@@ -1270,7 +1297,7 @@ these references even when the associated exercise is deferred:
   [*Metamath* Appendix D](https://us.metamath.org/downloads/metamath.pdf#page=225),
   and [`miu.mm`](https://us.metamath.org/metamath/miu.mm).
 - The original small-exercise source locations for [`a1i`](https://us.metamath.org/mpeuni/a1i.html),
-  [`idALT`](https://us.metamath.org/mpeuni/idALT.html),
+  [`id`](https://us.metamath.org/mpeuni/id.html),
   [`mpd`](https://us.metamath.org/mpeuni/mpd.html),
   [`syl`](https://us.metamath.org/mpeuni/syl.html),
   [`pm2.43i`](https://us.metamath.org/mpeuni/pm2.43i.html), and

@@ -66,7 +66,7 @@ $( The deduction form of a1i. A deduction form puts the same
 ${
   a1d.1 $e |- ( ph -> ps ) $.
   a1d $p |- ( ph -> ( ch -> ps ) ) $=
-    wph wps wch wps wi a1d.1 wps wch wps wi wi wph wps wch ax-1 a1i mpd $.
+    wph wps wch wps wi a1d.1 wps wch ax-1 syl $.
 $}
 
 $( The deduction form of a2i. $)
@@ -82,8 +82,7 @@ ${
   sylcom.1 $e |- ( ph -> ( ps -> ch ) ) $.
   sylcom.2 $e |- ( ps -> ( ch -> th ) ) $.
   sylcom $p |- ( ph -> ( ps -> th ) ) $=
-    wph wps wch wi wps wth wi sylcom.1 wph wps wch wth wps wch wth wi wi wph
-    sylcom.2 a1i a2d mpd $.
+    wph wps wch wi wps wth wi sylcom.1 wps wch wth sylcom.2 a2i syl $.
 $}
 
 $(  Inference that commutes antecedents in an implication. $)
