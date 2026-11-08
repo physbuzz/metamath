@@ -22,6 +22,8 @@ title: "04 Studying Propositional Calculus with Metamath"
 
 # 4 Studying Propositional Calculus with Metamath
 
+TODO: let all subheadings have lower case words after starting word
+
 Now that we're set on the intricacies of Metamath, sans 
 disjoint variables and compressed proofs, I want to familiarize myself with logic with Metamath as grounding. 
 This includes:
@@ -163,9 +165,9 @@ id $p |- ( ph -> ph ) $=
   wph wph wph wi wph wph wph ax-1 wph wph wph wi ax-1 mpd $.
 ```
 
-The proof explorer also has [`idALT`](https://us.metamath.org/mpeuni/idALT.html),
-which proves the same statement directly from the axioms, while `id` uses `mpd`.
-We'll use the name `id` regardless of how we prove it.
+The proof explorer also has [`idALT`](https://us.metamath.org/mpeuni/idALT.html), which proves
+`id` without `mpd` and which proves the same statement directly from the axioms, as well as
+giving some nice exposition.
 
 After the hints, we can simplify the proofs of `mpd` and `syl` to be much shorter:
 
@@ -384,64 +386,61 @@ pm2.04 $p |- ( ( ph -> ( ps -> ch ) ) -> ( ps -> ( ph -> ch ) ) ) $=
 
 ### 4.1.4 Negation and classical propositional calculus
 
-**Question 16.** Prove the inference and deduction forms of `ax-3`, `con4i` and `con4d`.
-("con" is for contraposition.)
+Now we introduce `ax-3`, meaning we're in the realm of classical logic. Up until now, our theorems
+have been acceptable intuitionistic theorems (TODO: check this statement is correct for me, if so just
+delete this comment!). Prove the basic theorems (TODO names n links)
 
 ```metamath
+$( Inference form of axiom 3. "Con" is short for "contraposition" $)
 ${
   con4i.1 $e |- ( -. ph -> -. ps ) $.
   con4i $p |- ( ps -> ph ) $= ? $.
 $}
 
+$( Deduction form of axiom 3. $)
 ${
   con4d.1 $e |- ( ph -> ( -. ps -> -. ch ) ) $.
   con4d $p |- ( ph -> ( ch -> ps ) ) $= ? $.
 $}
-```
 
-*Hint:* `ax-3` with `ax-mp`, and with `syl`.
-
-**Question 17.** Prove that a contradiction implies anything (*explosion*, or *ex
-falso quodlibet*).
-
-```metamath
+$( Principle of explosion: A contradiction implies anything. $)
 ${
   pm2.21i.1 $e |- -. ph $.
   pm2.21i $p |- ( ph -> ps ) $= ? $.
 $}
-
+$( Also principle of explosion. $)
 ${
   pm2.24ii.1 $e |- ph $.
   pm2.24ii.2 $e |- -. ph $.
   pm2.24ii $p |- ps $= ? $.
 $}
-```
-
-*Hint:* for `pm2.21i`, `a1i` gives `( -. ps -> -. ph )`, then use `con4i`.
-
-**Question 18.** Prove the deduction form and closed forms of explosion.
-
-```metamath
+$( deduction form of explosion $)
 ${
   pm2.21d.1 $e |- ( ph -> -. ps ) $.
   pm2.21d $p |- ( ph -> ( ps -> ch ) ) $= ? $.
 $}
 
+$( closed forms of explosion $)
 pm2.21 $p |- ( -. ph -> ( ph -> ps ) ) $= ? $.
-
 pm2.24 $p |- ( ph -> ( -. ph -> ps ) ) $= ? $.
-```
 
-*Hint:* `pm2.21d` is `a1d` followed by `con4d`. `pm2.21` is `pm2.21d` applied to an
-instance of `id`. `pm2.24` is `com12` of `pm2.21`.
-
-**Question 19.** Prove the *Clavius law*: if a formula follows from its own negation,
-it's true. This is the first question where you need a plan.
-
-```metamath
+$( Clavius law: if a formula follows from its own negation, then it's true. $)
 pm2.18 $p |- ( ( -. ph -> ph ) -> ph ) $= ? $.
 ```
 
+
+#### Hints and My Answers
+
+TODO rewrite hints
+
+hint for con4i and con4d. `ax-3` with `ax-mp`, and with `syl`.
+
+hints for principle of explosion for `pm2.21i`, `a1i` gives `( -. ps -> -. ph )`, then use `con4i`.
+
+Explosion hints: `pm2.21d` is `a1d` followed by `con4d`. `pm2.21` is `pm2.21d` applied to an
+instance of `id`. `pm2.24` is `com12` of `pm2.21`.
+
+clavius hints:
 *Hint:* write H for `( -. ph -> ph )`. Work with H as a shared antecedent, and aim for
 `( H -> ( -. ph -> -. H ) )`; then `con4d` gives `( H -> ( H -> ph ) )`.
 
@@ -449,89 +448,87 @@ pm2.18 $p |- ( ( -. ph -> ph ) -> ph ) $= ? $.
 `( -. ph -> ( ph -> -. H ) )`. Combine them with `sylcom`, then use `con4d`, and
 finish with `pm2.43i`.
 
+### 4.1.5 Double negation and classical proof rules.
+
 **Question 20.** Prove double negation elimination and introduction.
 
+TODO, rename the contraposition comments in the metamath code...? Is there 
+anything we can do to be more descriptive?
+
 ```metamath
+$( Double negation elimination $)
 notnotr $p |- ( -. -. ph -> ph ) $= ? $.
 
+$( Double negation introduction $)
 notnot $p |- ( ph -> -. -. ph ) $= ? $.
-```
+$( who's there? $)
 
-*Hint:* `notnotr` is `syl` of the `pm2.21` instance `( -. -. ph -> ( -. ph -> ph ) )`
-and `pm2.18`. `notnot` is `con4i` applied to the `notnotr` instance
-`( -. -. -. ph -> -. ph )`.
-
-**Question 21.** Prove the other three contraposition rules.
-
-```metamath
+$( Contraposition 2 $)
 ${
   con2i.a $e |- ( ph -> -. ps ) $.
   con2i $p |- ( ps -> -. ph ) $= ? $.
 $}
 
+$( Contraposition 1 $)
 ${
   con1i.1 $e |- ( -. ph -> ps ) $.
   con1i $p |- ( -. ps -> ph ) $= ? $.
 $}
 
+$( Contraposition 3 $)
 ${
   con3i.a $e |- ( ph -> ps ) $.
   con3i $p |- ( -. ps -> -. ph ) $= ? $.
 $}
-```
 
-*Hint:* in each case, use `syl` with `notnotr` or `notnot` (both, for `con3i`) to get
-the hypothesis into the form `( -. A -> -. B )`, then use `con4i`.
-
-**Question 22.** Prove `mto` (*modus tollens*).
-
-```metamath
+$( Modus tollens $)
 ${
   mto.1 $e |- -. ps $.
   mto.2 $e |- ( ph -> ps ) $.
   mto $p |- -. ph $= ? $.
 $}
-```
 
-*Hint:* `con3i`, then `ax-mp`.
-
-**Question 23.** Prove `pm2.61i` (*proof by cases*). An ordinary proof that splits into
-"suppose `ph`" and "suppose not `ph`" goes through this.
-
-```metamath
+$( Proof by cases $)
 ${
   pm2.61i.1 $e |- ( ph -> ps ) $.
   pm2.61i.2 $e |- ( -. ph -> ps ) $.
   pm2.61i $p |- ps $= ? $.
 $}
-```
 
-*Hint:* `con3i` on the first hypothesis, then `syl` with the second, gives
-`( -. ps -> ps )`. Finish with `pm2.18`.
-
-**Question 24.** Prove `pm2.65i` (*reductio ad absurdum*).
-
-```metamath
+$( Reductio ad absurdum $)
 ${
   pm2.65i.1 $e |- ( ph -> ps ) $.
   pm2.65i.2 $e |- ( ph -> -. ps ) $.
   pm2.65i $p |- -. ph $= ? $.
 $}
-```
 
-*Hint:* get `( ph -> -. ph )` with `con2i` and `syl`, then `( -. -. ph -> -. ph )` with
-`notnotr`. Finish with `pm2.18` at `ph := -. ph`.
-
-**Question 25.** Prove *Peirce's law*. It uses only `->`, but your proof will have to
-go through negation. Why that can't be avoided is a chapter 05 topic.
-
-```metamath
+$( Pierce's law. Note that it seems to not use negation... but
+   it's in the section with ax-3? How curious. $)
 peirce $p |- ( ( ( ph -> ps ) -> ph ) -> ph ) $= ? $.
 ```
 
-*Hint:* use `pm2.61i`, splitting on `ph`. In the `ph` case, an `ax-1` instance does
+TODO rewrite comments in acceptable style.
+
+*Hint for two notnot:* `notnotr` is `syl` of the `pm2.21` instance `( -. -. ph -> ( -. ph -> ph ) )`
+and `pm2.18`. `notnot` is `con4i` applied to the `notnotr` instance
+`( -. -. -. ph -> -. ph )`.
+
+*Hint for three contraposition:* in each case, use `syl` with `notnotr` or `notnot` (both, for `con3i`) to get
+the hypothesis into the form `( -. A -> -. B )`, then use `con4i`.
+
+*Hint for modus tollens:* `con3i`, then `ax-mp`.
+
+*Hint proof by cases:* `con3i` on the first hypothesis, then `syl` with the second, gives
+`( -. ps -> ps )`. Finish with `pm2.18`.
+
+*Hint for rad:* get `( ph -> -. ph )` with `con2i` and `syl`, then `( -. -. ph -> -. ph )` with
+`notnotr`. Finish with `pm2.18` at `ph := -. ph`.
+
+*Hint Pierce:* use `pm2.61i`, splitting on `ph`. In the `ph` case, an `ax-1` instance does
 it. In the `-. ph` case, `pm2.21` gives `( ph -> ps )`, and an instance of `pm2.27`
 takes it the rest of the way. Chain these with `syl`.
+
+#### Hints and My Answers
 
 ## 04.5 Other proof databases
 

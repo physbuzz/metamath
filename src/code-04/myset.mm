@@ -145,3 +145,89 @@ pm2.43 $p |- ( ( ph -> ( ph -> ps ) ) -> ( ph -> ps ) ) $=
 pm2.04 $p |- ( ( ph -> ( ps -> ch ) ) -> ( ps -> ( ph -> ch ) ) ) $=
   wph wps wch wi wi wph wps wi wph wch wi wi wps wph wch wi wi wph wps wch ax-2
   wps wph wps wi wph wch wi wps wph ax-1 imim1i syl $.
+
+$( Inference form of axiom 3. "Con" is short for "contraposition" $)
+${
+  con4i.1 $e |- ( -. ph -> -. ps ) $.
+  con4i $p |- ( ps -> ph ) $= ? $.
+$}
+
+$( Deduction form of axiom 3. $)
+${
+  con4d.1 $e |- ( ph -> ( -. ps -> -. ch ) ) $.
+  con4d $p |- ( ph -> ( ch -> ps ) ) $= ? $.
+$}
+
+$( Principle of explosion: A contradiction implies anything. $)
+${
+  pm2.21i.1 $e |- -. ph $.
+  pm2.21i $p |- ( ph -> ps ) $= ? $.
+$}
+$( Also principle of explosion. $)
+${
+  pm2.24ii.1 $e |- ph $.
+  pm2.24ii.2 $e |- -. ph $.
+  pm2.24ii $p |- ps $= ? $.
+$}
+$( deduction form of explosion $)
+${
+  pm2.21d.1 $e |- ( ph -> -. ps ) $.
+  pm2.21d $p |- ( ph -> ( ps -> ch ) ) $= ? $.
+$}
+
+$( closed forms of explosion $)
+pm2.21 $p |- ( -. ph -> ( ph -> ps ) ) $= ? $.
+pm2.24 $p |- ( ph -> ( -. ph -> ps ) ) $= ? $.
+
+$( Clavius law: if a formula follows from its own negation, then it's true. $)
+pm2.18 $p |- ( ( -. ph -> ph ) -> ph ) $= ? $.
+
+$( Double negation elimination $)
+notnotr $p |- ( -. -. ph -> ph ) $= ? $.
+
+$( Double negation introduction $)
+notnot $p |- ( ph -> -. -. ph ) $= ? $.
+$( who's there? $)
+
+$( Contraposition 2 $)
+${
+  con2i.a $e |- ( ph -> -. ps ) $.
+  con2i $p |- ( ps -> -. ph ) $= ? $.
+$}
+
+$( Contraposition 1 $)
+${
+  con1i.1 $e |- ( -. ph -> ps ) $.
+  con1i $p |- ( -. ps -> ph ) $= ? $.
+$}
+
+$( Contraposition 3 $)
+${
+  con3i.a $e |- ( ph -> ps ) $.
+  con3i $p |- ( -. ps -> -. ph ) $= ? $.
+$}
+
+$( Modus tollens $)
+${
+  mto.1 $e |- -. ps $.
+  mto.2 $e |- ( ph -> ps ) $.
+  mto $p |- -. ph $= ? $.
+$}
+
+$( Proof by cases $)
+${
+  pm2.61i.1 $e |- ( ph -> ps ) $.
+  pm2.61i.2 $e |- ( -. ph -> ps ) $.
+  pm2.61i $p |- ps $= ? $.
+$}
+
+$( Reductio ad absurdum $)
+${
+  pm2.65i.1 $e |- ( ph -> ps ) $.
+  pm2.65i.2 $e |- ( ph -> -. ps ) $.
+  pm2.65i $p |- -. ph $= ? $.
+$}
+
+$( Pierce's law. Note that it seems to not use negation... but
+   it's in the section with ax-3? How curious. $)
+peirce $p |- ( ( ( ph -> ps ) -> ph ) -> ph ) $= ? $.
