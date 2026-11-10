@@ -66,7 +66,7 @@ $( The deduction form of a1i. A deduction form puts the same
 ${
   a1d.1 $e |- ( ph -> ps ) $.
   a1d $p |- ( ph -> ( ch -> ps ) ) $=
-    wph wps wch wps wi a1d.1 wps wch wps wi wi wph wps wch ax-1 a1i mpd $.
+    wph wps wch wps wi a1d.1 wps wch ax-1 syl $.
 $}
 
 $( The deduction form of a2i. $)
@@ -82,8 +82,7 @@ ${
   sylcom.1 $e |- ( ph -> ( ps -> ch ) ) $.
   sylcom.2 $e |- ( ps -> ( ch -> th ) ) $.
   sylcom $p |- ( ph -> ( ps -> th ) ) $=
-    wph wps wch wi wps wth wi sylcom.1 wph wps wch wth wps wch wth wi wi wph
-    sylcom.2 a1i a2d mpd $.
+    wph wps wch wi wps wth wi sylcom.1 wps wch wth sylcom.2 a2i syl $.
 $}
 
 $(  Inference that commutes antecedents in an implication. $)
@@ -143,4 +142,100 @@ imim1 $p |- ( ( ph -> ps ) -> ( ( ps -> ch ) -> ( ph -> ch ) ) ) $=
 pm2.43 $p |- ( ( ph -> ( ph -> ps ) ) -> ( ph -> ps ) ) $=
   wph wph wps wi wps wph wps pm2.27 a2i $.
 
-pm2.04 $p |- ( ( ph -> ( ps -> ch ) ) -> ( ps -> ( ph -> ch ) ) ) $= ? $.
+pm2.04 $p |- ( ( ph -> ( ps -> ch ) ) -> ( ps -> ( ph -> ch ) ) ) $=
+  wph wps wch wi wi wph wps wi wph wch wi wi wps wph wch wi wi wph wps wch ax-2
+  wps wph wps wi wph wch wi wps wph ax-1 imim1i syl $.
+
+$( Inference form of axiom 3. "Con" is short for "contraposition" $)
+${
+  con4i.1 $e |- ( -. ph -> -. ps ) $.
+  con4i $p |- ( ps -> ph ) $=
+    wph wn wps wn wi wps wph wi con4i.1 wph wps ax-3 ax-mp $.
+$}
+
+$( Deduction form of axiom 3. $)
+${
+  con4d.1 $e |- ( ph -> ( -. ps -> -. ch ) ) $.
+  con4d $p |- ( ph -> ( ch -> ps ) ) $=
+    wph wps wn wch wn wi wch wps wi con4d.1 wps wch ax-3 syl $.
+$}
+
+$( Principle of explosion: A contradiction implies anything. $)
+${
+  pm2.21i.1 $e |- -. ph $.
+  pm2.21i $p |- ( ph -> ps ) $=
+    wps wph wph wn wps wn pm2.21i.1 a1i con4i $.
+$}
+$( Also principle of explosion. $)
+${
+  pm2.24ii.1 $e |- ph $.
+  pm2.24ii.2 $e |- -. ph $.
+  pm2.24ii $p |- ps $=
+    wph wps pm2.24ii.1 wph wps pm2.24ii.2 pm2.21i ax-mp $.
+$}
+$( deduction form of explosion $)
+${
+  pm2.21d.1 $e |- ( ph -> -. ps ) $.
+  pm2.21d $p |- ( ph -> ( ps -> ch ) ) $=
+    wph wch wps wph wps wn wch wn pm2.21d.1 a1d con4d $.
+$}
+
+$( closed forms of explosion 
+   (Contributed by ?who?, 8-Nov-2026.) $)
+pm2.21 $p |- ( -. ph -> ( ph -> ps ) ) $=
+  wph wn wph wps wph wn id pm2.21d $.
+pm2.24 $p |- ( ph -> ( -. ph -> ps ) ) $=
+  ? ? ? ? pm2.21d $.
+
+$( Clavius law: if a formula follows from its own negation, then it's true. $)
+pm2.18 $p |- ( ( -. ph -> ph ) -> ph ) $= ? $.
+
+$( Double negation elimination $)
+notnotr $p |- ( -. -. ph -> ph ) $= ? $.
+
+$( Double negation introduction $)
+notnot $p |- ( ph -> -. -. ph ) $= ? $.
+$( who's there? $)
+
+$( Contraposition 2 $)
+${
+  con2i.a $e |- ( ph -> -. ps ) $.
+  con2i $p |- ( ps -> -. ph ) $= ? $.
+$}
+
+$( Contraposition 1 $)
+${
+  con1i.1 $e |- ( -. ph -> ps ) $.
+  con1i $p |- ( -. ps -> ph ) $= ? $.
+$}
+
+$( Contraposition 3 $)
+${
+  con3i.a $e |- ( ph -> ps ) $.
+  con3i $p |- ( -. ps -> -. ph ) $= ? $.
+$}
+
+$( Modus tollens $)
+${
+  mto.1 $e |- -. ps $.
+  mto.2 $e |- ( ph -> ps ) $.
+  mto $p |- -. ph $= ? $.
+$}
+
+$( Proof by cases $)
+${
+  pm2.61i.1 $e |- ( ph -> ps ) $.
+  pm2.61i.2 $e |- ( -. ph -> ps ) $.
+  pm2.61i $p |- ps $= ? $.
+$}
+
+$( Reductio ad absurdum $)
+${
+  pm2.65i.1 $e |- ( ph -> ps ) $.
+  pm2.65i.2 $e |- ( ph -> -. ps ) $.
+  pm2.65i $p |- -. ph $= ? $.
+$}
+
+$( Pierce's law. Note that it seems to not use negation... but
+   it's in the section with ax-3? How curious. $)
+peirce $p |- ( ( ( ph -> ps ) -> ph ) -> ph ) $= ? $.

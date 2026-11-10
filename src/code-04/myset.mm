@@ -149,35 +149,43 @@ pm2.04 $p |- ( ( ph -> ( ps -> ch ) ) -> ( ps -> ( ph -> ch ) ) ) $=
 $( Inference form of axiom 3. "Con" is short for "contraposition" $)
 ${
   con4i.1 $e |- ( -. ph -> -. ps ) $.
-  con4i $p |- ( ps -> ph ) $= ? $.
+  con4i $p |- ( ps -> ph ) $=
+    wph wn wps wn wi wps wph wi con4i.1 wph wps ax-3 ax-mp $.
 $}
 
 $( Deduction form of axiom 3. $)
 ${
   con4d.1 $e |- ( ph -> ( -. ps -> -. ch ) ) $.
-  con4d $p |- ( ph -> ( ch -> ps ) ) $= ? $.
+  con4d $p |- ( ph -> ( ch -> ps ) ) $=
+    wph wps wn wch wn wi wch wps wi con4d.1 wps wch ax-3 syl $.
 $}
 
 $( Principle of explosion: A contradiction implies anything. $)
 ${
   pm2.21i.1 $e |- -. ph $.
-  pm2.21i $p |- ( ph -> ps ) $= ? $.
+  pm2.21i $p |- ( ph -> ps ) $=
+    wps wph wph wn wps wn pm2.21i.1 a1i con4i $.
 $}
 $( Also principle of explosion. $)
 ${
   pm2.24ii.1 $e |- ph $.
   pm2.24ii.2 $e |- -. ph $.
-  pm2.24ii $p |- ps $= ? $.
+  pm2.24ii $p |- ps $=
+    wph wps pm2.24ii.1 wph wps pm2.24ii.2 pm2.21i ax-mp $.
 $}
 $( deduction form of explosion $)
 ${
   pm2.21d.1 $e |- ( ph -> -. ps ) $.
-  pm2.21d $p |- ( ph -> ( ps -> ch ) ) $= ? $.
+  pm2.21d $p |- ( ph -> ( ps -> ch ) ) $=
+    wph wch wps wph wps wn wch wn pm2.21d.1 a1d con4d $.
 $}
 
-$( closed forms of explosion $)
-pm2.21 $p |- ( -. ph -> ( ph -> ps ) ) $= ? $.
-pm2.24 $p |- ( ph -> ( -. ph -> ps ) ) $= ? $.
+$( closed forms of explosion 
+   (Contributed by ?who?, 8-Nov-2026.) $)
+pm2.21 $p |- ( -. ph -> ( ph -> ps ) ) $=
+  wph wn wph wps wph wn id pm2.21d $.
+pm2.24 $p |- ( ph -> ( -. ph -> ps ) ) $=
+  ? ? ? ? pm2.21d $.
 
 $( Clavius law: if a formula follows from its own negation, then it's true. $)
 pm2.18 $p |- ( ( -. ph -> ph ) -> ph ) $= ? $.
