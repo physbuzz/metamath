@@ -14,9 +14,10 @@ title: "04 Studying Propositional Calculus with Metamath"
 
 ---
 
-> [!WARN]
+> [!WARNING]
 > These notes have a lot of AI-suggested problems in them that have not yet
-> been reviewed
+> been reviewed. I put a warning at the start of each section that has not been human-reviewed.
+> I tend to rewrite all the AI stuff I read.
 
 @toc
 
@@ -359,6 +360,14 @@ pm2.04 $p |- ( ( ph -> ( ps -> ch ) ) -> ( ps -> ( ph -> ch ) ) ) $=
 
 ### 4.1.4 Negation and classical propositional calculus
 
+> [!WARNING]
+> I got stuck here at pm2.21 and decided I didn't want to make a cheat sheet of logic terms
+> and get deep into the weeds. I might get back to it later as a way to practice proof assistants.
+> It's very fun but just not somewhere I want to spend time developing expertise. 
+>
+> (So the hints and stuff, or that these are good problems, haven't been thoroughly checked!)
+
+
 Now we introduce `ax-3`, meaning we're in the realm of classical logic. Up until now, our theorems
 have been acceptable intuitionistic theorems. Prove the basic theorems
 [`con4i`](https://us.metamath.org/mpeuni/con4i.html), [`con4d`](https://us.metamath.org/mpeuni/con4d.html),
@@ -524,27 +533,44 @@ So there are tons of ways to prove this, I feel like I should skip those project
 
 NB: Like always this is a beginner's question from a beginner's perspective.
 
-The differences between the inference form and the deduction form seems
-like there's a metatheorem here. Two ways of phrasing this:
+Once we start proving things about inference, deduction, and closed forms, 
+we're pretty naturally confronted with the idea of a metatheorem. 
+With a bit more elbow grease, we know--in our heart of hearts--that an algorithm
+relying on proof tables exists to determine all theorems like this. Or, we know
+in our heart of hearts that we can take an essential hypothesis and discharge it 
+to get the closed form of the theorem. 
 
-Number one, a statement something like "If we have a proof of propositional
+The existence of a proof should clearly be called a metatheorem, since we would like to
+eventually formalize it and it's a theorem about theorems. And we clearly do not yet
+have the tools to formalize, 
+"If we have a proof of propositional
 logic statements of the form `${ foo.1 $e |- ch $. foo $p |- ps $= ? $. $}`
-then we also have a proof of the form `$p |- ch -> ps $.` This is like we have
-assumed chi, proved psi, then discharged the assumption of chi. Because it's a 
-statement about the existence of a proof, it's a metatheorem. 
+then we also have a proof of the form `$p |- ch -> ps $.`" I can live with that 
+so long as we get to it later.
 
-However, there's another way to think about this, that was is that I suppose
-I have a theory, where I perform deductions, getting psi from chi. Now, 
-I want to reason about those deductions, so I invent the double arrow symbol to mean
-"deduces". Now I start reasoning with statements in the form `$p |- ch => ps $.`,
-but someone comes along and tells me, "oh yeah, that's actually not enough to
-make a statement about deduction, you need a metatheorem." But I literally
-invented the arrow for that purpose! WTF? Is there some philosophical leap to 
-make here, or are we confronted yet again with the notion of, "what if my 
-`=>` properties and axioms that I define, don't fully encompass the consequences
-of my original form of deduction [reaching statements by Metamath replacement rules]?" just like we were confronted at the beginning of our metamath journey,
-"what if the proof checking system that I'm programming has bugs or inadequacies 
-in it, and doesn't capture the colloquial idea of proof?"
+However, there's another way to think about this: If I wanted to reason about 
+performing deductions, I might, instead of writing  `${ foo.1 $e |- ch $. foo $p |- ps $= ? $. $}`,
+write `$p |- ch => ps $.`, which I endow with the intention of meaning "with chi as
+an essential axiom, I deduce psi through Hilbert-style reasoning." And then, if I
+build up enough axioms of my scheme that accurately captures things, I eventually might
+wind up at `$p |- => ch -> ps $.`, meaning, "with no filled essential hypothesis in my
+Hilbert-style scheme, chi implies psi." 
+
+The deduction theorem is then something like 
+
+`${ foo.1 $e |- ch => ps $. foo $p |- => ch -> ps $= ? $. $}`
+
+But we're left with a philosophical issue: is my intention of what the `=>` symbol means
+properly matched by the extra axioms I have to come up with?
+
+And you have to understand where I'm coming from: the "non-mathematician's quest for truth" is 
+troublesome because if you say, "study model theory" or whatnot, then fine, but we'll phrase 
+model theory in terms of Metamath so we're really still in the weeds.
+
+I used de Bruijn's criterion as a way to get out of ground 0 of these troublesome issues; do
+we have to apply such a criterion again? Say `=>` is endowed with meaning by a description of Metamath we write
+in Metamath. Then the simple, inspectability of the description of this Metamath interpreter is important,
+and there remains a bit of philosophical faith in the veracity of our meta-theorem.
 
 ## 4.2 Other proof databases
 
@@ -584,7 +610,7 @@ notnot $p |- ( ph -> -. -. ph ) $= ? $.
 
 However `con4i` and `notnotr` don't hold!
 
-*Hints for filling in the proofs yourself:*
+*Hints:*
 
 - For `con2i`, use `syl` with an instance of `ax-in1` as its second premise.
   For the remaining goal, try `com12`. Explosion will help further back.

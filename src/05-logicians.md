@@ -1,4 +1,8 @@
 
+> [!WARNING]
+> These notes were discarded because I couldn't stand the suggestive but ultimately poor
+> pedagogical statements about metamathematics. Nov 10 2026
+
 # 05 Metatheorems, notation, and history
 
 *Working notes and problems to revisit. This chapter is intentionally unfinished;

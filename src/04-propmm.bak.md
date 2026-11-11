@@ -14,7 +14,11 @@ title: "04 Studying Propositional Calculus with Metamath"
 
 ---
 
-> [!WARN]
+> [!WARNING]
+> These notes were discarded because I couldn't stand the suggestive but ultimately poor
+> pedagogical statements about metamathematics. Nov 10 2026
+
+> [!WARNING]
 > These notes have a lot of AI-suggested problems in them that have not yet
 > been reviewed
 
@@ -580,3 +584,147 @@ id $p |- a = a $= ? $.
 
 *Hint:* use double orthocomplementation, reverse that equation, and compose.
 The proof uses neither implication nor a propositional modus ponens rule.
+
+### 4.2.5 Sequent calculus: moving formulas across a separator
+
+We can make a proof system where an implication is proved by moving its
+antecedent to the other side of a separator. This is the idea behind the
+implication-right rule in *sequent calculus*.
+
+A sequent has a list of formulas on the left and another list on the right:
+
+```text
+ph ps => ch th
+```
+
+The usual reading is: if all the formulas on the left hold, then at least one
+formula on the right holds. An empty left side needs no assumptions. An empty
+right side represents a contradiction. That's the intended interpretation;
+below are the actual strings and rules we'll ask Metamath to check.
+
+`G`, `H`, `D`, and `E` have type `ctx`, for a list of formulas. So `G ph H`
+means a list with `ph` somewhere in it. The commas in a textbook's presentation
+are unnecessary here: the formula syntax already tells us where each formula
+ends.
+
+```metamath
+$c ( ) -> -. wff ctx |- => $.
+$v ph ps ch th $.
+$v G H D E $.
+wph $f wff ph $.
+wps $f wff ps $.
+wch $f wff ch $.
+wth $f wff th $.
+vG $f ctx G $.
+vH $f ctx H $.
+vD $f ctx D $.
+vE $f ctx E $.
+wn $a wff -. ph $.
+wi $a wff ( ph -> ps ) $.
+c0 $a ctx $.
+cadd $a ctx G ph $.
+ax-id $a |- G ph H => D ph E $.
+${
+  ax-negl.1 $e |- G H => D ph E $.
+  ax-negl $a |- G -. ph H => D E $.
+$}
+${
+  ax-negr.1 $e |- G ph H => D E $.
+  ax-negr $a |- G H => D -. ph E $.
+$}
+${
+  ax-impl.1 $e |- G H => D ph E $.
+  ax-impl.2 $e |- G ps H => D E $.
+  ax-impl $a |- G ( ph -> ps ) H => D E $.
+$}
+${
+  ax-impr.1 $e |- G ph H => D ps E $.
+  ax-impr $a |- G H => D ( ph -> ps ) E $.
+$}
+```
+
+`c0` makes an empty context. `cadd` appends a formula to a context. For example,
+the syntax proof of `ctx ph ps` is `wps wph c0 cadd cadd`. The floating hypotheses
+put the formula before the context on the proof stack, even though the context
+comes first in the resulting string. Watch the declaration order!
+
+The logical rules are named for the connective they handle and the side it
+appears on. `ax-negl` handles negation on the left; `ax-impr` handles implication
+on the right. The latter says that to prove
+
+```text
+G H => D ( ph -> ps ) E
+```
+
+we can instead prove
+
+```text
+G ph H => D ps E
+```
+
+That is already an ordinary Metamath rule. We don't need to teach the verifier
+about assumptions, discharge, or implication. We just have to supply its premise.
+
+`ax-id` closes a goal when the same formula occurs on both sides. Here is the
+identity theorem, using empty contexts everywhere:
+
+```metamath
+seqid $p |- => ( ph -> ph ) $=
+  wph wph c0 c0 c0 c0 wph c0 c0 c0 c0 ax-id ax-impr $.
+```
+
+Now prove the three familiar axioms as theorems of this new system, then
+Peirce's law and double negation elimination:
+
+```metamath
+seqax1 $p |- => ( ph -> ( ps -> ph ) ) $= ? $.
+
+seqax2 $p |- => ( ( ph -> ( ps -> ch ) ) -> ( ( ph -> ps ) -> ( ph -> ch ) ) ) $= ? $.
+
+seqax3 $p |- => ( ( -. ph -> -. ps ) -> ( ps -> ph ) ) $= ? $.
+
+seqpeirce $p |- => ( ( ( ph -> ps ) -> ph ) -> ph ) $= ? $.
+
+seqnotnotr $p |- => ( -. -. ph -> ph ) $= ? $.
+```
+
+This little calculus has a different feel from the Hilbert-style proofs in
+section 4.1. Working backwards, we can pick a connective in the goal and use
+the corresponding rule to break it apart. We aren't hunting for an arbitrary
+intermediate formula for `syl`.
+
+One more exercise needs another rule. Add *cut*, which lets us connect a proof
+of a formula with a proof that uses that formula:
+
+```metamath
+${
+  ax-cut.1 $e |- G => D ph $.
+  ax-cut.2 $e |- H ph => E $.
+  ax-cut $a |- G H => D E $.
+$}
+```
+
+In `ax-cut`, `ph` occurs on the right of the first premise and on the left of
+the second. It disappears from the conclusion. The remaining contexts are
+concatenated. Use this rule to prove a form of modus ponens:
+
+```metamath
+${
+  seqmp.1 $e |- => ph $.
+  seqmp.2 $e |- => ( ph -> ps ) $.
+  seqmp $p |- => ps $= ? $.
+$}
+```
+
+For now, keep cut in the file for this last exercise. Whether every use of cut
+can be removed is a much larger question, which we'll return to in chapter 5.
+
+#### Hints and my answers
+
+- For the five closed theorems, start with `ax-impr`. Then inspect which
+  connectives are on which side. When a formula appears on both sides, use `ax-id`.
+- For `seqpeirce`, after the first `ax-impr`, try `ax-impl`. One branch needs
+  another `ax-impr`; the other closes immediately.
+- For `seqmp`, use `ax-cut` with `seqmp.1` as its first premise. For the remaining
+  goal, use another cut with `seqmp.2`. The last little sequent can be proved
+  using the implication-left rule.

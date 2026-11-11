@@ -10,6 +10,10 @@ title: "05 Talking to Logicians: Folk Knowledge, Notation, and History"
     <span class="inactivenav" aria-disabled="true">Next →</span>
 </nav>
 
+> [!WARNING]
+> These notes were discarded because I couldn't stand the suggestive but ultimately poor
+> pedagogical statements about metamathematics. Nov 10 2026
+
 > [!NOTE]
 > Draft rewrite of chapter 05. It absorbs the MIU and sequent calculus sections
 > of chapter 04 (4.2.4, 4.2.5), so those can be deleted there.
