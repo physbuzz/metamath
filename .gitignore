@@ -9,6 +9,7 @@ package-lock.json
 *.mm~[1-9]
 
 /ai
+!/ai/predicate-calculus/
 
 /src/book/frege/
 /html/book/frege/
