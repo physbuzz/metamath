@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>05 Variables, Binding, and Predicate Calculus</title>
+  <script>
+(function () {
+  var groups = ["theme", "width", "type", "text"];
+  var defaults = { theme: "system", width: "normal", type: "sans", text: "normal" };
+  var allowed = {
+    theme: { system: true, light: true, dark: true },
+    width: { normal: true, wide: true, compact: true },
+    type: { sans: true, serif: true },
+    text: { small: true, normal: true, large: true }
+  };
+  var namePrefix = "md2html-reader:";
+
+  function readWindowState() {
+    if (!window.name || window.name.indexOf(namePrefix) !== 0) return {};
+    try {
+      return JSON.parse(window.name.slice(namePrefix.length)) || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function readSetting(name) {
+    var value = null;
+    try {
+      value = localStorage.getItem("md2html-reader-" + name);
+    } catch (error) {}
+    if (!value) value = readWindowState()[name];
+    return allowed[name][value] ? value : null;
+  }
+
+  groups.forEach(function (name) {
+    var saved = readSetting(name);
+    if (saved && saved !== defaults[name]) {
+      document.documentElement.dataset[name] = saved;
+    }
+  });
+})();
+  </script>
+  
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/code.css">
+  <link rel="stylesheet" href="assets/math.css">
+  <link rel="stylesheet" href="assets/toc.css">
+  <link rel="stylesheet" href="assets/alert.css">
+  <link rel="stylesheet" href="assets/highlight.css">
+  
+  <style>
+
+  </style>
+  <link rel="stylesheet" href="assets/mathjax-chtml.css">
+  
+  <style>
+mjx-c.mjx-c1D434{padding:0.716em 0.75em 0 0}mjx-c.mjx-c1D435{padding:0.683em 0.759em 0 0}mjx-c.mjx-c2E{padding:0.12em 0.278em 0 0}mjx-c.mjx-c1D697{padding:0.436em 0.525em 0 0}mjx-c.mjx-c1D698{padding:0.44em 0.525em 0.006em 0}mjx-c.mjx-c1D69D{padding:0.554em 0.525em 0.006em 0}mjx-c.mjx-c28{padding:0.75em 0.389em 0.25em 0}mjx-c.mjx-cA0.TEX-M{padding:0 0.25em 0 0}mjx-c.mjx-c1D6A1{padding:0.431em 0.525em 0 0}mjx-c.mjx-c1D69B{padding:0.437em 0.525em 0 0}mjx-c.mjx-c29{padding:0.75em 0.389em 0.25em 0}mjx-c.mjx-c3D{padding:0.367em 0.778em 0 0}mjx-c.mjx-c2C{padding:0.121em 0.278em 0.194em 0}mjx-c.mjx-c41{padding:0.716em 0.75em 0 0}mjx-c.mjx-c31{padding:0.666em 0.5em 0 0}mjx-c.mjx-c1D461{padding:0.626em 0.361em 0.011em 0}mjx-c.mjx-c1D45F{padding:0.442em 0.451em 0.011em 0}mjx-c.mjx-c2192{padding:0.511em 1em 0.011em 0}mjx-c.mjx-c1D460{padding:0.442em 0.469em 0.01em 0}mjx-c.mjx-c32{padding:0.666em 0.5em 0 0}mjx-c.mjx-c2B{padding:0.583em 0.778em 0.082em 0}mjx-c.mjx-c30{padding:0.666em 0.5em 0.022em 0}mjx-c.mjx-c62{padding:0.694em 0.556em 0.011em 0}mjx-c.mjx-c79{padding:0.431em 0.528em 0.204em 0}mjx-c.mjx-c20{padding:0 0.25em 0 0}mjx-c.mjx-c4D{padding:0.683em 0.917em 0 0}mjx-c.mjx-c50{padding:0.683em 0.681em 0 0}mjx-c.mjx-c3A{padding:0.43em 0.278em 0 0}mjx-c.mjx-c22A2{padding:0.694em 0.611em 0 0}mjx-c.mjx-cAC{padding:0.356em 0.667em 0 0}mjx-c.mjx-c1D711{padding:0.442em 0.654em 0.218em 0}mjx-c.mjx-c61{padding:0.448em 0.5em 0.011em 0}mjx-c.mjx-cA0{padding:0 0.25em 0 0}mjx-c.mjx-c63{padding:0.448em 0.444em 0.011em 0}mjx-c.mjx-c64{padding:0.694em 0.556em 0.011em 0}mjx-c.mjx-c65{padding:0.448em 0.444em 0.011em 0}mjx-c.mjx-c66{padding:0.705em 0.372em 0 0}mjx-c.mjx-c1D510{padding:0.692em 1.05em 0.027em 0}mjx-c.mjx-c1D436{padding:0.705em 0.76em 0.022em 0}mjx-c.mjx-c2026{padding:0.12em 1.172em 0 0}mjx-c.mjx-c33{padding:0.665em 0.5em 0.022em 0}mjx-c.mjx-c34{padding:0.677em 0.5em 0 0}mjx-c.mjx-c35{padding:0.666em 0.5em 0.022em 0}mjx-c.mjx-c1D43F{padding:0.683em 0.681em 0 0}mjx-c.mjx-c1D45C{padding:0.441em 0.485em 0.011em 0}mjx-c.mjx-c1D454{padding:0.442em 0.48em 0.205em 0}mjx-c.mjx-c1D456{padding:0.661em 0.345em 0.011em 0}mjx-c.mjx-c1D458{padding:0.694em 0.521em 0.011em 0}mjx-c.mjx-c1D446{padding:0.705em 0.645em 0.022em 0}mjx-c.mjx-c1D447{padding:0.677em 0.717em 0 0}mjx-c.mjx-c2223{padding:0.75em 0.278em 0.249em 0}mjx-c.mjx-c1D44E{padding:0.441em 0.529em 0.01em 0}mjx-c.mjx-c1D44F{padding:0.694em 0.429em 0.011em 0}mjx-c.mjx-c1D450{padding:0.442em 0.433em 0.011em 0}mjx-c.mjx-c1D465{padding:0.442em 0.572em 0.011em 0}mjx-c.mjx-c28.TEX-SO{padding:0.85em 0.458em 0.349em 0}mjx-c.mjx-c29.TEX-SO{padding:0.85em 0.458em 0.349em 0}mjx-c.mjx-c2032{padding:0.56em 0.275em 0 0}mjx-c.mjx-c1D466{padding:0.442em 0.496em 0.205em 0}mjx-c.mjx-c22C5{padding:0.31em 0.278em 0 0}mjx-c.mjx-c1D709{padding:0.704em 0.443em 0.205em 0}mjx-c.mjx-c3A6{padding:0.683em 0.722em 0 0}mjx-c.mjx-c3E{padding:0.54em 0.778em 0.04em 0}mjx-c.mjx-c3A8{padding:0.683em 0.778em 0 0}mjx-c.mjx-c2033{padding:0.56em 0.55em 0 0}mjx-c.mjx-c1D701{padding:0.704em 0.471em 0.204em 0}mjx-c.mjx-c393{padding:0.68em 0.625em 0 0}mjx-c.mjx-c394{padding:0.716em 0.833em 0 0}mjx-c.mjx-c2212{padding:0.583em 0.778em 0.082em 0}mjx-c.mjx-c2019{padding:0.694em 0.278em 0 0}mjx-c.mjx-c2D{padding:0.252em 0.333em 0 0}mjx-c.mjx-c22A4{padding:0.668em 0.778em 0 0}mjx-c.mjx-c2213{padding:0.5em 0.778em 0.166em 0}mjx-c.mjx-c1D51E{padding:0.47em 0.5em 0.035em 0}mjx-c.mjx-c23DF{padding:0.333em 1.868em 0.213em 0}mjx-c.mjx-c1D504{padding:0.696em 0.718em 0.026em 0}mjx-c.mjx-c2190{padding:0.511em 1em 0.011em 0}mjx-c.mjx-c2111{padding:0.686em 0.554em 0.026em 0}mjx-c.mjx-c3B{padding:0.43em 0.278em 0.194em 0}mjx-c.mjx-c1D51F{padding:0.685em 0.513em 0.031em 0}mjx-c.mjx-c2243{padding:0.464em 0.778em 0 0}mjx-c.mjx-c1D522{padding:0.467em 0.401em 0.03em 0}mjx-c.mjx-c1D520{padding:0.466em 0.389em 0.029em 0}mjx-c.mjx-c2014{padding:0.285em 1em 0 0}mjx-c.mjx-c2C7{padding:0.644em 0.5em 0 0}mjx-c.mjx-c1D700{padding:0.452em 0.466em 0.022em 0}mjx-c.mjx-c2D9{padding:0.669em 0.5em 0 0}mjx-c.mjx-c1D6FC{padding:0.442em 0.64em 0.011em 0}mjx-c.mjx-c2C6{padding:0.694em 0.5em 0 0}mjx-c.mjx-c58{padding:0.683em 0.75em 0 0}mjx-c.mjx-c2227{padding:0.598em 0.667em 0.022em 0}mjx-c.mjx-c2DC{padding:0.668em 0.5em 0 0}mjx-c.mjx-c1D702{padding:0.442em 0.503em 0.216em 0}mjx-c.mjx-c39B{padding:0.716em 0.694em 0 0}mjx-c.mjx-c1D529{padding:0.685em 0.28em 0.02em 0}mjx-c.mjx-c5C{padding:0.75em 0.5em 0.25em 0}mjx-c.mjx-c5B.TEX-S3{padding:1.45em 0.528em 0.949em 0}mjx-c.mjx-c28.TEX-S3{padding:1.45em 0.736em 0.949em 0}mjx-c.mjx-c54{padding:0.677em 0.722em 0 0}mjx-c.mjx-c29.TEX-S3{padding:1.45em 0.736em 0.949em 0}mjx-c.mjx-c36{padding:0.666em 0.5em 0.022em 0}mjx-c.mjx-c231C{padding:0.694em 0.5em 0 0}mjx-c.mjx-c1D459{padding:0.694em 0.298em 0.011em 0}mjx-c.mjx-c2013{padding:0.285em 0.5em 0 0}mjx-c.mjx-c5B.TEX-LO{padding:1.15em 0.472em 0.649em 0}mjx-c.mjx-c2191{padding:0.694em 0.5em 0.193em 0}mjx-c.mjx-c25FB{padding:0.689em 0.778em 0 0}mjx-c.mjx-c398{padding:0.705em 0.778em 0.022em 0}mjx-c.mjx-c5B{padding:0.75em 0.278em 0.25em 0}mjx-c.mjx-c39E{padding:0.677em 0.667em 0 0}mjx-stretchy-v.mjx-c7C>mjx-ext>mjx-spacer{margin-top:0.271em}mjx-stretchy-v.mjx-c7C>mjx-ext{width:0.333em;line-height:0.572em}mjx-stretchy-v.mjx-c5B>mjx-beg{width:0.667em;margin:1.154em auto -1.154em}mjx-stretchy-v.mjx-c5B>mjx-ext>mjx-spacer{margin-top:0.266em}mjx-stretchy-v.mjx-c5B>mjx-ext{width:0.667em;line-height:0.532em;border-width:1.769em 0 1.769em}mjx-stretchy-v.mjx-c5B>mjx-end{width:0.667em;margin:-0.644em auto 0.644em}mjx-c.mjx-c3C{padding:0.54em 0.778em 0.04em 0}mjx-stretchy-h.mjx-c2013>mjx-ext>mjx-spacer{margin-left:-0.25em;letter-spacing:-0.071em}mjx-stretchy-h.mjx-c2013>mjx-ext{padding:0.285em 0 0 0}mjx-c.mjx-c6C{padding:0.694em 0.278em 0 0}mjx-c.mjx-c69{padding:0.669em 0.278em 0 0}mjx-c.mjx-c6D{padding:0.442em 0.833em 0 0}mjx-c.mjx-c73{padding:0.448em 0.394em 0.011em 0}mjx-c.mjx-c6E{padding:0.442em 0.556em 0 0}mjx-c.mjx-c74{padding:0.615em 0.389em 0.01em 0}mjx-c.mjx-c75{padding:0.442em 0.556em 0.011em 0}mjx-c.mjx-c72{padding:0.442em 0.392em 0 0}mjx-c.mjx-c68{padding:0.694em 0.556em 0 0}mjx-c.mjx-c76{padding:0.431em 0.528em 0.011em 0}mjx-c.mjx-c6F{padding:0.448em 0.5em 0.01em 0}mjx-c.mjx-c5B.TEX-S4{padding:1.75em 0.583em 1.249em 0}mjx-c.mjx-c70{padding:0.442em 0.556em 0.194em 0}mjx-c.mjx-c67{padding:0.453em 0.5em 0.206em 0}mjx-c.mjx-c7B.TEX-S4{padding:1.75em 0.806em 1.249em 0}mjx-c.mjx-c5B.TEX-SO{padding:0.85em 0.417em 0.349em 0}mjx-c.mjx-c1D6FD{padding:0.705em 0.573em 0.194em 0}mjx-c.mjx-c1D6FE{padding:0.441em 0.543em 0.216em 0}mjx-c.mjx-c2020{padding:0.705em 0.444em 0.216em 0}mjx-c.mjx-c1D71A{padding:0.442em 0.517em 0.194em 0}mjx-c.mjx-c3DD.TEX-I{padding:0.605em 0.778em 0.085em 0}mjx-c.mjx-c227B{padding:0.539em 0.778em 0.041em 0}mjx-c.mjx-c1D73B{padding:0.711em 0.521em 0.202em 0}mjx-c.mjx-c2296{padding:0.583em 0.778em 0.083em 0}mjx-c.mjx-c3A0{padding:0.68em 0.75em 0 0}mjx-c.mjx-c38{padding:0.666em 0.5em 0.022em 0}mjx-c.mjx-c1D586{padding:0.472em 0.603em 0.033em 0}mjx-c.mjx-c28.TEX-B{padding:0.75em 0.447em 0.249em 0}mjx-c.mjx-c29.TEX-B{padding:0.75em 0.447em 0.249em 0}mjx-c.mjx-c27F5{padding:0.511em 1.609em 0.011em 0}mjx-c.mjx-c56{padding:0.683em 0.75em 0.022em 0}mjx-c.mjx-c49{padding:0.683em 0.361em 0 0}mjx-c.mjx-c1D453{padding:0.705em 0.55em 0.205em 0}mjx-c.mjx-c210E{padding:0.694em 0.576em 0.011em 0}mjx-c.mjx-c1D439{padding:0.68em 0.749em 0 0}mjx-c.mjx-c1D43A{padding:0.705em 0.786em 0.022em 0}mjx-c.mjx-c1D43B{padding:0.683em 0.888em 0 0}mjx-c.mjx-c5F{padding:0 0.5em 0.062em 0}mjx-c.mjx-c1D523{padding:0.681em 0.326em 0.221em 0}mjx-c.mjx-c55.TEX-C{padding:0.683em 0.687em 0.028em 0}mjx-c.mjx-c4C.TEX-C{padding:0.705em 0.69em 0.022em 0}mjx-c.mjx-c49.TEX-C{padding:0.683em 0.642em 0 0}mjx-c.mjx-c23DE{padding:0.333em 1.868em 0.213em 0}mjx-c.mjx-c1D6AA{padding:0.68em 0.692em 0 0}mjx-c.mjx-c2212.TEX-B{padding:0.281em 0.894em 0 0}mjx-c.mjx-c1D482{padding:0.452em 0.633em 0.008em 0}mjx-c.mjx-c1D70F{padding:0.431em 0.517em 0.013em 0}mjx-c.mjx-c1D50F{padding:0.686em 0.666em 0.026em 0}mjx-c.mjx-c1D49C{padding:0.717em 1.016em 0.008em 0}mjx-stretchy-h.mjx-c23DE>mjx-beg{padding:0.262em 0.45em 0.142em 0;margin-right:-0.45em}mjx-stretchy-h.mjx-c23DE>mjx-ext>mjx-spacer{margin-left:-0.2em}mjx-stretchy-h.mjx-c23DE>mjx-ext{padding:0.262em 0 0.142em 0}mjx-stretchy-h.mjx-c23DE>mjx-end{padding:0.262em 0.45em 0.142em 0;margin-left:-0.45em}mjx-stretchy-h.mjx-c23DE>mjx-mid{padding:0.262em 0.9em 0.142em 0;margin:0 -0.45em}mjx-stretchy-h.mjx-c23DE>mjx-ext:first-of-type{width:50%;border-width:0 0.42em 0 0.42em}mjx-stretchy-h.mjx-c23DE>mjx-ext:last-of-type{width:50%;border-width:0 0.42em 0 0.42em}mjx-c.mjx-c1D703{padding:0.705em 0.469em 0.01em 0}mjx-c.mjx-c1D713{padding:0.694em 0.651em 0.205em 0}mjx-c.mjx-c77{padding:0.431em 0.722em 0.011em 0}mjx-c.mjx-c71{padding:0.442em 0.535em 0.194em 0}mjx-c.mjx-c1D749{padding:0.444em 0.61em 0.013em 0}mjx-c.mjx-c1D74B{padding:0.452em 0.747em 0.216em 0}mjx-c.mjx-c1D707{padding:0.442em 0.603em 0.216em 0}mjx-c.mjx-c1D440{padding:0.683em 1.051em 0 0}mjx-c.mjx-c2A04.TEX-LO{padding:0.95em 1.111em 0.449em 0}mjx-c.mjx-c3A9{padding:0.704em 0.722em 0 0}mjx-c.mjx-cA3{padding:0.714em 0.769em 0.011em 0}mjx-c.mjx-c27F6{padding:0.511em 1.638em 0.011em 0}mjx-c.mjx-cD7{padding:0.491em 0.778em 0 0}mjx-c.mjx-c2016{padding:0.777em 0.5em 0.277em 0}mjx-c.mjx-c1D487{padding:0.701em 0.624em 0.201em 0}mjx-c.mjx-c5D.TEX-S3{padding:1.45em 0.528em 0.949em 0}mjx-c.mjx-c1D6BF{padding:0.686em 0.894em 0 0}mjx-c.mjx-c2218{padding:0.444em 0.5em 0 0}mjx-c.mjx-c1D473{padding:0.686em 0.756em 0 0}mjx-c.mjx-c2322{padding:0.388em 1em 0 0}mjx-c.mjx-c1D524{padding:0.47em 0.504em 0.209em 0}mjx-c.mjx-c1D462{padding:0.442em 0.572em 0.011em 0}mjx-c.mjx-c29.TEX-S4{padding:1.75em 0.792em 1.249em 0}mjx-c.mjx-c2229{padding:0.598em 0.667em 0.022em 0}mjx-stretchy-v.mjx-c28>mjx-beg{width:0.875em;margin:1.154em auto -1.154em}mjx-stretchy-v.mjx-c28>mjx-ext>mjx-spacer{margin-top:0.259em}mjx-stretchy-v.mjx-c28>mjx-ext{width:0.875em;line-height:0.562em;border-width:1.779em 0 1.779em}mjx-stretchy-v.mjx-c28>mjx-end{width:0.875em;margin:-0.644em auto 0.644em}mjx-stretchy-v.mjx-c29>mjx-beg{width:0.875em;margin:1.154em auto -1.154em}mjx-stretchy-v.mjx-c29>mjx-ext>mjx-spacer{margin-top:0.259em}mjx-stretchy-v.mjx-c29>mjx-ext{width:0.875em;line-height:0.562em;border-width:1.779em 0 1.779em}mjx-stretchy-v.mjx-c29>mjx-end{width:0.875em;margin:-0.644em auto 0.644em}mjx-c.mjx-c28.TEX-LO{padding:1.15em 0.597em 0.649em 0}mjx-c.mjx-c29.TEX-LO{padding:1.15em 0.597em 0.649em 0}mjx-c.mjx-c223C{padding:0.367em 0.778em 0 0}mjx-c.mjx-c21B6{padding:0.461em 1em 0.001em 0}mjx-c.mjx-c1D43C{padding:0.683em 0.504em 0 0}mjx-c.mjx-c3A5{padding:0.705em 0.778em 0 0}mjx-c.mjx-c223D{padding:0.368em 0.778em 0 0}mjx-c.mjx-c27E9{padding:0.75em 0.389em 0.25em 0}mjx-c.mjx-c2113{padding:0.705em 0.417em 0.02em 0}mjx-c.mjx-c7D{padding:0.75em 0.5em 0.25em 0}mjx-c.mjx-c45{padding:0.68em 0.681em 0 0}mjx-c.mjx-c1D45D{padding:0.442em 0.503em 0.194em 0}mjx-c.mjx-c2209{padding:0.716em 0.667em 0.215em 0}mjx-c.mjx-c2124{padding:0.683em 0.667em 0.001em 0}mjx-c.mjx-c211B{padding:0.717em 0.887em 0.017em 0}mjx-c.mjx-c27E8{padding:0.75em 0.389em 0.25em 0}mjx-c.mjx-c1D45B{padding:0.442em 0.6em 0.011em 0}mjx-c.mjx-c338{padding:0.716em 0 0.215em 0;width:0}mjx-c.mjx-c1D52E{padding:0.479em 0.489em 0.219em 0}mjx-c.mjx-c22AE{padding:0.695em 0.722em 0.001em 0}mjx-c.mjx-c1D708{padding:0.442em 0.53em 0.002em 0}mjx-c.mjx-c2224{padding:0.75em 0.3em 0.252em 0}mjx-c.mjx-c21DD{padding:0.417em 1em 0 0}mjx-c.mjx-c1D45E{padding:0.442em 0.46em 0.194em 0}mjx-c.mjx-c338{padding:0.716em 0 0.215em 0;width:0}mjx-c.mjx-c211A{padding:0.701em 0.778em 0.181em 0}mjx-c.mjx-c2118{padding:0.453em 0.636em 0.216em 0}mjx-c.mjx-c51{padding:0.705em 0.778em 0.193em 0}mjx-c.mjx-c1D532{padding:0.474em 0.517em 0.023em 0}mjx-c.mjx-c220F.TEX-SO{padding:0.75em 0.944em 0.25em 0}mjx-c.mjx-c2210.TEX-LO{padding:0.95em 1.278em 0.45em 0}mjx-c.mjx-c5D{padding:0.75em 0.278em 0.25em 0}mjx-c.mjx-c2282{padding:0.54em 0.778em 0.04em 0}mjx-c.mjx-c1D518{padding:0.697em 0.665em 0.027em 0}mjx-c.mjx-c29F8{padding:0.716em 0.778em 0.215em 0}mjx-stretchy-v.mjx-c5D>mjx-beg{width:0.667em;margin:1.154em auto -1.154em}mjx-stretchy-v.mjx-c5D>mjx-ext>mjx-spacer{margin-top:0.266em}mjx-stretchy-v.mjx-c5D>mjx-ext{width:0.667em;line-height:0.532em;border-width:1.769em 0 1.769em}mjx-stretchy-v.mjx-c5D>mjx-end{width:0.667em;margin:-0.644em auto 0.644em}mjx-c.mjx-c1D444{padding:0.704em 0.791em 0.194em 0}mjx-c.mjx-c1D514{padding:0.729em 0.827em 0.069em 0}mjx-c.mjx-c48.TEX-C{padding:0.683em 0.845em 0.048em 0}mjx-c.mjx-c2A06.TEX-LO{padding:0.95em 1.111em 0.45em 0}mjx-c.mjx-c39{padding:0.666em 0.5em 0.022em 0}mjx-c.mjx-c7C{padding:0.75em 0.278em 0.249em 0}mjx-c.mjx-c1D451{padding:0.694em 0.523em 0.01em 0}mjx-c.mjx-c1D521{padding:0.609em 0.499em 0.033em 0}mjx-c.mjx-c1D509{padding:0.686em 0.612em 0.153em 0}mjx-c.mjx-c1D508{padding:0.685em 0.663em 0.024em 0}mjx-c.mjx-c22A8{padding:0.75em 0.867em 0.249em 0}mjx-c.mjx-c231E{padding:0.366em 0.5em 0.022em 0}mjx-c.mjx-c2297{padding:0.583em 0.778em 0.083em 0}mjx-c.mjx-c2219{padding:0.444em 0.5em 0 0}mjx-c.mjx-c2022{padding:0.444em 0.5em 0 0}mjx-c.mjx-c1D704{padding:0.442em 0.354em 0.01em 0}mjx-c.mjx-c1D6FF{padding:0.717em 0.451em 0.01em 0}mjx-c.mjx-c1D70B{padding:0.431em 0.573em 0.011em 0}mjx-c.mjx-c1D463{padding:0.443em 0.485em 0.011em 0}mjx-c.mjx-c2CB{padding:0.699em 0.5em 0 0}mjx-c.mjx-c1D464{padding:0.443em 0.716em 0.011em 0}mjx-c.mjx-c2323{padding:0.378em 1em 0 0}mjx-c.mjx-c7D.TEX-SO{padding:0.85em 0.583em 0.349em 0}mjx-c.mjx-c2127{padding:0.684em 0.722em 0.022em 0}mjx-c.mjx-c1D717{padding:0.705em 0.591em 0.011em 0}mjx-c.mjx-c1D705{padding:0.442em 0.576em 0.011em 0}mjx-c.mjx-c21AA{padding:0.511em 1.126em 0.011em 0}mjx-c.mjx-c42{padding:0.683em 0.708em 0 0}mjx-c.mjx-c1D52F{padding:0.474em 0.389em 0.021em 0}mjx-c.mjx-c231F{padding:0.366em 0.5em 0.022em 0}mjx-c.mjx-c1D706{padding:0.694em 0.583em 0.012em 0}mjx-c.mjx-c1D70E{padding:0.431em 0.572em 0.011em 0}mjx-c.mjx-c1D45A{padding:0.442em 0.878em 0.011em 0}mjx-c.mjx-c1D452{padding:0.442em 0.466em 0.011em 0}mjx-c.mjx-c1D712{padding:0.442em 0.626em 0.204em 0}mjx-c.mjx-c60{padding:0.699em 0.5em 0 0}mjx-c.mjx-c28.TEX-S4{padding:1.75em 0.792em 1.249em 0}mjx-c.mjx-c22EE{padding:1.3em 0.278em 0.03em 0}mjx-c.mjx-c1D714{padding:0.443em 0.622em 0.011em 0}mjx-c.mjx-c2200{padding:0.694em 0.556em 0.022em 0}mjx-c.mjx-c21BC{padding:0.511em 1em 0 0}mjx-c.mjx-c26.TEX-B{padding:0.705em 0.894em 0.011em 0}mjx-c.mjx-c2294{padding:0.598em 0.667em 0 0}mjx-c.mjx-c2208{padding:0.54em 0.667em 0.04em 0}mjx-c.mjx-c26{padding:0.716em 0.778em 0.022em 0}mjx-c.mjx-c1D467{padding:0.442em 0.468em 0.011em 0}mjx-c.mjx-c1D719{padding:0.694em 0.596em 0.205em 0}mjx-c.mjx-c226E{padding:0.708em 0.778em 0.209em 0}mjx-c.mjx-c2061{padding:0 0 0 0}mjx-c.mjx-c1D543{padding:0.683em 0.667em 0.001em 0}mjx-c.mjx-c266E{padding:0.734em 0.389em 0.223em 0}mjx-c.mjx-c1D44D{padding:0.683em 0.723em 0 0}mjx-c.mjx-c58.TEX-C{padding:0.683em 0.807em 0 0}mjx-c.mjx-cAF{padding:0.59em 0.5em 0 0}mjx-c.mjx-c220F.TEX-LO{padding:0.95em 1.278em 0.45em 0}mjx-c.mjx-c2308{padding:0.75em 0.444em 0.25em 0}mjx-c.mjx-c27C2{padding:0.668em 0.778em 0 0}mjx-c.mjx-c37{padding:0.676em 0.5em 0.022em 0}mjx-c.mjx-c1D73A{padding:0.461em 0.529em 0.017em 0}mjx-c.mjx-c1D54D{padding:0.683em 0.722em 0.02em 0}mjx-c.mjx-c2293{padding:0.598em 0.667em 0 0}mjx-c.mjx-c2A06.TEX-SO{padding:0.75em 0.833em 0.249em 0}mjx-c.mjx-c1D44C{padding:0.683em 0.763em 0 0}mjx-c.mjx-c2119{padding:0.683em 0.611em 0.001em 0}mjx-c.mjx-c1D459{padding:0.694em 0.298em 0.011em 0}mjx-c.mjx-c2193{padding:0.694em 0.5em 0.194em 0}mjx-c.mjx-c1D441{padding:0.683em 0.888em 0 0}mjx-c.mjx-c212D{padding:0.685em 0.613em 0.024em 0}mjx-c.mjx-c2288{padding:0.801em 0.778em 0.303em 0}mjx-c.mjx-c25B3{padding:0.716em 0.889em 0 0}mjx-c.mjx-c221D{padding:0.442em 0.778em 0.011em 0}mjx-c.mjx-c2205.TEX-V{padding:0.587em 0.778em 0.003em 0}mjx-c.mjx-c1D71B{padding:0.431em 0.828em 0.01em 0}mjx-c.mjx-c2112{padding:0.717em 1.035em 0.017em 0}mjx-c.mjx-c5D.TEX-SO{padding:0.85em 0.417em 0.349em 0}mjx-c.mjx-c27E9.TEX-S3{padding:1.45em 0.75em 0.949em 0}mjx-c.mjx-c1D4B5{padding:0.717em 1.032em 0.016em 0}mjx-c.mjx-c222A{padding:0.598em 0.667em 0.022em 0}mjx-c.mjx-c2228{padding:0.598em 0.667em 0.022em 0}mjx-c.mjx-c4B.TEX-C{padding:0.705em 0.762em 0.022em 0}mjx-c.mjx-c1D533{padding:0.53em 0.512em 0.028em 0}mjx-c.mjx-c1D462{padding:0.442em 0.572em 0.011em 0}mjx-c.mjx-c2248{padding:0.483em 0.778em 0 0}mjx-c.mjx-c24{padding:0.75em 0.5em 0.056em 0}mjx-c.mjx-c1D52A{padding:0.475em 0.767em 0.026em 0}mjx-c.mjx-c2A02.TEX-SO{padding:0.75em 1.111em 0.25em 0}mjx-c.mjx-c1D453{padding:0.705em 0.55em 0.205em 0}mjx-c.mjx-c4E{padding:0.683em 0.75em 0 0}mjx-c.mjx-c224D{padding:0.484em 0.778em 0 0}mjx-c.mjx-c7B{padding:0.75em 0.5em 0.25em 0}mjx-c.mjx-c4F{padding:0.705em 0.778em 0.022em 0}mjx-c.mjx-c1D52C{padding:0.48em 0.489em 0.028em 0}mjx-c.mjx-c2AB0{padding:0.636em 0.778em 0.138em 0}mjx-c.mjx-c2AAF{padding:0.636em 0.778em 0.138em 0}mjx-c.mjx-c1D570{padding:0.686em 0.783em 0.029em 0}mjx-c.mjx-c22B4{padding:0.636em 0.778em 0.138em 0}mjx-c.mjx-c7D.TEX-S3{padding:1.45em 0.75em 0.949em 0}mjx-c.mjx-c2234{padding:0.471em 0.667em 0.082em 0}mjx-c.mjx-c1D526{padding:0.673em 0.279em 0.02em 0}mjx-c.mjx-cA5{padding:0.683em 0.75em 0 0}mjx-c.mjx-c31.TEX-F{padding:0.468em 0.502em 0.002em 0}mjx-c.mjx-c1D52B{padding:0.475em 0.527em 0.022em 0}mjx-c.mjx-c1D425{padding:0.694em 0.319em 0 0}mjx-c.mjx-c1D70C{padding:0.442em 0.517em 0.216em 0}mjx-c.mjx-c1D535{padding:0.472em 0.389em 0.188em 0}mjx-c.mjx-c2235{padding:0.471em 0.667em 0.082em 0}mjx-c.mjx-c21{padding:0.716em 0.278em 0 0}mjx-stretchy-h.mjx-c2192>mjx-ext>mjx-spacer{margin-left:-0.305em}mjx-stretchy-h.mjx-c2192>mjx-ext{padding:0.431em 0 0 0;border-width:0 0.83em 0 0}mjx-stretchy-h.mjx-c2192>mjx-end{padding:0.431em 0.89em 0 0;margin-left:-0.89em}mjx-c.mjx-c2C6.TEX-SO{padding:0.744em 0.564em 0 0}mjx-c.mjx-c1D443{padding:0.683em 0.751em 0 0}mjx-c.mjx-c21BD{padding:0.27em 1em 0.011em 0}mjx-c.mjx-c2217{padding:0.465em 0.5em 0 0}mjx-c.mjx-c5A{padding:0.683em 0.611em 0 0}mjx-c.mjx-c48{padding:0.683em 0.75em 0 0}mjx-c.mjx-c4B{padding:0.683em 0.778em 0 0}mjx-c.mjx-cB1{padding:0.666em 0.778em 0 0}mjx-c.mjx-c22A9{padding:0.694em 0.722em 0 0}mjx-c.mjx-c4F.TEX-C{padding:0.705em 0.796em 0.022em 0}mjx-c.mjx-c1D485{padding:0.694em 0.612em 0.008em 0}mjx-c.mjx-c27FC{padding:0.511em 1.638em 0.011em 0}mjx-stretchy-h.mjx-c23DF>mjx-beg{padding:0.262em 0.45em 0.142em 0;margin-right:-0.45em}mjx-stretchy-h.mjx-c23DF>mjx-ext>mjx-spacer{margin-left:-0.2em}mjx-stretchy-h.mjx-c23DF>mjx-ext{padding:0.262em 0 0.142em 0}mjx-stretchy-h.mjx-c23DF>mjx-end{padding:0.262em 0.45em 0.142em 0;margin-left:-0.45em}mjx-stretchy-h.mjx-c23DF>mjx-mid{padding:0.262em 0.9em 0.142em 0;margin:0 -0.45em}mjx-stretchy-h.mjx-c23DF>mjx-ext:first-of-type{width:50%;border-width:0 0.42em 0 0.42em}mjx-stretchy-h.mjx-c23DF>mjx-ext:last-of-type{width:50%;border-width:0 0.42em 0 0.42em}mjx-c.mjx-c2B.TEX-B{padding:0.633em 0.894em 0.131em 0}mjx-c.mjx-c2264{padding:0.636em 0.778em 0.138em 0}mjx-c.mjx-c1D542{padding:0.683em 0.778em 0.001em 0}mjx-c.mjx-c2220{padding:0.694em 0.722em 0 0}mjx-c.mjx-c2128{padding:0.729em 0.602em 0.139em 0}mjx-c.mjx-c2286{padding:0.636em 0.778em 0.138em 0}mjx-c.mjx-c221E{padding:0.442em 1em 0.011em 0}mjx-c.mjx-c1D540{padding:0.683em 0.389em 0.001em 0}mjx-c.mjx-c211D{padding:0.683em 0.722em 0.001em 0}mjx-c.mjx-c2194{padding:0.511em 1em 0.011em 0}mjx-c.mjx-c46{padding:0.68em 0.653em 0 0}mjx-c.mjx-c2260{padding:0.716em 0.778em 0.215em 0}mjx-c.mjx-c1D445{padding:0.683em 0.759em 0.021em 0}mjx-c.mjx-c1D438{padding:0.68em 0.764em 0 0}mjx-c.mjx-c1D44A{padding:0.683em 1.048em 0.022em 0}mjx-c.mjx-c4C{padding:0.683em 0.625em 0 0}mjx-c.mjx-c1D405{padding:0.68em 0.724em 0 0}mjx-c.mjx-c1D413{padding:0.675em 0.8em 0 0}mjx-c.mjx-c1D437{padding:0.683em 0.828em 0 0}mjx-c.mjx-c2203{padding:0.694em 0.556em 0 0}mjx-c.mjx-c2115{padding:0.683em 0.722em 0.02em 0}mjx-c.mjx-c1D448{padding:0.683em 0.767em 0.022em 0}mjx-c.mjx-c1D442{padding:0.704em 0.763em 0.022em 0}mjx-c.mjx-c1D43D{padding:0.683em 0.633em 0.022em 0}mjx-c.mjx-c22EF{padding:0.31em 1.172em 0 0}mjx-c.mjx-c1D43E{padding:0.683em 0.889em 0 0}mjx-c.mjx-c55{padding:0.683em 0.75em 0.022em 0}mjx-c.mjx-c78{padding:0.431em 0.528em 0 0}mjx-c.mjx-c2265{padding:0.636em 0.778em 0.138em 0}mjx-c.mjx-c2211.TEX-LO{padding:0.95em 1.444em 0.45em 0}mjx-c.mjx-c2211.TEX-SO{padding:0.75em 1.056em 0.25em 0}mjx-c.mjx-c2F{padding:0.75em 0.5em 0.25em 0}mjx-c.mjx-c1D457{padding:0.661em 0.412em 0.204em 0}mjx-c.mjx-c7A{padding:0.431em 0.444em 0 0}mjx-c.mjx-c221A{padding:0.8em 0.853em 0.2em 0}mjx-c.mjx-c1D44B{padding:0.683em 0.852em 0 0}mjx-c.mjx-c27E8.TEX-SO{padding:0.85em 0.472em 0.35em 0}mjx-c.mjx-c27E9.TEX-SO{padding:0.85em 0.472em 0.35em 0}mjx-c.mjx-c1D716{padding:0.431em 0.406em 0.011em 0}mjx-c.mjx-c5D.TEX-LO{padding:1.15em 0.472em 0.649em 0}mjx-c.mjx-c27E8.TEX-S3{padding:1.45em 0.75em 0.95em 0}mjx-c.mjx-c27E8.TEX-LO{padding:1.15em 0.611em 0.649em 0}mjx-c.mjx-c27E9.TEX-LO{padding:1.15em 0.611em 0.649em 0}mjx-c.mjx-c2309{padding:0.75em 0.444em 0.25em 0}mjx-c.mjx-c7B.TEX-SO{padding:0.85em 0.583em 0.349em 0}mjx-c.mjx-c228A{padding:0.635em 0.778em 0.241em 0}mjx-c.mjx-c2283{padding:0.54em 0.778em 0.04em 0}mjx-c.mjx-c2284{padding:0.716em 0.778em 0.215em 0}mjx-c.mjx-c2205{padding:0.772em 0.5em 0.078em 0}mjx-c.mjx-c1D449{padding:0.683em 0.769em 0.022em 0}mjx-c.mjx-c50.TEX-C{padding:0.683em 0.733em 0.057em 0}mjx-c.mjx-c221A.TEX-SO{padding:0.85em 1.02em 0.35em 0}mjx-c.mjx-c228B{padding:0.635em 0.778em 0.241em 0}mjx-c.mjx-c227C{padding:0.58em 0.778em 0.153em 0}mjx-c.mjx-c227D{padding:0.58em 0.778em 0.154em 0}mjx-c.mjx-c7B.TEX-S3{padding:1.45em 0.75em 0.949em 0}mjx-c.mjx-c227A{padding:0.539em 0.778em 0.041em 0}mjx-c.mjx-c2241{padding:0.467em 0.778em 0 0}mjx-c.mjx-c1D68E{padding:0.44em 0.525em 0.006em 0}mjx-c.mjx-c1D696{padding:0.436em 0.536em 0 0}mjx-c.mjx-c1D699{padding:0.437em 0.525em 0.221em 0}mjx-c.mjx-c1D6A2{padding:0.431em 0.525em 0.228em 0}mjx-c.mjx-c20.TEX-M{padding:0 0.25em 0 0}mjx-c.mjx-c1D68D{padding:0.611em 0.525em 0.006em 0}mjx-c.mjx-c1D68A{padding:0.439em 0.525em 0.006em 0}mjx-c.mjx-c2D.TEX-M{padding:0.341em 0.525em 0 0}mjx-c.mjx-c1D69C{padding:0.44em 0.525em 0.006em 0}mjx-c.mjx-c1D695{padding:0.611em 0.525em 0 0}mjx-c.mjx-c53.TEX-C{padding:0.705em 0.642em 0.022em 0}mjx-c.mjx-c1D6A0{padding:0.431em 0.525em 0.004em 0}mjx-c.mjx-c1D68F{padding:0.617em 0.525em 0 0}mjx-c.mjx-c1D7F8{padding:0.622em 0.525em 0 0}mjx-c.mjx-c2E.TEX-M{padding:0.14em 0.525em 0 0}mjx-c.mjx-c1D7FD{padding:0.627em 0.525em 0.01em 0}mjx-c.mjx-c1D692{padding:0.612em 0.525em 0 0}mjx-c.mjx-c1D68B{padding:0.611em 0.525em 0.006em 0}mjx-c.mjx-c21BE{padding:0.694em 0.417em 0.194em 0}mjx-c.mjx-c53{padding:0.705em 0.556em 0.022em 0}mjx-c.mjx-c43{padding:0.705em 0.722em 0.021em 0}mjx-c.mjx-c44{padding:0.683em 0.764em 0 0}
+  </style>
+  
+  
+  
+</head>
+<body>
+  <main class="container">
+    <header class="page-header">
+      <div class="page-title">05-predicate-calculus.md</div>
+      <details class="reader-widget">
+        <summary aria-label="reader controls" title="Reader controls">Aa</summary>
+        <form aria-label="reader controls">
+          <fieldset>
+            <legend>Theme</legend>
+            <label><input id="theme-system" name="theme" value="system" type="radio" checked> system</label>
+            <label><input id="theme-light" name="theme" value="light" type="radio"> light</label>
+            <label><input id="theme-dark" name="theme" value="dark" type="radio"> dark</label>
+          </fieldset>
+          <fieldset>
+            <legend>Measure</legend>
+            <label><input id="width-normal" name="width" value="normal" type="radio" checked> normal</label>
+            <label><input id="width-wide" name="width" value="wide" type="radio"> wide</label>
+            <label><input id="width-compact" name="width" value="compact" type="radio"> compact</label>
+          </fieldset>
+          <fieldset>
+            <legend>Type</legend>
+            <label><input id="type-sans" name="type" value="sans" type="radio" checked> sans</label>
+            <label><input id="type-serif" name="type" value="serif" type="radio"> serif</label>
+          </fieldset>
+          <fieldset>
+            <legend>Text</legend>
+            <label><input id="text-small" name="text" value="small" type="radio"> small</label>
+            <label><input id="text-normal" name="text" value="normal" type="radio" checked> normal</label>
+            <label><input id="text-large" name="text" value="large" type="radio"> large</label>
+          </fieldset>
+        </form>
+      </details>
+    </header>
+    <article class="page-content">
+<h1 id="05-predicate-calculus" style="border-bottom: none;">05 Variables, Binding, and Predicate Calculus</h1>
+
+<nav class="nav">
+    <span class="activenav"><a href="04-propmm.html">← Previous</a></span>
+    <span class="activenav"><a href="index.html">↑ Up</a></span>
+    <span class="activenav"><a href="06-setmm.html">Next →</a></span>
+</nav>
+
+<hr>
+<div class="markdown-alert markdown-alert-note">
+<p class="markdown-alert-title">Note</p>
+<p>This is written by AI and has not been reviewed or checked. 
+Working draft. The linked theorems have proofs in <code>set.mm</code>; the exercise
+fragments below still need a prepared starting database and checked solutions.
+TODOs mark that work. These fragments are not a standalone <code>.mm</code> file.</p>
+</div>
+<div class="table-of-contents"><h2>Directory</h2><ul class="toc-list"><li><a href="#5-variables-binding-and-predicate-calculus">5 Variables, Binding, and Predicate Calculus</a><ul class="toc-list"><li><a href="#50-important-notations-terminology-and-citations">5.0 Important Notations, Terminology, and Citations</a><ul class="toc-list"><li><a href="#501-variables-in-which-language">5.0.1 Variables in which language?</a></li><li><a href="#502-free-occurrences-bound-occurrences-and-capture">5.0.2 Free occurrences, bound occurrences, and capture</a></li><li><a href="#503-tarski-and-the-distinct-variable-approach">5.0.3 Tarski and the distinct-variable approach</a></li><li><a href="#504-what-d-asks-the-checker-to-do">5.0.4 What <code>$d</code> asks the checker to do</a></li></ul></li><li><a href="#51-predicate-calculus-in-setmm">5.1 Predicate Calculus in <code>set.mm</code></a><ul class="toc-list"><li><a href="#511-the-starting-machinery">5.1.1 The starting machinery</a></li><li><a href="#512-a-first-proof-with-disjoint-variables">5.1.2 A first proof with disjoint variables</a><ul class="toc-list"><li><a href="#hints-and-my-answers">Hints and my answers</a></li></ul></li><li><a href="#513-putting-a-quantifier-around-an-implication-or-equivalence">5.1.3 Putting a quantifier around an implication or equivalence</a><ul class="toc-list"><li><a href="#hints-and-my-answers-2">Hints and my answers</a></li></ul></li><li><a href="#514-keeping-an-antecedent-while-quantifying">5.1.4 Keeping an antecedent while quantifying</a><ul class="toc-list"><li><a href="#hints-and-my-answers-3">Hints and my answers</a></li></ul></li><li><a href="#515-vacuous-quantifiers-and-existential-quantification">5.1.5 Vacuous quantifiers and existential quantification</a><ul class="toc-list"><li><a href="#hints-and-my-answers-4">Hints and my answers</a></li></ul></li><li><a href="#516-rearranging-quantified-formulas">5.1.6 Rearranging quantified formulas</a><ul class="toc-list"><li><a href="#hints-and-my-answers-5">Hints and my answers</a></li></ul></li><li><a href="#517-changing-the-bound-variable">5.1.7 Changing the bound variable</a><ul class="toc-list"><li><a href="#hints-and-my-answers-6">Hints and my answers</a></li></ul></li></ul></li><li><a href="#52-a-small-visit-to-peanomm">5.2 A Small Visit to <code>peano.mm</code></a></li><li><a href="#53-notes-reflections-and-todo">5.3 Notes, Reflections, and TODO</a></li><li><a href="#54-quiz-questions">5.4 Quiz Questions</a><ul class="toc-list"><li><a href="#question-1">Question 1</a><ul class="toc-list"><li><a href="#answer-sketch">Answer sketch</a></li></ul></li><li><a href="#question-2">Question 2</a><ul class="toc-list"><li><a href="#answer-sketch-2">Answer sketch</a></li></ul></li><li><a href="#question-3">Question 3</a><ul class="toc-list"><li><a href="#answer-sketch-3">Answer sketch</a></li></ul></li><li><a href="#question-4">Question 4</a><ul class="toc-list"><li><a href="#answer-sketch-4">Answer sketch</a></li></ul></li><li><a href="#question-5">Question 5</a><ul class="toc-list"><li><a href="#answer-sketch-5">Answer sketch</a></li></ul></li><li><a href="#question-6">Question 6</a><ul class="toc-list"><li><a href="#answer-sketch-6">Answer sketch</a></li></ul></li><li><a href="#question-7">Question 7</a><ul class="toc-list"><li><a href="#answer-sketch-7">Answer sketch</a></li></ul></li><li><a href="#question-8">Question 8</a><ul class="toc-list"><li><a href="#answer-sketch-8">Answer sketch</a></li></ul></li></ul></li></ul></li></ul></div>
+<h1 id="5-variables-binding-and-predicate-calculus">5 Variables, Binding, and Predicate Calculus</h1>
+<p>Okay, now for the disjoint variables. In chapter 4 I wanted to get a feel for
+classical logic by actually proving things in Metamath. Here I want to do the
+same thing with quantifiers, while finally dealing with the variable restrictions
+that I could mostly ignore in the propositional exercises. There is some new
+terminology to learn, but the plan is to keep bringing it back to particular
+strings, particular substitutions, and particular proofs.</p>
+<p>One question from chapter 4 is especially useful here: how do we change a
+formula deep inside another formula? With quantifiers this becomes a very
+concrete question. If I've proved an implication or an equivalence, what theorem
+lets me put a universal quantifier around it? And if I want to change the name
+of a bound variable, what actually authorizes that change? I want to get far
+enough that these are proof steps I can carry out.</p>
+<p>I'm also going to use conjunction and equivalence from now on. We could spend
+another section constructing their elementary rules, but I think I've got the
+flavor of that exercise. The definitions and their supporting proofs are there
+to inspect when needed. This chapter will concentrate its exercises on the new
+quantifier machinery.</p>
+<h2 id="50-important-notations-terminology-and-citations">5.0 Important Notations, Terminology, and Citations</h2>
+<h3 id="501-variables-in-which-language">5.0.1 Variables in which language?</h3>
+<p>There is an easy way to get confused before we've even started: the word
+"variable" is doing several jobs. In an ordinary first-order formula, a variable
+can occur as an argument of a predicate or be bound by a quantifier. In a
+textbook's discussion of those formulas, a metavariable can stand for a whole
+formula. Metamath then has its own declared variables and type hypotheses. I
+want to keep track of which of these we're discussing, instead of relying on
+the typography to tell us.</p>
+<p><strong>Source 1.</strong> The <a href="https://us.metamath.org/downloads/metamath.pdf">Metamath book</a>,
+especially §1.4.5, "Metamath and First-Order Logic," and §4.2.4, "The <code>$d</code>
+Statement." The latter starts on printed page 120. The important point for our
+purposes is that the verifier does not have a primitive free-variable or
+bound-variable test. Its substitution mechanism and <code>$d</code> conditions are used
+by an axiom system to control the substitutions that are permitted.</p>
+<p>For example, <code>ph</code> has type <code>wff</code> in our familiar database, while <code>x</code> has type
+<code>setvar</code> in the predicate-calculus portion of <code>set.mm</code>. Both are Metamath
+variables. An instance of <code>ph</code> may be a large formula containing several
+<code>setvar</code> variables; an instance of <code>x</code> must satisfy its own syntax hypothesis.
+The declaration <code>vx $f setvar x $.</code> belongs to the syntax machinery. It is not
+itself a quantified assertion about a mathematical set.</p>
+<p>This also explains why a condition involving <code>x</code> and <code>ph</code> can make sense. We are
+restricting which replacements for two Metamath variables can be used together.
+The <a href="https://us.metamath.org/mpeuni/mmset.html#distinct">Proof Explorer's discussion of axioms, schemes, and distinct
+metavariables</a> is useful to
+read alongside the book here.</p>
+<h3 id="502-free-occurrences-bound-occurrences-and-capture">5.0.2 Free occurrences, bound occurrences, and capture</h3>
+<p><strong>Source 2.</strong> Harper's <a href="https://www.cs.cmu.edu/~rwh/pfpl/">Practical Foundations for Programming
+Languages</a>, Chapter 1. His treatment of abstract
+syntax and binding gives us terminology for talking about these problems
+outside a particular Metamath database. The sustained reading of Harper is
+going in the separate O5.5 notebook; here I just want enough vocabulary to
+describe the examples in front of us.</p>
+<p>Consider the familiar formula</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$x=y\ \to\ \forall x\,(x=y).$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c3D">=</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mtext><mjx-c class="mjx-cA0"> </mjx-c></mjx-mtext><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mtext space="4"><mjx-c class="mjx-cA0"> </mjx-c></mjx-mtext><mjx-mi><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c3D">=</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo><mjx-c class="mjx-c2E">.</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<p>The occurrence of <code>x</code> on the left is free, while the occurrence of <code>x</code> inside
+the quantified equality is bound. The quantifier does not reach back across
+the implication. This is why it is useful to talk about <em>occurrences</em>: one
+written variable name can have different roles in different parts of a formula.</p>
+<p>A substitution can change these roles if we're careless. For example, consider
+replacing the free <code>x</code> in</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$\forall y\,(x=y)$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mi><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c3D">=</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<p>by <code>y</code>. Simply changing the printed letter gives</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$\forall y\,(y=y).$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mi><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c3D">=</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo><mjx-c class="mjx-c2E">.</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<p>The newly inserted occurrence is now inside the scope of the <code>y</code> quantifier.
+This is the sort of phenomenon called variable capture. A treatment of
+capture-avoiding substitution must say how it handles this situation; in a
+named-variable presentation, renaming a bound variable is one way to make the
+required room.</p>
+<p>Two expressions that differ only by a suitable change of bound-variable names
+are called alpha-equivalent in the usual binding terminology. I'll use that
+name when discussing the syntax. For the actual predicate-calculus exercises,
+we will prove particular logical equivalences using named <code>set.mm</code> theorems.
+Those are concrete things to check, and they give us something to compare with
+the general discussion in Harper.</p>
+<h3 id="503-tarski-and-the-distinct-variable-approach">5.0.3 Tarski and the distinct-variable approach</h3>
+<p><strong>Source 3.</strong> The Proof Explorer's <a href="https://us.metamath.org/mpeuni/mmset.html#distinct">history of distinct
+variables</a>. It credits Tarski
+with stating the approach in 1951, with proofs published in 1965. The historical
+point I want to remember is the possibility of organizing predicate calculus
+around comparatively elementary distinct-variable restrictions, while deriving
+the more elaborate behavior within the system.</p>
+<p>The comment on <a href="https://us.metamath.org/mpeuni/ax-5.html"><code>ax-5</code></a> gives a direct
+connection to Tarski's system. It asserts</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$\vdash\bigl(\varphi\to\forall x\,\varphi\bigr),$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mo><mjx-c class="mjx-c22A2">⊢</mjx-c></mjx-mo><mjx-TeXAtom space="4" texclass="OPEN"><mjx-mo><mjx-c class="mjx-c28 TEX-LO">(</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mi><mjx-c class="mjx-c1D711">𝜑</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mi><mjx-c class="mjx-c1D711">𝜑</mjx-c></mjx-mi><mjx-TeXAtom texclass="CLOSE"><mjx-mo><mjx-c class="mjx-c29 TEX-LO">)</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mo><mjx-c class="mjx-c2C">,</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<p>with the condition that <code>x</code> does not occur in the substituted formula. In
+Metamath source, that restriction is written <code>$d x ph $.</code>. This is a good
+historical example to keep attached to an actual axiom we will use, instead of
+remembering only that Tarski did something clever with variables.</p>
+<p>There is a tradeoff to notice: making the verifier's primitive operation small
+does not make every familiar logical manipulation a primitive operation.
+Changing bound variables, specializing a quantified formula, or transporting
+an equivalence still needs the relevant assertions and their proofs. That is
+the machinery we will borrow and practice using in this chapter.</p>
+<h3 id="504-what-d-asks-the-checker-to-do">5.0.4 What <code>$d</code> asks the checker to do</h3>
+<p>The exact rule in §4.2.4 of the <a href="https://us.metamath.org/downloads/metamath.pdf">book</a>
+has two parts. When applying an assertion with a required disjoint pair, the
+two replacement expressions must have no Metamath variables in common. Also,
+every pair consisting of one variable from each replacement must be covered
+by the active disjoint conditions in the proof. The second part is how the
+restriction is inherited.</p>
+<p>For a small example, suppose an assertion requires <code>$d ph ps $.</code>, and consider
+the replacements <code>ph</code> by <code>x = y</code> and <code>ps</code> by <code>z = w</code>. The variables occurring
+in the two replacements are disjoint as written. The proof still needs the
+cross-pairs <code>x,z</code>, <code>x,w</code>, <code>y,z</code>, and <code>y,w</code>. It does not acquire a requirement
+that <code>x</code> and <code>y</code> be distinct from each other from this particular <code>$d</code> pair.
+We're checking pairs across the two replacements.</p>
+<p>If instead both replacements contain <code>y</code>, there is an immediate conflict.
+Declaring extra pairs cannot repair that overlap. On the other hand, identical
+replacements containing only constants do not conflict with this particular
+test, because they contain no variables. Their syntax hypotheses still have
+to be satisfied, of course. These are checks on substitution data, so we can
+practice them before making a large predicate-calculus proof.</p>
+<p>The <a href="https://us.metamath.org/mpeuni/19.21v.html">discussion attached to <code>19.21v</code></a>
+also gives a useful terminology distinction: "does not occur" is stronger
+than "is not free in." For instance, <code>x</code> is not free in <code>A. x x = x</code>, but it
+certainly occurs there. That formula therefore cannot be used as the
+replacement for <code>ph</code> in a direct application of <code>ax-5</code> with <code>x</code> as the bound
+variable. There are other theorems for less restrictive situations.</p>
+<h2 id="51-predicate-calculus-in-setmm">5.1 Predicate Calculus in <code>set.mm</code></h2>
+<h3 id="511-the-starting-machinery">5.1.1 The starting machinery</h3>
+<p>We'll keep the useful propositional theorems from chapter 4 and borrow the
+remaining propositional helpers as needed. The syntax declarations for
+equivalence and conjunction are <a href="https://us.metamath.org/mpeuni/wb.html"><code>wb</code></a>
+and <a href="https://us.metamath.org/mpeuni/wa.html"><code>wa</code></a>; their definitions are
+<a href="https://us.metamath.org/mpeuni/df-bi.html"><code>df-bi</code></a> and
+<a href="https://us.metamath.org/mpeuni/df-an.html"><code>df-an</code></a>. The syntax and defining
+assertions are <code>$a</code> statements. Supporting rules such as
+<a href="https://us.metamath.org/mpeuni/impbii.html"><code>impbii</code></a>, which assembles an
+equivalence from its two directions, retain their <code>$p</code> proofs.</p>
+<p>The other starting material includes quantifier syntax, the predicate-calculus
+axioms needed by the supplied lemmas, and the definition of the existential
+quantifier. In particular, <a href="https://us.metamath.org/mpeuni/df-ex.html"><code>df-ex</code></a>
+relates existential quantification to negation and universal quantification.
+We can inspect that definition when we reach the existential exercises.</p>
+<p>Three assertions worth writing out immediately are
+<a href="https://us.metamath.org/mpeuni/ax-gen.html"><code>ax-gen</code></a>,
+<a href="https://us.metamath.org/mpeuni/ax-4.html"><code>ax-4</code></a>, and
+<a href="https://us.metamath.org/mpeuni/ax-5.html"><code>ax-5</code></a>:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="cm">$( Fragments: syntax declarations and the rest of the starting database</span>
+<span class="cm">   are omitted here. $)</span>
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">ax-gen.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-gen</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="nl">ax-4</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span>
+<span class="w">             </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax-5</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>Notice that <code>ax-gen</code> and <code>ax-5</code> have different forms. Generalization is a rule
+taking an established assertion to its universally quantified form. The
+unrestricted closed formula <code>ph -&gt; A. x ph</code> is not thereby available; <code>ax-5</code>
+provides it with a restriction. This is one place where the distinctions from
+chapter 4 are going to matter. When reasoning under a condition, keeping that
+condition as an explicit antecedent will make the relevant restrictions visible.</p>
+<p><strong>TODO: prepare the exercise database.</strong> Include the proved helpers needed by
+the selected exercises, including specialization and bound-variable change.
+The three displayed axioms are a preview of some tools, not the complete
+axiom list for everything below. Each target should have a checked solution
+using the supplied material before it becomes an assigned exercise.</p>
+<h3 id="512-a-first-proof-with-disjoint-variables">5.1.2 A first proof with disjoint variables</h3>
+<p>Start with an instance of <code>ax-5</code> whose restriction we can inspect without much
+other proof work:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">ax5-example</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>Here <code>ax5-example</code> is a local exercise label. The intended proof is simply an
+application of the existing axiom, together with the syntax proof for its
+formula. Write down what replaces <code>ph</code> and what replaces the axiom's <code>x</code>.
+Then write down the variables in each replacement and check both required
+cross-pairs.</p>
+<p>After completing the proof, temporarily remove one of the two <code>$d</code> declarations
+and ask the checker to verify it again. Read the diagnostic. Restore the
+declaration, and then consider what would happen if the quantifier bound <code>x</code>
+instead of <code>z</code>. These two failures have different causes: one lacks an inherited
+pair; the other introduces a variable shared by the replacements. The
+<a href="https://us.metamath.org/mpeuni/mmset.html#distinct">Proof Explorer</a> discusses
+this inheritance issue with an analogous instance of <code>ax-5</code>.</p>
+<h4 id="hints-and-my-answers">Hints and my answers</h4>
+<p>Assign <code>ax-5</code> to the target. The remaining work should be syntax construction.
+For the disjointness check, the formula replacement contains <code>x</code> and <code>y</code>, while
+the bound-variable replacement contains <code>z</code>. There is no need to add <code>$d x y $.</code>
+for this application.</p>
+<p>TODO: add the completed proof and the actual checker messages after working
+through the exercise. It would be useful to keep both failure messages here.</p>
+<h3 id="513-putting-a-quantifier-around-an-implication-or-equivalence">5.1.3 Putting a quantifier around an implication or equivalence</h3>
+<p>Now for the question about manipulating something inside a formula. The rules
+<a href="https://us.metamath.org/mpeuni/alimi.html"><code>alimi</code></a> and
+<a href="https://us.metamath.org/mpeuni/albii.html"><code>albii</code></a> let us carry an established
+implication or equivalence under a universal quantifier:</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$\frac{\vdash(\varphi\to\psi)}
+        {\vdash(\forall x\,\varphi\to\forall x\,\psi)}
+  \quad\texttt{alimi},$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mfrac><mjx-frac type="d"><mjx-num><mjx-nstrut type="d"></mjx-nstrut><mjx-mrow><mjx-mo><mjx-c class="mjx-c22A2">⊢</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D711">𝜑</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D713">𝜓</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo></mjx-mrow></mjx-num><mjx-dbox><mjx-dtable><mjx-line type="d"></mjx-line><mjx-row><mjx-den><mjx-dstrut type="d"></mjx-dstrut><mjx-mrow><mjx-mo><mjx-c class="mjx-c22A2">⊢</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mi><mjx-c class="mjx-c1D711">𝜑</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mi><mjx-c class="mjx-c1D713">𝜓</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo></mjx-mrow></mjx-den></mjx-row></mjx-dtable></mjx-dbox></mjx-frac></mjx-mfrac><mjx-mspace style="width: 1em;"></mjx-mspace><mjx-mtext><mjx-c class="mjx-c1D68A" noic="true" style="padding-top: 0.612em;">𝚊</mjx-c><mjx-c class="mjx-c1D695" noic="true" style="padding-top: 0.612em;">𝚕</mjx-c><mjx-c class="mjx-c1D692" noic="true" style="padding-top: 0.612em;">𝚒</mjx-c><mjx-c class="mjx-c1D696" noic="true" style="padding-top: 0.612em;">𝚖</mjx-c><mjx-c class="mjx-c1D692" style="padding-top: 0.612em;">𝚒</mjx-c></mjx-mtext><mjx-mo><mjx-c class="mjx-c2C">,</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$\frac{\vdash(\varphi\leftrightarrow\psi)}
+        {\vdash(\forall x\,\varphi\leftrightarrow\forall x\,\psi)}
+  \quad\texttt{albii}.$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mfrac><mjx-frac type="d"><mjx-num><mjx-nstrut type="d"></mjx-nstrut><mjx-mrow><mjx-mo><mjx-c class="mjx-c22A2">⊢</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D711">𝜑</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2194">↔</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D713">𝜓</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo></mjx-mrow></mjx-num><mjx-dbox><mjx-dtable><mjx-line type="d"></mjx-line><mjx-row><mjx-den><mjx-dstrut type="d"></mjx-dstrut><mjx-mrow><mjx-mo><mjx-c class="mjx-c22A2">⊢</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mi><mjx-c class="mjx-c1D711">𝜑</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2194">↔</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mi><mjx-c class="mjx-c1D713">𝜓</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo></mjx-mrow></mjx-den></mjx-row></mjx-dtable></mjx-dbox></mjx-frac></mjx-mfrac><mjx-mspace style="width: 1em;"></mjx-mspace><mjx-mtext><mjx-c class="mjx-c1D68A" noic="true" style="padding-top: 0.612em;">𝚊</mjx-c><mjx-c class="mjx-c1D695" noic="true" style="padding-top: 0.612em;">𝚕</mjx-c><mjx-c class="mjx-c1D68B" noic="true" style="padding-top: 0.612em;">𝚋</mjx-c><mjx-c class="mjx-c1D692" noic="true" style="padding-top: 0.612em;">𝚒</mjx-c><mjx-c class="mjx-c1D692" style="padding-top: 0.612em;">𝚒</mjx-c></mjx-mtext><mjx-mo><mjx-c class="mjx-c2E">.</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<p>As in chapter 4, the displayed rules omit their syntax hypotheses. Neither
+rule requires a <code>$d x ph $.</code> condition. Their premises are established
+implications or equivalences; this is different from treating an arbitrary
+formula as true only for some temporarily chosen value of <code>x</code>.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">alimi.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">alimi</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">albii.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">albii</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>The first proof should be a small exercise with <code>ax-gen</code> and <code>ax-4</code>. The second
+can use the supplied equivalence machinery. I want to recognize this pattern
+well enough to use it later: prove the relation between the inner formulas,
+then apply the theorem that transports it through the surrounding construction.</p>
+<h4 id="hints-and-my-answers-2">Hints and my answers</h4>
+<p>For <code>alimi</code>, start with modus ponens and use <code>ax-4</code> as the implication. Its
+antecedent asks for a universally quantified version of the given hypothesis.
+For <code>albii</code>, one route is to obtain the two implications, use <code>alimi</code> on each,
+and put the resulting implications together with <code>impbii</code>. Supply the helpers
+for extracting the two directions of an equivalence.</p>
+<p>TODO: add my solutions and, if useful, compare them with the Proof Explorer's
+shorter proof using its existing equivalence lemmas.</p>
+<h3 id="514-keeping-an-antecedent-while-quantifying">5.1.4 Keeping an antecedent while quantifying</h3>
+<p>The next target is <a href="https://us.metamath.org/mpeuni/alrimiv.html"><code>alrimiv</code></a>:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">alrimiv.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">alrimiv</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>This is a useful step towards reasoning under a shared antecedent. The
+antecedent remains <code>ph</code>, while the conclusion gets quantified. The restriction
+is on <code>ph</code> and <code>x</code>; <code>ps</code> is allowed to contain <code>x</code>. Compare the conclusion with
+that of <code>alimi</code>, and identify exactly where the quantifier has disappeared.</p>
+<p>The suffix <code>v</code> is worth remembering. The database sometimes uses it for a
+version of a theorem with a distinct-variable condition, as explained in the
+comment on <a href="https://us.metamath.org/mpeuni/19.21v.html"><code>19.21v</code></a>. Later we will
+encounter versions with explicit nonfreeness hypotheses. For now, the stronger
+syntactic condition gives us a manageable starting point.</p>
+<h4 id="hints-and-my-answers-3">Hints and my answers</h4>
+<p>Use <code>syl</code>, with <code>A. x ph</code> as the intermediate formula. One branch should use
+<code>ax-5</code>; the other should use <code>alimi</code>. Before looking at any proof details,
+identify which branch needs <code>$d x ph $.</code>.</p>
+<p>TODO: add the completed proof. Also record an example of a proposed
+substitution that would violate its restriction.</p>
+<h3 id="515-vacuous-quantifiers-and-existential-quantification">5.1.5 Vacuous quantifiers and existential quantification</h3>
+<p>A quantifier whose variable does not occur in the formula gives us two more
+useful targets, <a href="https://us.metamath.org/mpeuni/19.3v.html"><code>19.3v</code></a> and
+<a href="https://us.metamath.org/mpeuni/19.9v.html"><code>19.9v</code></a>:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">19.3v</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">19.9v</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">E.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>For the universal case, the two directions have different justifications.
+<code>ax-5</code> introduces the quantifier under the stated restriction. A supplied
+specialization theorem removes it. We'll use the existing specialization
+machinery here; deriving all of it from the primitive predicate-calculus
+axioms can be a separate exercise if I decide I want one.</p>
+<p>The existential definition in <code>set.mm</code> is</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$\vdash\bigl(\exists x\,\varphi\leftrightarrow
+                     \neg\forall x\,\neg\varphi\bigr)
+\quad\texttt{df-ex}.$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mo><mjx-c class="mjx-c22A2">⊢</mjx-c></mjx-mo><mjx-TeXAtom space="4" texclass="OPEN"><mjx-mo><mjx-c class="mjx-c28 TEX-LO">(</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mi><mjx-c class="mjx-c2203">∃</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mi><mjx-c class="mjx-c1D711">𝜑</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2194">↔</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-cAC">¬</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mi><mjx-c class="mjx-cAC">¬</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D711">𝜑</mjx-c></mjx-mi><mjx-TeXAtom texclass="CLOSE"><mjx-mo><mjx-c class="mjx-c29 TEX-LO">)</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mspace style="width: 1em;"></mjx-mspace><mjx-mtext><mjx-c class="mjx-c1D68D" noic="true" style="padding-top: 0.617em;">𝚍</mjx-c><mjx-c class="mjx-c1D68F" noic="true" style="padding-top: 0.617em;">𝚏</mjx-c><mjx-c class="mjx-c2D TEX-M" noic="true" style="padding-top: 0.617em;">-</mjx-c><mjx-c class="mjx-c1D68E" noic="true" style="padding-top: 0.617em;">𝚎</mjx-c><mjx-c class="mjx-c1D6A1" style="padding-top: 0.617em;">𝚡</mjx-c></mjx-mtext><mjx-mo><mjx-c class="mjx-c2E">.</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<p>This gives us a connection to the negation rules from chapter 4. Another
+natural target is <a href="https://us.metamath.org/mpeuni/eximi.html"><code>eximi</code></a>:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">eximi.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">eximi</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">E.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">E.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>The statement has the same overall pattern as <code>alimi</code>. As a small application,
+use it with a conjunction-elimination theorem to obtain an existentially
+quantified implication from <code>ph /\ ps</code> to <code>ph</code>. The useful point is seeing
+the old propositional result become an input to the new quantifier rule.</p>
+<h4 id="hints-and-my-answers-4">Hints and my answers</h4>
+<p>For <code>19.3v</code>, use <code>impbii</code> and identify the two directions before doing any
+substitutions. For <code>eximi</code>, a route through the definition uses contraposition,
+<code>alimi</code>, and contraposition again; the supplied existential helpers may package
+some of those steps. For <code>19.9v</code>, compare the existential definition with the
+vacuous universal quantifier applied to a negated formula.</p>
+<p>TODO: choose the exact helper list before assigning the existential proofs.
+The application of <code>eximi</code> can remain a short independent exercise even if
+its general proof is supplied.</p>
+<h3 id="516-rearranging-quantified-formulas">5.1.6 Rearranging quantified formulas</h3>
+<p>Two slightly larger targets are
+<a href="https://us.metamath.org/mpeuni/19.26.html"><code>19.26</code></a> and
+<a href="https://us.metamath.org/mpeuni/19.21v.html"><code>19.21v</code></a>:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">19.26</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">&lt;-&gt;</span>
+<span class="w">              </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">19.21v</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">&lt;-&gt;</span>
+<span class="w">                 </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>For <code>19.26</code>, the first direction should look like two applications of the
+earlier implication-lifting rule, followed by conjunction machinery. Its
+converse requires a suitable supplied quantifier/conjunction helper. This is
+a good place to use the propositional library without making its elementary
+conjunction rules into another long assignment.</p>
+<p>For <code>19.21v</code>, look at the antecedent that stays outside the quantifier. The
+restriction resembles the one in <code>alrimiv</code>, and we should be able to explain
+why it belongs there. Notice that <code>19.26</code> has no corresponding distinctness
+condition on <code>x</code> and either formula.</p>
+<h4 id="hints-and-my-answers-5">Hints and my answers</h4>
+<p>For <code>19.26</code>, work backwards with <code>impbii</code>. In the forward direction, get the
+two conjuncts separately using <code>alimi</code> with <code>simpl</code> and <code>simpr</code>. A supplied
+rule such as <code>alanimi</code> handles the other direction from the appropriate
+propositional implication.</p>
+<p><strong>Placeholder: <code>19.21v</code>.</strong> Prepare a short guided proof using the existing
+helpers, then write hints for that particular starting file. For now, read its
+statement, its <code>$d</code> condition, and the proof page. It is a target for this
+chapter, not a request to reconstruct every theorem that its proof references.</p>
+<h3 id="517-changing-the-bound-variable">5.1.7 Changing the bound variable</h3>
+<p>Finally, let's do an actual bound-variable change. A small concrete target is</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$\vdash\bigl(\forall x\,(x=z)\leftrightarrow
+              \forall y\,(y=z)\bigr),$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mo><mjx-c class="mjx-c22A2">⊢</mjx-c></mjx-mo><mjx-TeXAtom space="4" texclass="OPEN"><mjx-mo><mjx-c class="mjx-c28 TEX-LO">(</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mi><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c3D">=</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D467">𝑧</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c2194">↔</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c3D">=</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D467">𝑧</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-TeXAtom texclass="CLOSE"><mjx-mo><mjx-c class="mjx-c29 TEX-LO">)</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mo><mjx-c class="mjx-c2C">,</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<p>with <code>x</code>, <code>y</code>, and <code>z</code> pairwise disjoint. We'll use the supplied theorem
+<a href="https://us.metamath.org/mpeuni/cbvalvw.html"><code>cbvalvw</code></a>, which has premise</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$\vdash\bigl(x=y\to(\varphi\leftrightarrow\psi)\bigr)$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mo><mjx-c class="mjx-c22A2">⊢</mjx-c></mjx-mo><mjx-TeXAtom space="4" texclass="OPEN"><mjx-mo><mjx-c class="mjx-c28 TEX-LO">(</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c3D">=</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D711">𝜑</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2194">↔</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D713">𝜓</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-TeXAtom texclass="CLOSE"><mjx-mo><mjx-c class="mjx-c29 TEX-LO">)</mjx-c></mjx-mo></mjx-TeXAtom></mjx-math></mjx-container></div>
+<p>and conclusion</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$\vdash\bigl(\forall x\,\varphi\leftrightarrow
+              \forall y\,\psi\bigr),$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mo><mjx-c class="mjx-c22A2">⊢</mjx-c></mjx-mo><mjx-TeXAtom space="4" texclass="OPEN"><mjx-mo><mjx-c class="mjx-c28 TEX-LO">(</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mi><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mi><mjx-c class="mjx-c1D711">𝜑</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2194">↔</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mspace style="width: 0.167em;"></mjx-mspace><mjx-mi><mjx-c class="mjx-c1D713">𝜓</mjx-c></mjx-mi><mjx-TeXAtom texclass="CLOSE"><mjx-mo><mjx-c class="mjx-c29 TEX-LO">)</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mo><mjx-c class="mjx-c2C">,</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<p>subject to <code>$d x y $.</code>, <code>$d x ps $.</code>, and <code>$d y ph $.</code>.</p>
+<p>The equality theorem <a href="https://us.metamath.org/mpeuni/equequ1.html"><code>equequ1</code></a>
+supplies the particular premise we need:</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$\vdash\bigl(x=y\to(x=z\leftrightarrow y=z)\bigr).$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mo><mjx-c class="mjx-c22A2">⊢</mjx-c></mjx-mo><mjx-TeXAtom space="4" texclass="OPEN"><mjx-mo><mjx-c class="mjx-c28 TEX-LO">(</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c3D">=</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c3D">=</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D467">𝑧</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2194">↔</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D466">𝑦</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c3D">=</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D467">𝑧</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-TeXAtom texclass="CLOSE"><mjx-mo><mjx-c class="mjx-c29 TEX-LO">)</mjx-c></mjx-mo></mjx-TeXAtom><mjx-mo><mjx-c class="mjx-c2E">.</mjx-c></mjx-mo></mjx-math></mjx-container></div>
+<p><strong>Placeholder: equality preparation.</strong> Inspect <code>equequ1</code> and either supply its
+proof or make it a short preliminary exercise with the relevant equality
+lemmas already available. The main exercise is the application of the
+bound-variable theorem:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="p">$.</span>
+<span class="w">  </span><span class="nl">rename-equality</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="p">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<p>The name <code>rename-equality</code> is another local exercise label. This should be a
+small proof once the two supporting theorems are available. What I want to
+understand is how their conditions fit together, including the restriction
+that protects <code>z</code> while the bound name changes.</p>
+<h4 id="hints-and-my-answers-6">Hints and my answers</h4>
+<p>Assign <code>cbvalvw</code> to the target. Its formula variables become <code>x = z</code> and
+<code>y = z</code>. Write out the inherited pairs from each of its three <code>$d</code> conditions;
+after removing repetitions, they are exactly the three pairs declared by
+<code>$d x y z $.</code>. The remaining logical premise is supplied by <code>equequ1</code>.</p>
+<p>TODO: add the proof. Then write down what has been proved: this particular
+equivalence, under these particular substitution restrictions. A general
+statement about an alpha-renaming procedure would need a representation of
+formulas and of that procedure. That is a later project.</p>
+<h2 id="52-a-small-visit-to-peanomm">5.2 A Small Visit to <code>peano.mm</code></h2>
+<p>This can be the chapter's side excursion, in the spirit of the other databases
+in chapter 4. The source is
+<a href="https://github.com/metamath/set.mm/blob/develop/peano.mm"><code>peano.mm</code></a>. I want to
+look at its syntax and arithmetic axioms, compare its handling of variables
+with what we've just used, and eventually do a couple of small arithmetic
+proofs. The opening comments are also something to return to alongside
+Harper's discussion of binding.</p>
+<p><strong>Placeholder: a small arithmetic exercise file.</strong> Choose two or three targets
+and supply the logical and equality helpers they require. If an induction
+exercise such as <code>0 + x = x</code> is included, its base case, successor step, and
+application of the induction machinery should all be made explicit. The
+statement alone does not tell us how much supporting work the exercise needs.</p>
+<p>There are several different projects nearby: proving arithmetic theorems in
+this database, working with natural numbers in <code>set.mm</code>, and representing an
+arithmetic deductive system in order to prove statements about its derivations.
+For this excursion I mean the first one. The others can stay on the list
+without becoming prerequisites for finishing this chapter.</p>
+<p>TODO: decide whether this visit belongs in the first pass through O5. If the
+prepared exercises turn out to be a substantial detour, keep the source and
+questions here and return to them after the set-theory chapter.</p>
+<h2 id="53-notes-reflections-and-todo">5.3 Notes, Reflections, and TODO</h2>
+<p>The main question I want to come back to is the one about changing a formula
+inside another formula. We now have examples where an implication or
+equivalence can be transported through a quantifier. I'd like to recognize
+when this is the right approach, instead of trying to manipulate a substring
+as though the verifier had a general rewrite command built into its logic.</p>
+<p>There is a related distinction between carrying out a proof step and proving
+something about a general proof transformation. In this chapter I can write a
+particular bound-variable change and have the checker accept it. In the later
+metamathematics chapter I want formulas, substitutions, and derivability to be
+mathematical objects we can quantify over. That will let us formulate a much
+wider claim precisely. For now, I can keep an explicit list of the claims I
+would eventually like to state.</p>
+<p>TODO: add personal notes after the exercises. Which <code>$d</code> failures were
+surprising? Which helper made an apparently complicated proof easy? Did it
+help to write the intended intermediate formula before asking the proof
+assistant to fill in the details? These should be observations from actually
+working the problems; there is no need to manufacture conclusions in advance.</p>
+<p>The separate O5.5 reading notebook can hold the longer work through Harper's
+first three chapters and Gaifman's notes. It should be useful to compare
+Harper's language with the operations we've just performed, while keeping a
+record of the parts that still need formalization.</p>
+<h2 id="54-quiz-questions">5.4 Quiz Questions</h2>
+<p>These questions are meant to test the terminology and the mechanics that the
+proof exercises use. The answers below are short sketches to revise after
+working through the chapter.</p>
+<h3 id="question-1">Question 1</h3>
+<p>In <code>( x = y -&gt; A. x x = y )</code>, which occurrences of <code>x</code> and <code>y</code> are free, and which
+are bound? Why is it more precise to ask about occurrences than simply to
+classify each variable name as free or bound?</p>
+<h4 id="answer-sketch">Answer sketch</h4>
+<p>The <code>x</code> in the left equality is free, and the <code>x</code> in the right equality is
+bound by <code>A. x</code>; the <code>x</code> written immediately after <code>A.</code> names the binder.
+Both equality occurrences of <code>y</code> are free. A single name can
+occur in different scopes; the binding depends on the occurrence's location.</p>
+<h3 id="question-2">Question 2</h3>
+<p>An assertion requires <code>$d ph ps $.</code>. We replace <code>ph</code> by <code>x = y</code> and <code>ps</code> by
+<code>z = w</code>. Which inherited pairs are needed? Why isn't the fact that these are
+four differently written letters enough?</p>
+<h4 id="answer-sketch-2">Answer sketch</h4>
+<p>The cross-pairs are <code>x,z</code>, <code>x,w</code>, <code>y,z</code>, and <code>y,w</code>. The checker needs the
+corresponding active restrictions. The distinct spellings by themselves do
+not record which later substitutions the assertion permits.</p>
+<h3 id="question-3">Question 3</h3>
+<p>Explain why <code>$d x y $.</code> is different from <code>|- -. x = y</code>. Also explain why
+<code>$d x ph $.</code> is stronger than saying that <code>x</code> is not free in the formula.</p>
+<h4 id="answer-sketch-3">Answer sketch</h4>
+<p>The first is a restriction on substitutions for Metamath variables; the second
+is a mathematical assertion of inequality. For the formula case, nonoccurrence
+excludes bound occurrences too. <code>A. x x = x</code> is a concrete example in which
+<code>x</code> occurs but is not free.</p>
+<h3 id="question-4">Question 4</h3>
+<p>What is variable capture? Describe what goes wrong with the naive replacement
+of free <code>x</code> by <code>y</code> in <code>A. y x = y</code>, and explain the role that changing the bound
+name can play in avoiding it.</p>
+<h4 id="answer-sketch-4">Answer sketch</h4>
+<p>The inserted <code>y</code> falls within the scope of the existing <code>A. y</code> binder and
+becomes bound. A suitable change to a fresh bound name can preserve the role
+of the inserted occurrence. The admissibility of the change must be handled
+by the chosen syntax rules or, in our exercises, by an appropriate theorem.</p>
+<h3 id="question-5">Question 5</h3>
+<p>What is the historical connection between Tarski's work and Metamath's
+distinct-variable approach? Name the source used for the dates.</p>
+<h4 id="answer-sketch-5">Answer sketch</h4>
+<p>The Proof Explorer's history credits Tarski with stating the approach in
+1951 and publishing proofs in 1965. The relevant idea is organizing an
+axiomatization using distinct-variable conditions rather than requiring the
+usual free-variable and proper-substitution machinery as primitive notions.</p>
+<h3 id="question-6">Question 6</h3>
+<p>Compare <code>ax-gen</code> with <code>ax-5</code>. Why can't we simply turn the former into an
+unrestricted theorem <code>|- ( ph -&gt; A. x ph )</code>?</p>
+<h4 id="answer-sketch-6">Answer sketch</h4>
+<p><code>ax-gen</code> takes an established assertion as a premise and universally quantifies
+it. The closed implication has a different logical claim. <code>ax-5</code> supplies that
+implication under a disjoint-variable restriction, and the <code>ax-gen</code> commentary
+explicitly warns that its unrestricted closed form need not hold.</p>
+<h3 id="question-7">Question 7</h3>
+<p>Which tool would you look for if you had proved <code>ph &lt;-&gt; ps</code> and wanted
+<code>A. x ph &lt;-&gt; A. x ps</code>? What changes if you instead have <code>ph -&gt; ps</code> and want
+<code>ph -&gt; A. x ps</code>?</p>
+<h4 id="answer-sketch-7">Answer sketch</h4>
+<p>The first is the pattern of <code>albii</code>. The second is the pattern of <code>alrimiv</code>,
+whose disjointness condition constrains <code>ph</code> and <code>x</code>. In the first case both
+sides are quantified; in the second the antecedent remains outside.</p>
+<h3 id="question-8">Question 8</h3>
+<p>In the <code>rename-equality</code> exercise, why do we need to protect <code>z</code> as well as
+distinguish <code>x</code> and <code>y</code>? What would a general theorem about alpha-renaming say
+beyond this particular checked equivalence?</p>
+<h4 id="answer-sketch-8">Answer sketch</h4>
+<p>Substituting the two equality formulas into <code>cbvalvw</code> produces the additional
+pairs <code>x,z</code> and <code>y,z</code>. A general theorem about a specified renaming procedure
+would quantify over represented expressions and the procedure's inputs or
+outputs. This exercise supplies one checked instance using an existing rule.</p>
+    </article>
+  </main>
+  <script>
+(function () {
+  var groups = ["theme", "width", "type", "text"];
+  var defaults = { theme: "system", width: "normal", type: "sans", text: "normal" };
+  var allowed = {
+    theme: { system: true, light: true, dark: true },
+    width: { normal: true, wide: true, compact: true },
+    type: { sans: true, serif: true },
+    text: { small: true, normal: true, large: true }
+  };
+  var namePrefix = "md2html-reader:";
+
+  function apply(name, value) {
+    if (value === defaults[name]) {
+      delete document.documentElement.dataset[name];
+      return;
+    }
+    document.documentElement.dataset[name] = value;
+  }
+
+  function readWindowState() {
+    if (!window.name || window.name.indexOf(namePrefix) !== 0) return {};
+    try {
+      return JSON.parse(window.name.slice(namePrefix.length)) || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveWindowState(name, value) {
+    var state = readWindowState();
+    state[name] = value;
+    try {
+      window.name = namePrefix + JSON.stringify(state);
+    } catch (error) {}
+  }
+
+  function readSetting(name) {
+    var value = null;
+    try {
+      value = localStorage.getItem("md2html-reader-" + name);
+    } catch (error) {
+      value = null;
+    }
+    if (!value) value = readWindowState()[name];
+    return allowed[name][value] ? value : null;
+  }
+
+  function saveSetting(name, value) {
+    try {
+      localStorage.setItem("md2html-reader-" + name, value);
+    } catch (error) {}
+    saveWindowState(name, value);
+  }
+
+  groups.forEach(function (name) {
+    var saved = readSetting(name);
+    if (saved) apply(name, saved);
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    groups.forEach(function (name) {
+      var saved = readSetting(name);
+      var inputs = Array.prototype.slice.call(document.querySelectorAll('input[name="' + name + '"]'));
+      inputs.forEach(function (input) {
+        if (saved && input.value === saved) input.checked = true;
+        input.addEventListener("change", function () {
+          if (!input.checked) return;
+          apply(name, input.value);
+          saveSetting(name, input.value);
+          if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise().catch(function () {});
+          }
+        });
+      });
+    });
+  });
+})();
+  </script>
+</body>
+</html>

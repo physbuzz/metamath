@@ -24,28 +24,152 @@ title: "04 Studying Propositional Calculus with Metamath"
 # 4 Studying Propositional Calculus with Metamath
 
 Now that we're set on the intricacies of Metamath, sans 
-disjoint variables and compressed proofs, I want to familiarize myself with logic with Metamath as grounding. 
-This includes:
+disjoint variables and compressed proofs, I want to familiarize myself with classical logic
+and similar systems with Metamath as grounding. 
+Towards the end of these notes, I also try to tackle a few more creative systems in Metamath.
 
-- The theorems and conventions in set.mm, up to predicate calculus.
-- Other "propositional-like" proof databases.
-- Proving substantive statements with a proof assistant (built-in proof assistant, or Yamma, or mmj2).
+Note: I'm not going to write down tutorial information about proof assistants here, but this is
+certainly the time to start using the built-in proof assistant, or Yamma or mmj2. 
 
-So, we'll work through basic formal systems, as far as we can get until
-our patience runs out, or we can no longer avoid disjoint variables.
+I also got a bit frustrated mid-chapter and doubted whether it was worth it to work on these problems,
+since things always expand to take up much more time than I think. Probably, it's good to work on these
+for no other reason than to be able to interact with the Metamath community. 
+
+## 4.0 Important Logic Notations and Citations
+
+Okay, as someone independently studying things and from the rather biased and pigheaded view that 
+I cannot take things as "proven" or "beyond folk-knowledge" until I've formalized them in Metamath,
+I run the risk of developing crazy terminology that doesn't agree with literature. So I have to make sure
+I get my citations right! 
+
+While on the surface in this section we're battling propositional calculus, underneath we're really 
+battling fundamental notions of proof. To my understanding, the requirement of making things concrete makes 
+things so difficult
+that we can't easily tackle them until we've got through a formalization of set theory and then some.
+And from there, use set theory to build up a model[^1] of a formal language, and then prove theorems
+in our Metamath + set.mm + model. That becomes our metatheorem, and the assertion that our model 
+accurately describes the formal language could turn out to be a philosophically fraught question. 
+There's some series of unproductive
+arguments to have here, something like, "that's just a model of a system, not the system itself" -> "yeah
+so is everything you've ever proved about it, there the model was parsed by your brain, here the model is
+parsed by Metamath." Well, it will be nice to see how these statements age once I learn what they actually
+mean anyways--"actually" = "as formalized in mm" of course :)
+
+[^1]: I am using this term totally informally.
+
+### 4.0.1 Hilbert-type inference rules
+
+TODO: use the word "axiom scheme" where appropriate. Buss is particularly precise about this.
+
+Okay, right, formalization. For the notation most useful to us, I'll use three sources:
+
+**Source 1.** The course notes [A Hilbert Type Deductive System for Sentential Logic, Completeness and Compactness](https://www.columbia.edu/~hg17/ViewMathLogic/view1-deductive-system.pdf) (Gaifman 2002). These are wonderful, just 9pgs and cover
+some results on satisfiability of the axioms of sentential (propositional) logic. Not at the level we can formalize
+yet in these notes, I'm pretty sure. The definitions are very direct: inference rule, conclusion, and
+premises. In Gaifman's notes, the inference rule of modus ponens is written as:
+
+$$\frac{\alpha\to\beta,\;\alpha}{\beta}$$
+
+Gaifman defines a Hilbert-type deductive system as follows. We won't follow it exactly, because we want to keep
+"wff" out of our definition:
+
+> A (Hilbert type) deductive system is a system consisting of a language and of (I) a set of
+> wffs called axioms, and (II) a set of inference rules. An inference rule consists of (i) a list
+> of wffs called the premises of the rule, (ii) a wff called the rule’s conclusion. 
+
+**Source 2.** The book Practical Foundations for Programming Languages (Harper 2012). Chapter one defines and proves alpha-equivalence, which FYI is a concept that appears in the top of `peano.mm`. But chapter 2 defines
+inference rules. Metamath's "typecode plus sequence of math symbols" is the analogue of a judgement
+here, and a Metamath assertion (proof or axiom) would be called a rule. In Harper's terminology, "a collection of rules
+forms an inductive definition of a judgement."
+Inference rules with no premises are called axioms, else are called proper rules (we won't be adopting this
+definition). For example, trees can be described by:
+
+$$\begin{align*}\frac{}{\texttt{empty tree}} & &\frac{a_1\texttt{ tree}\quad a_2\texttt{ tree}}{\texttt{node}(a_1;a_2)\texttt{ tree}}\end{align*}$$
+
+which I would translate to Metamath as:
+
+```mm
+$c tree ( ; ) node empty $. $v a1 a2 $.
+ta1 $f tree a1 $. ta2 $f tree a2 $.
+tempty $a tree empty $.
+tpair $a tree node ( a1 ; a2 ) $.
+```
+
+**Source 3.** Sam Buss's 2023 book/notes [Introduction to Mathematical Logic](https://mathweb.ucsd.edu/~sbuss/IntroMathLogic/Fullbook_Draft.pdf) also uses similar notation. He defines a proof system for propositional logic called PL, using 
+"the symbol $\vdash A$ to denote that $A$ has a propositional proof, $B_1,\ldots B_k\vdash A$ to denote that 
+$A$ has a PL-proof from hypotheses $B_i.$" and "$\vDash$ for tautological validity/implication." Sam Buss's book
+also has the wonderful footnote:
+
+> Hilbert-style systems are named after David Hilbert, one of the founding fathers of mathematical logic, as this style of proof was used in D. Hilbert and W. Ackermann’s 1928 book
+> Grundzüge der theoretischen Logik (Foundations of Mathematical Logic). A system similar
+> to a Hilbert-style system was already used by A.N. Whitehead and B. Russell in 1910 in
+> their classic Principia Mathematica. Even earlier, G. Frege used a precursor to Hilbert-style
+> proof systems in his 1879 Begriffsschrift. All three of these were landmark developments in establishing
+> the modern study of mathematical logic.
+
+To repeat myself, Buss writes modus ponens as:
+
+$$\frac{A\qquad A\to B}{B}$$
+
+
+Okay, there's a little worry that I have here. Going by Gaifman's notes, interpreted liberally,
+we might call anything written in 
+Metamath a Hilbert type system (or perhaps an extended Hilbert type system). But Megill is very careful to write
+in [section 3.9.4](https://www.mathandcode.com/books/metamath/book/metamath.html#3.9.4-natural-deduction),
+"The Metamath Proof Explorer (MPE) as defined in set.mm is fundamentally a Hilbert-style system," as opposed to
+a broad statement that Metamath systems in general are Hilbert-style systems.
+
+I hemmed and hawed about the phrasing of this for too long; it seems like "Hilbert-style" is something to split
+hairs about. This is especially troublesome because all the logic texts I read--except for set.mm of course--
+have the correctness of all of their definitions and terminology checked solely by the squishy lump of grey matter
+sitting on top of mathematicians' shoulders. As such, from Gaifman's definition, even though I argue we can translate
+one-to-one from the Hilbert style rules to `$a` and `$p` statements, we should sometimes take care not to say
+"the logic we're representing is Hilbert-style" if it represents a vastly different logic. For example, if I make
+a novel Metamath database using some kind of trick to represent type theoretic or sequent calculus constructions,
+then the Metamath proof mechanism is still "Hilbert-style" but the garbage I'm representing and so too the database
+and style of proof shouldn't be said to be "Hilbert-style."
+
+### 4.0.2 Inference rules for us
+
+For these notes, we'll write rules along with their typecode and label where possible.
+Two examples from set.mm are
+[`ax-mp`](https://us.metamath.org/mpeuni/ax-mp.html) and 
+
+$$\frac{\vdash \varphi\quad\vdash(\varphi\to \psi)}{\vdash \psi}\quad\texttt{ax-mp}$$
+
+and the more complicated [`syl`](https://us.metamath.org/mpeuni/syl.html)
+
+$$\frac{\vdash(\psi\to \varphi)\qquad\vdash(\varphi\to \chi)}{\vdash(\psi\to \chi)}\quad\texttt{syl}.$$
+
+While `ax-mp` is an axiom, `syl` is (in Harper's terminology) a derived rule, or in our 
+terminology a theorem. It should be noted that
+`ax-mp` also requires premises $\texttt{wff }\varphi$ and $\texttt{wff }\psi,$ but we omit them for
+brevity.
+
+An important convention for working in `set.mm` is that for practical purposes, a given theorem
+may come in inference form, deduction form, and closed form. Modus ponens has deduction form
+[`mpd`](https://us.metamath.org/mpeuni/mpd.html)
+
+$$\frac{\vdash \varphi\to \psi\quad\vdash(\varphi\to (\psi\to \chi))}{\vdash (\psi\to\chi)}\quad\texttt{mpd}$$
+
+and closed form [`pm2.27`](https://us.metamath.org/mpeuni/pm2.27.html)
+
+$$\frac{}{\vdash \varphi\to((\varphi\to\psi)\to\psi)}\quad\texttt{pm2.27}$$
+
 
 ## 4.1 Propositional calculus in `set.mm`
 
 Let's start by building up some of the basic theorems and machinery of `set.mm`. We'll
-pick apart and cannibalize the usual set proof database, but you still might find it useful
-to visit [the Metamath Proof Explorer, page 1 of 513](https://us.metamath.org/mpeuni/mmtheorems1.html),
-which is good reading. 
+pick apart and cannibalize the usual set proof database and build up our own as a series of interdependent exercises.
+The problems are doable just using the metamath.exe proof assistant, but it's also a good opportunity
+to learn Yamma or mmj2. I recommend reading bits of 
+[the Metamath Proof Explorer](https://us.metamath.org/mpeuni/mmtheorems1.html), 
+and the theorem documentation at `https://us.metamath.org/mpeuni/<label>.html`.
 
-This section is formulated as a series of interdependent exercises which you can use to build up some 
-pieces of set.mm, preferably in the start of a new file like `myset.mm`. There are hints and solutions,
-and you can also find the theorem in `set.mm` or view it by editing the url
-`https://us.metamath.org/mpeuni/<label>.html`. There's usually cool stuff to see in the metamath set 
-explorer.
+I also wrote a little cheatsheet at [TODO URL](), which you can use to keep a checklist or to 
+remember different theorems we proved. The goal is to get the idea of how theorems are proved and
+how they're used in different forms, certainly not to memorize or to become a total expert at 
+propositional logic.  
 
 The proof database we'll start with is:
 
@@ -503,7 +627,137 @@ peirce $p |- ( ( ( ph -> ps ) -> ph ) -> ph ) $= ? $.
 - For `peirce`, use `pm2.61i`, splitting on `ph`. One case is an axiom instance;
   for the other, try `syl` with explosion as its first premise.
 
-### 4.1.6 Notes and reflections and TODO on these exercises.
+### 4.1.6 Carew Meredith's sole axiom for propositional calculus
+
+> [!WARNING]
+> This section was generated by AI and hasn't been reviewed yet.
+
+Back to implication and negation. We started with three logical axioms and
+modus ponens. Could we replace those three axioms with just one?
+
+[Meredith's axiom](https://us.metamath.org/mpeuni/meredith.html) does this.
+It is a fairly intimidating string, but it uses the same formula syntax we
+already know how to parse:
+
+```metamath
+meredith $a |- ( ( ( ( ( ph -> ps ) -> ( -. ch -> -. th ) ) -> ch ) -> ta ) ->
+                ( ( ta -> ph ) -> ( th -> ph ) ) ) $.
+```
+
+Use [meredith.mm](code-04/meredith.mm) for these exercises. Its logical axioms
+are `meredith` and `ax-mp`; it also has the familiar syntax declarations. The
+supporting lemmas are supplied as `$p` statements. They eventually depend on
+`merlem1`, which is the first blank to fill in.
+
+We won't try to rediscover the whole development. That would be a very different
+exercise! The task here is to assemble some carefully chosen instances with
+modus ponens. The notation in the hints abbreviates formulas; it doesn't add
+new symbols to the database.
+
+#### A first lemma
+
+Prove [`merlem1`](https://us.metamath.org/mpeuni/merlem1.html):
+
+```metamath
+merlem1 $p |- ( ( ( ch -> ( -. ph -> ps ) ) -> ta ) -> ( ph -> ta ) ) $= ? $.
+```
+
+Here is a more guided hint than usual. Write `M(a,b,c,d,e)` for the Meredith
+axiom with those five formulas substituted for `ph`, `ps`, `ch`, `th`, and `ta`.
+For this paragraph, rename the variables of the target to `a,b,c,t`, and put
+
+```text
+N = (¬a → b)
+X = (¬t → ¬c)
+Z = ((t → ¬a) → (¬N → ¬a))
+```
+
+The three instances you need are
+
+```text
+M(¬a, b, X, ¬N, t)
+M(N, (¬X → ¬¬N), t, c, Z)
+M(t, ¬a, N, a, (c → N))
+```
+
+Start with `ax-mp` at the target, and work out which instance can supply the
+implication. The remaining goal needs one more use of modus ponens. Writing
+the three instances out is probably less painful than trying to hold them in
+your head.
+
+#### Recovering three familiar statements
+
+Once `merlem1` is filled in, the supplied proofs establish the remaining
+`merlem` lemmas. Use them to prove the following, in the order `luk-3`, `luk-2`,
+then `luk-1`:
+
+```metamath
+luk-3 $p |- ( ph -> ( -. ph -> ps ) ) $= ? $.
+
+luk-2 $p |- ( ( -. ph -> ph ) -> ph ) $= ? $.
+
+luk-1 $p |- ( ( ph -> ps ) -> ( ( ps -> ch ) -> ( ph -> ch ) ) ) $= ? $.
+```
+
+These are the [Łukasiewicz axioms](https://us.metamath.org/mpeuni/luk-1.html)
+used in this development. We recognize their statements as explosion, Clavius
+law, and a closed form of syllogism. Here they are theorems derived from
+Meredith's axiom, so borrowing their section 4.1 proofs would defeat the point.
+
+The useful supplied lemmas are:
+
+| Label | Formula, with variables renamed for readability |
+| --- | --- |
+| `merlem4` | `t → ((t → p) → (d → p))` |
+| `merlem5` | `(p → q) → (¬¬p → q)` |
+| `merlem11` | `(p → (p → q)) → (p → q)` |
+| `merlem13` | `(p → q) → (((s → (¬¬r → r)) → ¬¬p) → q)` |
+
+#### Hints and my answers
+
+- For `luk-3`, use `ax-mp` with an instance of `merlem1` as the implication.
+  Look for a way to make its antecedent an instance of `merlem11`.
+- For `luk-2`, use `ax-mp` with `merlem11` as the implication, treating
+  `( -. ph -> ph )` as a single wff. An instance of `meredith` supplies the
+  repeated-antecedent goal after another detachment.
+- For `luk-1`, the outer step is again `ax-mp`. One premise is an instance of
+  `meredith`; the other takes more detachment steps using `merlem13` and `meredith`.
+
+For the last two, these substitutions give a more detailed route if needed.
+Write `D(p,q)`, `F(p,d,t)`, `W(p,q)`, and `B(p,q,r,s)` for the four lemmas in
+the order `merlem5`, `merlem4`, `merlem11`, and `merlem13`.
+
+For `luk-2`, let
+
+```text
+N = (¬a → a)
+R = ((a → ¬N) → (¬¬a → ¬N))
+Q = (R → ¬a)
+```
+
+Combine `D(a,¬N)`, `F(¬a,Q,R)`, `W(Q,¬a)`, `M(a,¬N,¬a,N,¬a)`, and `W(N,a)`
+using modus ponens. Each formula you detach becomes an input to another step.
+
+For `luk-1`, let
+
+```text
+S = (a → b)
+T = ((b → c) → (a → c))
+U = (((c → c) → (¬¬¬a → ¬a)) → ¬¬a)
+V = (U → b)
+```
+
+Combine `M(c,c,¬¬a,a,b)`, `B(a,b,¬a,(c → c))`, `B(S,V,¬S,(T → a))`,
+and `M(T,a,¬¬S,S,V)`.
+
+The proof explorer continues by deriving our original axioms as
+[`ax1`](https://us.metamath.org/mpeuni/ax1.html),
+[`ax2`](https://us.metamath.org/mpeuni/ax2.html), and
+[`ax3`](https://us.metamath.org/mpeuni/ax3.html). In the other direction,
+`set.mm` proves Meredith's formula from its original axioms. That gives us
+the ingredients for translating proofs between the presentations.
+
+### 4.1.7 Notes and reflections and TODO on these exercises.
 
 
 #### TODO on proof transformations
@@ -660,6 +914,9 @@ id $p |- a = a $=
 
 ### 4.2.3 Higher Order Logic `hol.mm`
 
+> [!WARNING]
+> I haven't touched this section at all.
+
 In section 4.1, an assumption was usually a separate `$e` statement. The
 [higher-order logic database `hol.mm`](https://github.com/metamath/set.mm/blob/develop/hol.mm)
 also has statements of the form
@@ -771,659 +1028,6 @@ proof assistant show us exactly which strings are still missing.
   `R |= S`, look at `mpbir`. Its equality premise comes from the implication
   hypothesis and `imval`. Keep track of the context when using that theorem.
 
-### 4.2.4 MIU: just rewriting strings
 
-The [MIU system](https://us.metamath.org/metamath/miu.mm) comes from the beginning
-of Hofstadter's *Gödel, Escher, Bach*. This time, we don't even need to pretend
-that the strings are logical formulas. We start with `M I` and apply four
-rewriting rules.
 
-```metamath
-$c M I U |- wff $.
-$v x y $.
-wx $f wff x $.
-wy $f wff y $.
-we  $a wff $.
-wM  $a wff x M $.
-wI  $a wff x I $.
-wU  $a wff x U $.
-wxy $a wff x y $.
-ax  $a |- M I $.
-${ Ia   $e |- x I $.       I_  $a |- x I U $. $}
-${ IIa  $e |- M x $.       II  $a |- M x x $. $}
-${ IIIa $e |- x I I I y $. III $a |- x U y $. $}
-${ IVa  $e |- x U U y $.   IV  $a |- x y $. $}
-```
 
-Read the syntax declarations first. `we` makes the empty string, and `wM`,
-`wI`, and `wU` append a letter. `wxy` concatenates two strings. The typecode is
-called `wff`, but it allows any finite string of these letters, including the
-empty string. It doesn't mean "propositional formula" in this file.
-
-The four rules say:
-
-- `I_`: if a string ends in `I`, append `U`.
-- `II`: after an initial `M`, double the rest of the string.
-- `III`: replace an occurrence of `I I I` with `U`.
-- `IV`: delete an occurrence of `U U`.
-
-For the last two, `x` and `y` are the pieces on either side of the occurrence
-we picked. Either piece can be empty. If unification gives several choices,
-we're choosing *which part of the string* to rewrite.
-
-Prove the database's `theorem1`, then prove a rule that doubles twice:
-
-```metamath
-theorem1 $p |- M U I I U $= ? $.
-
-${
-  II2.1 $e |- M x $.
-  II2 $p |- M x x x x $= ? $.
-$}
-```
-
-For an extra exercise, construct a proof of `|- M I I I I I I I I`.
-Writing down the sequence of strings first is useful here. Then translate
-each rewrite into a rule application, including the syntax proofs for the
-strings substituted for `x` and `y`.
-
-The famous MU puzzle asks whether we can reach `M U`. That is worth thinking
-about, but don't spend forever trying to fill in a `$p` for it. In chapter 5
-we'll ask how to establish that a target has *no* proof.
-
-#### Hints and my answers
-
-- For `theorem1`, try `III` as the last step. A useful earlier string has only
-  `M` followed by `I`s; look for one whose length you can reach by doubling.
-- For `II2`, use `II`. The string substituted for its `x` need not be a single
-  copy of our variable `x`; `wxy` is useful for its syntax proof.
-- For the eight-`I` exercise, keep using `II` until the remaining goal is `ax`.
-
-### 4.2.5 Sequent calculus: moving formulas across a separator
-
-We can make a proof system where an implication is proved by moving its
-antecedent to the other side of a separator. This is the idea behind the
-implication-right rule in *sequent calculus*.
-
-A sequent has a list of formulas on the left and another list on the right:
-
-```text
-ph ps => ch th
-```
-
-The usual reading is: if all the formulas on the left hold, then at least one
-formula on the right holds. An empty left side needs no assumptions. An empty
-right side represents a contradiction. That's the intended interpretation;
-below are the actual strings and rules we'll ask Metamath to check.
-
-`G`, `H`, `D`, and `E` have type `ctx`, for a list of formulas. So `G ph H`
-means a list with `ph` somewhere in it. The commas in a textbook's presentation
-are unnecessary here: the formula syntax already tells us where each formula
-ends.
-
-```metamath
-$c ( ) -> -. wff ctx |- => $.
-$v ph ps ch th $.
-$v G H D E $.
-wph $f wff ph $.
-wps $f wff ps $.
-wch $f wff ch $.
-wth $f wff th $.
-vG $f ctx G $.
-vH $f ctx H $.
-vD $f ctx D $.
-vE $f ctx E $.
-wn $a wff -. ph $.
-wi $a wff ( ph -> ps ) $.
-c0 $a ctx $.
-cadd $a ctx G ph $.
-ax-id $a |- G ph H => D ph E $.
-${
-  ax-negl.1 $e |- G H => D ph E $.
-  ax-negl $a |- G -. ph H => D E $.
-$}
-${
-  ax-negr.1 $e |- G ph H => D E $.
-  ax-negr $a |- G H => D -. ph E $.
-$}
-${
-  ax-impl.1 $e |- G H => D ph E $.
-  ax-impl.2 $e |- G ps H => D E $.
-  ax-impl $a |- G ( ph -> ps ) H => D E $.
-$}
-${
-  ax-impr.1 $e |- G ph H => D ps E $.
-  ax-impr $a |- G H => D ( ph -> ps ) E $.
-$}
-```
-
-`c0` makes an empty context. `cadd` appends a formula to a context. For example,
-the syntax proof of `ctx ph ps` is `wps wph c0 cadd cadd`. The floating hypotheses
-put the formula before the context on the proof stack, even though the context
-comes first in the resulting string. Watch the declaration order!
-
-The logical rules are named for the connective they handle and the side it
-appears on. `ax-negl` handles negation on the left; `ax-impr` handles implication
-on the right. The latter says that to prove
-
-```text
-G H => D ( ph -> ps ) E
-```
-
-we can instead prove
-
-```text
-G ph H => D ps E
-```
-
-That is already an ordinary Metamath rule. We don't need to teach the verifier
-about assumptions, discharge, or implication. We just have to supply its premise.
-
-`ax-id` closes a goal when the same formula occurs on both sides. Here is the
-identity theorem, using empty contexts everywhere:
-
-```metamath
-seqid $p |- => ( ph -> ph ) $=
-  wph wph c0 c0 c0 c0 wph c0 c0 c0 c0 ax-id ax-impr $.
-```
-
-Now prove the three familiar axioms as theorems of this new system, then
-Peirce's law and double negation elimination:
-
-```metamath
-seqax1 $p |- => ( ph -> ( ps -> ph ) ) $= ? $.
-
-seqax2 $p |- => ( ( ph -> ( ps -> ch ) ) -> ( ( ph -> ps ) -> ( ph -> ch ) ) ) $= ? $.
-
-seqax3 $p |- => ( ( -. ph -> -. ps ) -> ( ps -> ph ) ) $= ? $.
-
-seqpeirce $p |- => ( ( ( ph -> ps ) -> ph ) -> ph ) $= ? $.
-
-seqnotnotr $p |- => ( -. -. ph -> ph ) $= ? $.
-```
-
-This little calculus has a different feel from the Hilbert-style proofs in
-section 4.1. Working backwards, we can pick a connective in the goal and use
-the corresponding rule to break it apart. We aren't hunting for an arbitrary
-intermediate formula for `syl`.
-
-One more exercise needs another rule. Add *cut*, which lets us connect a proof
-of a formula with a proof that uses that formula:
-
-```metamath
-${
-  ax-cut.1 $e |- G => D ph $.
-  ax-cut.2 $e |- H ph => E $.
-  ax-cut $a |- G H => D E $.
-$}
-```
-
-In `ax-cut`, `ph` occurs on the right of the first premise and on the left of
-the second. It disappears from the conclusion. The remaining contexts are
-concatenated. Use this rule to prove a form of modus ponens:
-
-```metamath
-${
-  seqmp.1 $e |- => ph $.
-  seqmp.2 $e |- => ( ph -> ps ) $.
-  seqmp $p |- => ps $= ? $.
-$}
-```
-
-For now, keep cut in the file for this last exercise. Whether every use of cut
-can be removed is a much larger question, which we'll return to in chapter 5.
-
-#### Hints and my answers
-
-- For the five closed theorems, start with `ax-impr`. Then inspect which
-  connectives are on which side. When a formula appears on both sides, use `ax-id`.
-- For `seqpeirce`, after the first `ax-impr`, try `ax-impl`. One branch needs
-  another `ax-impr`; the other closes immediately.
-- For `seqmp`, use `ax-cut` with `seqmp.1` as its first premise. For the remaining
-  goal, use another cut with `seqmp.2`. The last little sequent can be proved
-  using the implication-left rule.
-
-## 4.3 Optional: Meredith's single axiom
-
-Back to implication and negation. We started with three logical axioms and
-modus ponens. Could we replace those three axioms with just one?
-
-[Meredith's axiom](https://us.metamath.org/mpeuni/meredith.html) does this.
-It is a fairly intimidating string, but it uses the same formula syntax we
-already know how to parse:
-
-```metamath
-meredith $a |- ( ( ( ( ( ph -> ps ) -> ( -. ch -> -. th ) ) -> ch ) -> ta ) ->
-                ( ( ta -> ph ) -> ( th -> ph ) ) ) $.
-```
-
-Use [meredith.mm](code-04/meredith.mm) for these exercises. Its logical axioms
-are `meredith` and `ax-mp`; it also has the familiar syntax declarations. The
-supporting lemmas are supplied as `$p` statements. They eventually depend on
-`merlem1`, which is the first blank to fill in.
-
-We won't try to rediscover the whole development. That would be a very different
-exercise! The task here is to assemble some carefully chosen instances with
-modus ponens. The notation in the hints abbreviates formulas; it doesn't add
-new symbols to the database.
-
-### 4.3.1 A first lemma
-
-Prove [`merlem1`](https://us.metamath.org/mpeuni/merlem1.html):
-
-```metamath
-merlem1 $p |- ( ( ( ch -> ( -. ph -> ps ) ) -> ta ) -> ( ph -> ta ) ) $= ? $.
-```
-
-Here is a more guided hint than usual. Write `M(a,b,c,d,e)` for the Meredith
-axiom with those five formulas substituted for `ph`, `ps`, `ch`, `th`, and `ta`.
-For this paragraph, rename the variables of the target to `a,b,c,t`, and put
-
-```text
-N = (¬a → b)
-X = (¬t → ¬c)
-Z = ((t → ¬a) → (¬N → ¬a))
-```
-
-The three instances you need are
-
-```text
-M(¬a, b, X, ¬N, t)
-M(N, (¬X → ¬¬N), t, c, Z)
-M(t, ¬a, N, a, (c → N))
-```
-
-Start with `ax-mp` at the target, and work out which instance can supply the
-implication. The remaining goal needs one more use of modus ponens. Writing
-the three instances out is probably less painful than trying to hold them in
-your head.
-
-### 4.3.2 Recovering three familiar statements
-
-Once `merlem1` is filled in, the supplied proofs establish the remaining
-`merlem` lemmas. Use them to prove the following, in the order `luk-3`, `luk-2`,
-then `luk-1`:
-
-```metamath
-luk-3 $p |- ( ph -> ( -. ph -> ps ) ) $= ? $.
-
-luk-2 $p |- ( ( -. ph -> ph ) -> ph ) $= ? $.
-
-luk-1 $p |- ( ( ph -> ps ) -> ( ( ps -> ch ) -> ( ph -> ch ) ) ) $= ? $.
-```
-
-These are the [Łukasiewicz axioms](https://us.metamath.org/mpeuni/luk-1.html)
-used in this development. We recognize their statements as explosion, Clavius
-law, and a closed form of syllogism. Here they are theorems derived from
-Meredith's axiom, so borrowing their section 4.1 proofs would defeat the point.
-
-The useful supplied lemmas are:
-
-| Label | Formula, with variables renamed for readability |
-| --- | --- |
-| `merlem4` | `t → ((t → p) → (d → p))` |
-| `merlem5` | `(p → q) → (¬¬p → q)` |
-| `merlem11` | `(p → (p → q)) → (p → q)` |
-| `merlem13` | `(p → q) → (((s → (¬¬r → r)) → ¬¬p) → q)` |
-
-#### Hints and my answers
-
-- For `luk-3`, use `ax-mp` with an instance of `merlem1` as the implication.
-  Look for a way to make its antecedent an instance of `merlem11`.
-- For `luk-2`, use `ax-mp` with `merlem11` as the implication, treating
-  `( -. ph -> ph )` as a single wff. An instance of `meredith` supplies the
-  repeated-antecedent goal after another detachment.
-- For `luk-1`, the outer step is again `ax-mp`. One premise is an instance of
-  `meredith`; the other takes more detachment steps using `merlem13` and `meredith`.
-
-For the last two, these substitutions give a more detailed route if needed.
-Write `D(p,q)`, `F(p,d,t)`, `W(p,q)`, and `B(p,q,r,s)` for the four lemmas in
-the order `merlem5`, `merlem4`, `merlem11`, and `merlem13`.
-
-For `luk-2`, let
-
-```text
-N = (¬a → a)
-R = ((a → ¬N) → (¬¬a → ¬N))
-Q = (R → ¬a)
-```
-
-Combine `D(a,¬N)`, `F(¬a,Q,R)`, `W(Q,¬a)`, `M(a,¬N,¬a,N,¬a)`, and `W(N,a)`
-using modus ponens. Each formula you detach becomes an input to another step.
-
-For `luk-1`, let
-
-```text
-S = (a → b)
-T = ((b → c) → (a → c))
-U = (((c → c) → (¬¬¬a → ¬a)) → ¬¬a)
-V = (U → b)
-```
-
-Combine `M(c,c,¬¬a,a,b)`, `B(a,b,¬a,(c → c))`, `B(S,V,¬S,(T → a))`,
-and `M(T,a,¬¬S,S,V)`.
-
-The proof explorer continues by deriving our original axioms as
-[`ax1`](https://us.metamath.org/mpeuni/ax1.html),
-[`ax2`](https://us.metamath.org/mpeuni/ax2.html), and
-[`ax3`](https://us.metamath.org/mpeuni/ax3.html). In the other direction,
-`set.mm` proves Meredith's formula from its original axioms. That gives us
-the ingredients for translating proofs between the presentations.
-
----
-
-# 5 Metatheorems, notation, and history
-
-We've been asking for particular strings and checking particular proofs.
-Now some different questions are starting to pile up. Why can't we prove
-`M U`? Why do so many theorems have inference, deduction, and closed forms?
-If we change the axioms but can recover the old ones, have we kept *all* the
-same theorems?
-
-These are things we can investigate with programs, too. We can represent a
-formula as data, write a function that checks a proof, and write another
-function that transforms it. Eventually we can express claims about those
-functions in a Metamath database and try proving them there.
-
-This chapter is still a set of working notes. I want to keep the concrete
-questions in view while learning the vocabulary people use to talk about them.
-
-## 5.1 Statements about statements
-
-Logicians call the language being studied the *object language*, and the
-language used to discuss it the *metalanguage*. In our files, the object
-language is what appears in the assertions. English sentences such as
-"this proof verifies" and "there is no proof of `|- M U`" are statements
-about those assertions and their proofs.
-
-Metamath doesn't force us to stop there. We could encode MIU strings and MIU
-derivations as objects in `set.mm`, then write a theorem about those objects.
-We would have changed which strings represent the thing we're discussing.
-The verifier would still be doing substitution and checking proof steps.
-
-This helps me separate three tasks:
-
-1. Check a particular proof.
-2. Write a program that produces or transforms proofs.
-3. Prove that the program works for every input of the required kind.
-
-Getting task 1 to work is useful evidence while doing task 2. Task 3 needs
-definitions of the inputs, outputs, and what "works" means. That's a project
-we haven't carried out yet.
-
-### 5.1.1 Some notation to recognize
-
-`Γ ⊢ φ` usually means that `φ` is derivable from assumptions `Γ`. The special
-case `⊢ φ` has no assumptions. A textbook may display an inference rule like
-this:
-
-```text
-  φ      φ → ψ
- ───────────────
-        ψ
-```
-
-We recognize `ax-mp`. Its two `$e` statements go above the line and its
-assertion goes below. A Metamath proof of an instance supplies substitutions
-and proofs of those premises.
-
-Our literal `|-` is a declared constant. The textbook's `⊢` is often notation
-for a claim about derivability. The resemblance is intentional, but we should
-check which role it has in a particular sentence.
-
-`Γ ⊨ φ` is usually a different claim: every interpretation satisfying `Γ`
-also satisfies `φ`. For propositional logic, the interpretations can be truth
-assignments. To work with that claim concretely, we would define truth
-assignments and evaluation, then ask how they relate to our proof rules.
-The characters `|=` in `hol.mm` are part of that database's context notation;
-they don't instruct Metamath to evaluate truth assignments.
-
-Arrows are similarly overloaded. `->` is our implication connective. Books
-also write `→`, `⊃`, or sometimes `⇒`. In our sequent file, `=>` separates two
-contexts. Read the declarations before trusting the shape of the symbol.
-
-### 5.1.2 Schemas and deductions
-
-In many textbooks, `p` is a particular propositional variable and `φ` ranges
-over formulas. Our `ph` plays the latter role: we may substitute any expression
-with a suitable `wff` proof. Thus `|- ( ph -> ph )` gives a *schema* of
-theorems, rather than just one fixed sentence about an atom named `ph`.
-
-The word *deduction* also shifts around. A textbook deduction is often a
-sequence of formulas, each an assumption, an axiom instance, or the result of
-an inference rule. In `set.mm`, "deduction form" means the convention with
-a shared antecedent. Related ideas, but the suffix `d` isn't itself a
-theorem about arbitrary proof sequences.
-
-A *metatheorem* is a theorem about a formal system. The questions below are
-examples. Calling something a metatheorem doesn't prevent us from representing
-its subject matter inside another formal system.
-
-## 5.2 The deduction theorem as a proof transformation
-
-Suppose we have a proof of `ps` that uses `ph` as a hypothesis. Can we turn it
-into a proof of `( ph -> ps )` without that hypothesis?
-
-For the propositional calculus from section 4.1, the usual deduction theorem
-says yes. In textbook notation:
-
-```text
-If Γ; α ⊢ β, then Γ ⊢ (α → β).
-```
-
-There is a fairly concrete program hiding in the usual proof. Process the
-original proof one line at a time, turning each formula `χ` into `α -> χ`.
-
-- If the line is the assumption `α`, use `id`.
-- If it is an axiom or another available assumption, use `a1i`.
-- If it follows by modus ponens, use `mpd` on the transformed earlier lines.
-
-Those are all tools we proved. We could first implement this for proofs using
-only primitive rules. Derived rules can be expanded into their proofs, or we
-can give the transformer suitable deduction-form replacements.
-
-A useful first project would be to transform one of our small proofs and
-have Metamath check the result. Then try a batch of proofs. The general
-correctness argument says that each transformed line has the claimed form
-and still has a valid justification. Formalizing that argument requires a
-representation of proof sequences and of this transformation.
-
-Quantifiers complicate the story. `set.mm` has a generalization rule, `ax-gen`,
-which takes `|- ph` to `|- A. x ph`. Blindly treating it like the propositional
-rules would suggest `( ph -> A. x ph )`. Taking `ph` to be `x = y` shows the
-problem: knowing that this `x` equals `y` doesn't say that every `x` does.
-The deduction theorem needs a restriction on generalizing variables that are
-free in the assumption being discharged. We'll return to that with `$d`.
-
-## 5.3 When a proof doesn't exist
-
-The MIU exercises gave us proofs of specific strings. The MU puzzle asks for
-something else: show that *no* sequence of the rules reaches `M U`.
-
-Try tracking the number of `I`s modulo 3. Work out what each rule does to
-that number, starting from the one `I` in the axiom. This is an invariant
-argument about possible derivations. It isn't a missing MIU proof of some
-new string saying "MU is impossible"; our MIU language has no such assertion.
-
-Some projects to build up from there:
-
-- Write a program that produces a proof of `M` followed by `2^k` copies of `I`.
-  We already did the case `k = 3`.
-- Encode a finite MIU derivation as data, and implement its checker.
-- State and prove the invariant for those encoded derivations.
-- Investigate the stronger characterization: the derivable strings are
-  exactly those starting with one `M`, followed by `I`s and `U`s, whose
-  number of `I`s is nonzero modulo 3. The reverse direction needs a construction,
-  not just the invariant.
-
-The [Mathlib MIU formalization](https://leanprover-community.github.io/mathlib4_docs/Archive/MiuLanguage/Basic.html)
-is worth reading alongside [`miu.mm`](https://us.metamath.org/metamath/miu.mm).
-The latter is also reproduced in Appendix D of the Metamath book.
-
-### 5.3.1 Derivable and admissible rules
-
-Here is another MIU puzzle:
-
-```metamath
-${
-  bad.1 $e |- M U $.
-  bad $p |- U $= ? $.
-$}
-```
-
-Even if we grant the hypothesis `M U`, our rewriting rules don't give us a
-way to remove the initial `M`. So this isn't a blank we should expect to fill.
-The claim needs an argument about all rule applications, now allowing that
-extra starting hypothesis.
-
-A rule is *derivable* if its conclusion can be proved from its premises.
-A rule is *admissible* if, whenever its premises are theorems, its conclusion
-is also a theorem. These can come apart. Once we establish that `M U` is not
-a theorem, the proposed rule above is admissible vacuously: its premise never
-arises as a theorem. That still doesn't supply a proof from the hypothetical
-premise `bad.1`.
-
-The sequent system gives a less vacuous example to investigate. Consider adding
-an extra formula on the left:
-
-```metamath
-${
-  wk.1 $e |- G => D $.
-  wk $p |- G ph => D $= ? $.
-$}
-```
-
-This operation is called *weakening*. Inspect the conclusions of our primitive
-rules. Which one could be the last step of this schematic proof? Then consider
-a different task: given a concrete proof of `G => D`, transform every sequent
-in it to carry the extra formula. The second task has access to the proof
-behind the premise, which a single use of `wk.1` doesn't expose.
-
-## 5.4 Cut and proof search
-
-In the sequent exercises, working backwards through a logical rule removes
-a connective from the selected formula. Each resulting premise has fewer
-connectives in total than the goal. If the same formula appears on both
-sides, `ax-id` finishes that branch.
-
-That suggests a proof-search program. Choose a connective, apply its rule
-backwards, and recursively solve the resulting premises. The recursion
-terminates because the formulas get smaller. A branch with only atoms and
-no common formula is stuck. To turn this into a decision procedure, we also
-need to justify that the search doesn't miss a proof. For these rules,
-that is the role of the invertibility arguments.
-
-Cut behaves differently. Its cut formula is absent from the conclusion, so
-working backwards would mean guessing a formula that might be arbitrarily
-large. In our `seqmp` proof we knew what to choose, because the hypotheses
-gave us useful formulas to connect.
-
-*Cut elimination* says that a closed derivation using cut can be transformed
-into one without cut in calculi of this kind. Here "closed" means that all
-leaves are axioms; arbitrary extra `$e` leaves need separate treatment. This
-qualification matters for our `seqmp` exercise, whose premises are supplied
-as hypotheses.
-
-Projects for this particular encoding:
-
-- Implement the backward search and have it emit proofs our checker accepts.
-- Show that the logical rules preserve provability when used backwards.
-- Work out a cut-elimination transformation for closed derivations.
-- Formalize the *subformula property*: the formulas in a cut-free closed
-  proof come from pieces of its final sequent.
-- Use this to investigate consistency. No rule of the cut-free system can
-  conclude the empty sequent `|- =>`.
-
-The `seqax1`–`seqax3` proofs and `seqmp` also suggest a translator from our
-Hilbert-style proofs to sequent proofs. That would be a nice way to connect
-the two sets of exercises: feed in an existing proof, get out a proof written
-in the other language, and check it.
-
-## 5.5 Changing the axioms
-
-The Meredith exercises suggest another translator. If one system can prove
-each axiom schema of another and has the same modus ponens rule, we can try
-replacing every axiom use in an old proof with the corresponding derivation.
-
-There are three presentations to compare:
-
-| Presentation | Logical axioms, besides modus ponens |
-| --- | --- |
-| Our original `set.mm` fragment | `ax-1`, `ax-2`, `ax-3` |
-| Meredith | `meredith` |
-| Łukasiewicz | `luk-1`, `luk-2`, `luk-3` |
-
-The relevant derivations are linked in section 4.3. First make a translator
-work on a few proofs. Then describe why replacement commutes with substitution
-and why each resulting proof step is valid. That is how the finite list of
-axiom derivations supports a claim about *all* theorems.
-
-There are other comparisons where this won't be enough. For example, our
-intuitionistic fragment doesn't recover `ax-3`. To show a separation, we need
-to establish that a target really is unprovable in the weaker system. Peirce's
-law is an especially interesting target because its statement doesn't even
-contain negation.
-
-## 5.6 Further directions
-
-There is plenty here before we need to add more syntax. A few things I want
-to keep on the list:
-
-- Truth tables and models: define evaluation of formulas, then investigate
-  soundness and completeness for a chosen set of proof rules.
-- Gentzen's sequent calculus and cut elimination: connect the textbook rules
-  with the concrete calculus in section 4.2.5.
-- Lambda calculus, recursive functions, and Turing machines: work through
-  explicit translations between models of computation.
-- Curry–Howard: find a particular proof calculus and a particular typed
-  programming language, and see what their correspondence actually does.
-- Automath, Mizar, LCF, and the Boyer–Moore prover: compare how they represent
-  proofs and what their checkers trust.
-- Mario Carneiro's work on Metamath and [Metamath Zero](https://github.com/digama0/mm0):
-  look for concrete definitions of syntax, proofs, and verification that we
-  can build on.
-
-### 5.6.1 Arithmetic, later
-
-The [Number Theory Game for Metamath](https://github.com/pbrosnan/ntg) develops
-arithmetic using Robert Solovay's `peano.mm`. This will be useful once we've
-worked with quantifiers and disjoint variables.
-
-Its notation is another reminder to read the syntax declarations. `+ a b`
-is prefix addition, `S t` is successor, and `= s t` is an equality. The
-variables themselves have type `var`; expressions built from them have type
-`term`. Even the order of syntax inputs deserves a look: `tbinop` takes the
-two terms followed by the operator.
-
-Some targets to return to, with links to a fixed source revision:
-
-- [`nn26l1`](https://github.com/pbrosnan/ntg/blob/15332ee0dfe50ada14b6e31e947272232e4dc671/peano.mm#L2884-L2891):
-  prove `(a+b)+0 = a+(b+0)` using the zero law and congruence.
-- [`pa_ax3cl2`](https://github.com/pbrosnan/ntg/blob/15332ee0dfe50ada14b6e31e947272232e4dc671/peano.mm#L2817-L2820):
-  from `t=0+t`, prove `S(t)=0+S(t)`.
-- [`pa_ax3c`](https://github.com/pbrosnan/ntg/blob/15332ee0dfe50ada14b6e31e947272232e4dc671/peano.mm#L2812-L2835):
-  prove `t=0+t` using the induction rule `nindd`.
-- [`addcom`](https://github.com/pbrosnan/ntg/blob/15332ee0dfe50ada14b6e31e947272232e4dc671/peano.mm#L2930-L2959):
-  prove `a+b=b+a` by induction.
-
-The introduction to that database also discusses the distinction between its
-formal statements and mathematical arguments about the system. That seems
-like useful reading alongside our attempts to turn those arguments into
-explicit proof transformations.
-
-### 5.6.2 A small geometry puzzle
-
-One more possible change of scenery: let `Cg A B C D` say that segment `AB`
-is congruent to segment `CD`. Suppose our rules say
-
-```text
-Cg A B B A
-
-from Cg A B C D and Cg A B E F, infer Cg C D E F
-```
-
-Can we prove `Cg A B A B`? Write the declarations and rules as a little
-Metamath file, then fill in the proof. These are patterned on segment-congruence
-axioms in [Tarski-style geometry](https://us.metamath.org/mpeuni/df-trkg.html).
-The small exercise is ours; there is no need to import a whole geometry
-database to try it.
