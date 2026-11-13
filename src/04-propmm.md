@@ -10,7 +10,7 @@ title: "04 Studying Propositional Calculus with Metamath"
     <span class="activenav"><a href="05-predicate-calculus.html">Next →</a></span>
 </nav>
 
-[Read in html](book/metamath.html#abstract-mathematics-revealed) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf#page=77)
+[Read in html](book/index.html#abstract-mathematics-revealed) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf#page=77)
 
 ---
 
@@ -115,7 +115,7 @@ $$\frac{A\qquad A\to B}{B}$$
 Okay, there's a little worry that I have here. Going by Gaifman's notes, interpreted liberally,
 we might call anything written in 
 Metamath a Hilbert type system (or perhaps an extended Hilbert type system). But Megill is very careful to write
-in [section 3.9.4](https://www.mathandcode.com/books/metamath/book/metamath.html#3.9.4-natural-deduction),
+in [section 3.9.4](book/index.html#3.9.4-natural-deduction),
 "The Metamath Proof Explorer (MPE) as defined in set.mm is fundamentally a Hilbert-style system," as opposed to
 a broad statement that Metamath systems in general are Hilbert-style systems.
 
@@ -209,7 +209,7 @@ To start, here's some basic theorems: [`a1i`](https://us.metamath.org/mpeuni/a1i
 Note that here we start seeing some of the conventions of set.mm, where the suffix
 i generally stands for inference form, suffix d stands for deduction form, and no
 suffix generally stands for closed form. This is discussed various places in the proof explorer
-[such as here](https://us.metamath.org/mpeuni/mmnatded.html) and in the book [html page](https://www.mathandcode.com/books/metamath/book/metamath.html#3.9.3-deduction-style) or [pdf page](book/metamath.pdf#page=115). The proof explorer
+[such as here](https://us.metamath.org/mpeuni/mmnatded.html) and in the book [html page](book/index.html#3.9.3-deduction-style) or [pdf page](book/metamath.pdf#page=115). The proof explorer
 pages of these are really good, tons of info.
 
 NB: For sections 4.1.1 to 4.1.3, you only need axioms `ax-1`, `ax-2`, and `ax-mp`, 

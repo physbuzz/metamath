@@ -10,7 +10,7 @@ title: "01 Working through a Metamath Proof by Hand (Megill ch2)"
     <span class="activenav"><a href="02-sicp-logic.html">Next →</a></span>
 </nav>
 
-[Book html](book/metamath.html#using-the-metamath-program) &nbsp;|&nbsp; [Book pdf](book/metamath.pdf#page=55)
+[Book html](book/index.html#using-the-metamath-program) &nbsp;|&nbsp; [Book pdf](book/metamath.pdf#page=55)
 
 @toc
 
@@ -434,7 +434,7 @@ we'll just get `( $5 + 0 ) = $5` for example). Finally, if all logical steps are
 `improve all` to finish the proof. 
 
 This is a brief explanation so this answer may be insufficient. If you get stuck reproducing the proof in the proof
-explorer, refer to [Megill ch2.4](book/metamath.html#2.4-your-first-proof) and follow the CLI usage.
+explorer, refer to [Megill ch2.4](book/index.html#2.4-your-first-proof) and follow the CLI usage.
 
 ### Question 16
 

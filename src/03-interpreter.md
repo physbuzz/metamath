@@ -10,7 +10,7 @@ title: "03 Writing a Metamath Interpreter (Megill ch4)"
     <span class="activenav"><a href="04-propmm.html">Next →</a></span>
 </nav>
 
-[Read in html](book/metamath.html#the-metamath-language) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf#page=129)
+[Read in html](book/index.html#the-metamath-language) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf#page=129)
 
 # Stuff I Learned from Writing an Interpreter
 
@@ -226,7 +226,7 @@ Math symbols are only constants or variables, and constants can only be declared
 database, so constants are simple: they are active and can be used from the point they're declared to the end of the file.
 
 A variable is active from the point it's declared to the end of its block. Inactive variables may be redeclared (see
-[megill ch4](book/metamath.html#redeclaration-of-math-symbols)). Variables are also special because if they're used in
+[megill ch4](book/index.html#redeclaration-of-math-symbols)). Variables are also special because if they're used in
 any statement, they must have a floating hypothesis associated with them defining the typecode, and the typecode of
 the variable may not change upon redeclaration.
 
@@ -296,7 +296,7 @@ optional hypotheses, and what are optional hypotheses?
 The mandatory variables of an assertion are any variables that occur in its list of math symbols or in any active
 essential hypotheses. In the case of a proof, this *does not* include variables merely because they are referenced by
 the statements after the `$=` sign. "Mandatory variable" is a term not introduced 'til
-[Megill 4.1.3](book/metamath.html#4.1.3-basic-syntax).
+[Megill 4.1.3](book/index.html#4.1.3-basic-syntax).
 
 The mandatory hypotheses of an assertion are all active essential hypotheses, and all the floating hypotheses
 that define the typecode of each mandatory variable. They are ordered in the order that they appear in the database.

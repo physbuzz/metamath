@@ -100,7 +100,7 @@
     <span class="activenav"><a href="04-propmm.html">Next →</a></span>
 </nav>
 
-<p><a href="book/metamath.html#the-metamath-language">Read in html</a> &nbsp;|&nbsp; <a href="book/metamath.pdf#page=129">Read in pdf</a></p>
+<p><a href="book/index.html#the-metamath-language">Read in html</a> &nbsp;|&nbsp; <a href="book/metamath.pdf#page=129">Read in pdf</a></p>
 <h1 id="stuff-i-learned-from-writing-an-interpreter">Stuff I Learned from Writing an Interpreter</h1>
 <p>On the first pass, I ignored disjoint variables and compressed proofs. The 
 first task is to fill in the proof database, and second to actually check
@@ -266,7 +266,7 @@ or variable.</p>
 <p>Math symbols are only constants or variables, and constants can only be declared at the topmost level of the proof
 database, so constants are simple: they are active and can be used from the point they're declared to the end of the file.</p>
 <p>A variable is active from the point it's declared to the end of its block. Inactive variables may be redeclared (see
-<a href="book/metamath.html#redeclaration-of-math-symbols">megill ch4</a>). Variables are also special because if they're used in
+<a href="book/index.html#redeclaration-of-math-symbols">megill ch4</a>). Variables are also special because if they're used in
 any statement, they must have a floating hypothesis associated with them defining the typecode, and the typecode of
 the variable may not change upon redeclaration.</p>
 <h3 id="question-3">Question</h3>
@@ -317,7 +317,7 @@ optional hypotheses, and what are optional hypotheses? </p>
 <p>The mandatory variables of an assertion are any variables that occur in its list of math symbols or in any active
 essential hypotheses. In the case of a proof, this <em>does not</em> include variables merely because they are referenced by
 the statements after the <code>$=</code> sign. "Mandatory variable" is a term not introduced 'til
-<a href="book/metamath.html#4.1.3-basic-syntax">Megill 4.1.3</a>.</p>
+<a href="book/index.html#4.1.3-basic-syntax">Megill 4.1.3</a>.</p>
 <p>The mandatory hypotheses of an assertion are all active essential hypotheses, and all the floating hypotheses
 that define the typecode of each mandatory variable. They are ordered in the order that they appear in the database.</p>
 <p>Optional hypotheses are remaining active floating hypotheses.

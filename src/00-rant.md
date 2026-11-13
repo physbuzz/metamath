@@ -10,7 +10,7 @@ title: "00 Rant about Mathematical Proof (cf. Megill ch1)"
     <span class="activenav"><a href="01-megillch2.html">Next →</a></span>
 </nav>
 
-[Read in html](book/metamath.html#introduction) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf#page=19)
+[Read in html](book/index.html#introduction) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf#page=19)
 
 <!-- TODO: Renumber the footnotes in order -->
 

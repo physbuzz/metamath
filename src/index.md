@@ -4,7 +4,7 @@ title: "Metamath Study Notes"
 
 Hosted on [mathandcode.com/books/metamath](https://www.mathandcode.com/books/metamath/).
 
-[Read in html](book/metamath.html) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf) | .
+[Read in html](book/index.html) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf) | .
 
 # Metamath Study Notes
 
