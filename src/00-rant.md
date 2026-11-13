@@ -29,12 +29,16 @@ way! So don't take my statements as authoritative, they're an account of a novic
 confusion and where he's ended up after 13 years of letting thoughts stew.
 
 In 2014-2017, I mostly hung around the math and physics departments at UCSD. By the time
-I reached the grad level coursework it was clear that physics stuck more.
+I reached the grad level coursework it was clear that physics stuck more, but 
+that's even better for formal verification: it meant I was in prime territory
+to learn about proof checkers as a sort of physical basis for proof. Unfortunately, I had already
+sworn off logic after
+wasting a huge amount of time in 2013 spinning my wheels.
 
-In the course of this, I learned about proofs and sets and proper classes, and graduated from 
-"naive set theory."
-But I still hemmed and hawed about what a proof is. 
-Or, rather, due to my experience with formal verification in 2013, I would put my 
+So even after I learned about proofs and sets and proper classes, and graduated from 
+"naive set theory,"
+I still hemmed and hawed about what a proof is. 
+Or, rather, due to my ill-fated 2013 attempts, I would put my 
 foot down and say that proofs, even
 in pure math journals, are usually arguments which ultimately rest on
 common sense, English language, and social conventions. This is uncomfortable, but 
@@ -62,7 +66,7 @@ Boolean algebra, and proving that a set of axioms can follow from a single NAND 
 
 [^1]: There are strong criticisms of this book,
 but I still think it has a wonderful set of inspirations. What other
-books from 2013 can inspire fresh undergrads to enumerate systems, code up
+books could I have recommended to fresh undergrads in 2013, to inspire them to enumerate systems, code up
 creative models, and do large computer searches over axiom systems and 
 theorems, with Computer Algebra System (CAS) example code to boot? Fine,
 criticize but give a replacement. Even in 2026, it's super inspiring, and 
@@ -106,16 +110,16 @@ has chosen, and we are forced to not use the lingua franca of non-computerized l
 
 For complicated devices, he might need to reassure himself that device $A$ can be replaced
 with device $B.$ He creates a jig that automatically runs through all the inputs, and 
-`\texttt{and}`s all the results of $\texttt{not} (A\texttt{ xor }B)$ together (which has the truth table of $A=B$). Then our engineer's common-sense reasoning is that when the jig spits out "true", 
+$\texttt{and}$s all the results of $\texttt{not} (A\texttt{ xor }B)$ together (which has the truth table of $A=B$). Then our engineer's common-sense reasoning is that when the jig spits out "true", 
 we can replace device $A$ with device $B.$
 
 Well, that's okay, but we can't say that we're proving the theorems of Boolean algebra. 
 In fact, when we ask our engineer if he can show us a proof of $A\texttt{ or }B=B\texttt{ or }A,$
 he stares at us kind of funny. To him "$\texttt{or}$" is just a matter of how he connects pipes or wires,
 so there's nothing to prove. We find this a bit strange... but the engineer has his own basis
-for theorem checking, so surely there's a way to get it to work with our axioms for Boolean algebra.
+for proof checking, so surely there's a way to get it to work with our axioms for Boolean algebra.
 
-So, we go to a professor and ask how we could formulate our Boolean algebra axioms in the engineer's theorem 
+So, we go to a professor and ask how we could formulate our Boolean algebra axioms in the engineer's proof
 checker. It's strange that it's so difficult to conceptualize the axioms of Boolean algebra in his
 system, and the worst part is that the more we think about it, the more we start empathizing with him. 
 If we really know what the axioms of Boolean algebra "are", we'll be able to explain them in concrete
@@ -127,7 +131,7 @@ I've had, but I'd say it's common among those teaching intro to proofs courses
 or discrete math courses directly from the book, especially if that book is 1200 pages long,
 costs $120, and was approved by the state education board.
 
-> All your engineer is doing is truth tables. For a proof, you need theorems and rules of inference.
+> All your engineer is doing is truth tables. For a proof, you need axioms and rules of inference.
 > His logic gates presuppose the very rules we're trying to establish with the axioms of Boolean algebra,
 > so that's no good either. I suppose you could encode Boolean algebra statements in binary
 > but I don't see how that would remedy the issue. Why not explain the Boolean algebra axioms on pen and paper?
@@ -200,19 +204,23 @@ representation where the device built is not manifestly symmetric at all, or may
 To us, the device looks strange. To the engineer, he exclaims, "this is the weird thing you 
 were talking about? I see what you mean now!" 
 
-[^3]: By a complicated representation, maybe we represent "or" by a bit string "001", and the 
-bit "0" is always off, while the bit "1" faithfully reproduces the input. Then "or" is represented by a particular logical function on three arguments, and this is how our engineer thinks of 
-the Boolean algebra "or". There's all sorts of tricks we can reach for here, 
+[^3]: By a complicated representation, maybe we represent "or" by a bit string "001", realized as a 
+device in the engineer's pipe system with 3 input pipes and 3 output pipes: the 
+bit "0" is always off, while the bit "1" faithfully reproduces the input. Then "or" is represented by a 
+particular device, and this is how our engineer thinks of 
+our Boolean algebra "or". It's a funny device that looks nothing like the logical devices he builds his
+system out of, and on its face has nothing to do with it. Manifestly, there's nothing symmetric about it either,
+and so we can now clearly explain that there's work to be done. There's all sorts of tricks we can reach for here, 
 Church encodings, etc. plenty of options.
 
 This also lets us catch our breath and continue to interesting questions. There's still
-circular reasoning in there, and I'm using the engineer's blank stare and statement "the output
+philosophical discomfort in there, and I'm using the engineer's blank stare and statement "the output
 is 1, what else do you want?" as a greatsword to cut the proverbial Gordian knot. But that's fine,
 a physics background trains you to accept such things! For example, in Einstein's 1905 paper
 "On the Electrodynamics of Moving Bodies", we need the measurement device of a clock
 in order to draw conclusions about the nature 
 of space and time. The thought experiment doesn't depend on the detailed engineering and 
-material choice of the clock, or how the probes need microcontrollers to calculate and coordinate.
+material choice of the clock, or how the clock-bearing probes need microcontrollers to calculate and coordinate.
 But it does depend on minimal engineering concerns: we conceptualize a device and understand that
 it operates through physical means, yet through the
 device, we reason about how the universe behaves.
@@ -235,8 +243,9 @@ our input is 1." We say that this is ground level, and such meta statements don'
 In my opinion this is enough to get us to propositional and predicate logic, set theory, and so on. 1 use 
 of the "greatsword" of appeal to a physical device is enough for us to build a whole lot.
 
-But there are other meta-statements we want to make. "There exists a proof such that [...]", proving 
-properties of hypothetical theorem checkers we can't be sure that we're accurately describing, or
+But there are other meta-statements we want to make. Nonconstructively proving the 
+existence of a proof in our checker, proving 
+properties of hypothetical proof checkers we can't be sure that we're accurately describing, or
 "proving" that we're accurately describing something.
 Once we're deep in the weeds of meta-statements, it seems like we might require another "greatsword" slash 
 of some kind. This is fine, Rome wasn't built in a day, building set theory first gives us plenty of work to do.
