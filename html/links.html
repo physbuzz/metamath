@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metamath Links</title>
+  <script>
+(function () {
+  var groups = ["theme", "width", "type", "text"];
+  var defaults = { theme: "system", width: "normal", type: "sans", text: "normal" };
+  var allowed = {
+    theme: { system: true, light: true, dark: true },
+    width: { normal: true, wide: true, compact: true },
+    type: { sans: true, serif: true },
+    text: { small: true, normal: true, large: true }
+  };
+  var namePrefix = "md2html-reader:";
+
+  function readWindowState() {
+    if (!window.name || window.name.indexOf(namePrefix) !== 0) return {};
+    try {
+      return JSON.parse(window.name.slice(namePrefix.length)) || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function readSetting(name) {
+    var value = null;
+    try {
+      value = localStorage.getItem("md2html-reader-" + name);
+    } catch (error) {}
+    if (!value) value = readWindowState()[name];
+    return allowed[name][value] ? value : null;
+  }
+
+  groups.forEach(function (name) {
+    var saved = readSetting(name);
+    if (saved && saved !== defaults[name]) {
+      document.documentElement.dataset[name] = saved;
+    }
+  });
+})();
+  </script>
+  
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/alert.css">
+  
+  <style>
+
+  </style>
+  
+  <style>
+
+  </style>
+  
+  
+  
+</head>
+<body>
+  <main class="container">
+    <header class="page-header">
+      <div class="page-title">links.md</div>
+      <details class="reader-widget">
+        <summary aria-label="reader controls" title="Reader controls">Aa</summary>
+        <form aria-label="reader controls">
+          <fieldset>
+            <legend>Theme</legend>
+            <label><input id="theme-system" name="theme" value="system" type="radio" checked> system</label>
+            <label><input id="theme-light" name="theme" value="light" type="radio"> light</label>
+            <label><input id="theme-dark" name="theme" value="dark" type="radio"> dark</label>
+          </fieldset>
+          <fieldset>
+            <legend>Measure</legend>
+            <label><input id="width-normal" name="width" value="normal" type="radio" checked> normal</label>
+            <label><input id="width-wide" name="width" value="wide" type="radio"> wide</label>
+            <label><input id="width-compact" name="width" value="compact" type="radio"> compact</label>
+          </fieldset>
+          <fieldset>
+            <legend>Type</legend>
+            <label><input id="type-sans" name="type" value="sans" type="radio" checked> sans</label>
+            <label><input id="type-serif" name="type" value="serif" type="radio"> serif</label>
+          </fieldset>
+          <fieldset>
+            <legend>Text</legend>
+            <label><input id="text-small" name="text" value="small" type="radio"> small</label>
+            <label><input id="text-normal" name="text" value="normal" type="radio" checked> normal</label>
+            <label><input id="text-large" name="text" value="large" type="radio"> large</label>
+          </fieldset>
+        </form>
+      </details>
+    </header>
+    <article class="page-content">
+<h1 id="links" style="border-bottom: none;">Metamath Links</h1>
+
+<nav class="nav">
+    <span class="activenav"><a href="index.html">Up</a></span>
+</nav>
+
+<h2 id="metamathorg-links">Metamath.org links</h2>
+<ul>
+<li>Metamath notes on <a href="https://us.metamath.org/mpeuni/mmset.html#definitions">definitions</a> and <a href="https://us.metamath.org/mpeuni/mmset.html#distinct">distinct variables</a>.</li>
+<li><a href="https://us.metamath.org/mpeuni/mmnatded.html">Deduction Form and Natural Deduction in Metamath</a>.</li>
+<li>Metamath databases for <a href="https://github.com/metamath/set.mm/blob/develop/iset.mm">intuitionistic logic and set theory</a>, <a href="https://github.com/metamath/set.mm/blob/develop/ql.mm">quantum logic</a>, and <a href="https://github.com/metamath/set.mm/blob/develop/hol.mm">higher-order logic</a>.</li>
+<li><a href="https://github.com/pbrosnan/ntg">Number Theory Game for Metamath</a>, including the <a href="https://github.com/pbrosnan/ntg/blob/15332ee0dfe50ada14b6e31e947272232e4dc671/peano.mm">peano.mm database used in these notes</a>.</li>
+<li>The MIU system in <a href="https://us.metamath.org/metamath/miu.mm">Metamath's miu.mm</a> and <a href="https://leanprover-community.github.io/mathlib4_docs/Archive/MiuLanguage/Basic.html">Mathlib's Lean formalization</a>.</li>
+<li>Alternative propositional axiomatizations: <a href="https://us.metamath.org/mpeuni/meredith.html">Meredith's single axiom</a> and <a href="https://us.metamath.org/mpeuni/luk-1.html">Lukasiewicz's axioms</a>.</li>
+<li>Tarski geometry in <a href="https://us.metamath.org/mpeuni/df-trkg.html">Metamath</a> and <a href="https://geocoq.github.io/GeoCoq/html/GeoCoq.Axioms.tarski_axioms.html">GeoCoq</a>.</li>
+<li>Mario Carneiro's <a href="https://us.metamath.org/mpeuni/df-mcls.html">formalization of Metamath formal systems in set.mm</a>.</li>
+</ul>
+<h2 id="tiny-proof-checkers">tiny proof checkers</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This has been compiled by AI and has not yet been reviewed</p>
+</div>
+<p>Tiny proof checkers:</p>
+<ul>
+<li>
+<p><a href="https://github.com/david-a-wheeler/mmverify.py">mmverify.py</a>, a Python Metamath verifier, and <a href="https://github.com/david-a-wheeler/metamath-test">metamath-test</a>, a verifier test suite.</p>
+</li>
+<li>
+<p>Hirrolot, <a href="https://gist.github.com/hirrolot/27e6b02a051df333811a23b97c375196?utm_source=chatgpt.com">How to Implement Dependent Types in 80 Lines of Code</a> (OCaml, Calculus of Constructions). An exceptionally small implementation of dependent type checking, including dependent function types, lambda abstraction, application, and beta reduction. Uses higher-order abstract syntax (HOAS) to simplify variable binding and substitution. A demonstration of how little code is needed for the mathematical core, although it is not a complete standalone proof-checking environment.</p>
+</li>
+<li>
+<p>Andrej Bauer, <a href="https://math.andrej.com/2012/11/08/how-to-implement-dependent-type-theory-i/?utm_source=chatgpt.com">How to Implement Dependent Type Theory I</a> (OCaml, 92-line core). A particularly approachable tutorial implementing dependent type theory with a hierarchy of universes, dependent functions, substitution, normalization, and type inference. The complete program includes a parser and interactive interface. Parts II and III explore normalization by evaluation, de Bruijn indices, and explicit substitutions. Probably the best pedagogical starting point.</p>
+</li>
+<li>
+<p>45deg, <a href="https://github.com/45deg/proofglyph">Proofglyph</a> (OCaml, Logical Framework). A small proof checker implementing the dependent lambda calculus underlying LF. Particularly interesting as a comparison with Metamath because different formal systems can be represented by declaring their judgments and inference rules. Uses de Bruijn indices and beta reduction, with a stack-oriented proof format and a separate readable frontend. Also has a <a href="https://45deg.github.io/proofglyph/?utm_source=chatgpt.com">browser-based demonstration</a>.</p>
+</li>
+<li>
+<p>John Harrison, <a href="https://github.com/jrh13/hol-light">HOL Light</a> (OCaml, classical higher-order logic). A mature theorem prover built around a comparatively small kernel implementing primitive inference rules. Unlike the dependent type theory examples, HOL Light uses simple type theory and an LCF-style architecture. Worth examining because its small logical foundation supports a substantial library of formalized mathematics, although the complete system is considerably larger than the other examples.</p>
+</li>
+<li>
+<p>Frank Pfenning et al., <a href="https://twelf.org/wiki/lf/">Twelf</a> (Standard ML, Logical Framework). An established implementation of LF for representing deductive systems using dependent types. Includes proof checking, logic programming, and machinery for verifying metatheorems about encoded systems. Much larger than the minimal implementations above, but useful for seeing what a fully developed LF environment looks like.</p>
+</li>
+</ul>
+<p>Related paper:</p>
+<ul>
+<li>Harper, Honsell, and Plotkin, <a href="https://www.lfcs.inf.ed.ac.uk/reports/87/ECS-LFCS-87-23/">A Framework for Defining Logics</a>. The original presentation of LF, explaining how syntax, inference rules, and proofs of different formal systems can be represented using dependent type theory. Particularly relevant for understanding the mathematical ideas behind Proofglyph and Twelf.</li>
+</ul>
+<p>Survey of proof checkers:
+- <a href="https://www.researchgate.net/publication/337829832_A_Survey_on_Theorem_Provers_in_Formal_Methods">https://www.researchgate.net/publication/337829832_A_Survey_on_Theorem_Provers_in_Formal_Methods</a>
+- Freek Wiedijk 2003, <a href="https://www.cs.ru.nl/F.Wiedijk/comparison/diffs.pdf">Comparing Mathematical Provers (PDF)</a>. Section 4.2, page 10, contains a table comparing 15 systems specifically against the de Bruijn criterion. Wiedijk identifies HOL, Coq, Otter/Ivy, Isabelle, Agda, PhoX, Metamath, Lego, and Omega as satisfying it. He also discusses the distinction between having a small kernel and having an independently checkable proof.</p>
+<h2 id="even-more-links">Even more links</h2>
+<p>Papers:</p>
+<ul>
+<li>John Harrison, <a href="https://www.cl.cam.ac.uk/~jrh13/papers/holhol.html">Towards self-verification of HOL Light</a> (2006).</li>
+<li>Mario Carneiro, <a href="https://arxiv.org/abs/1910.10703">Metamath Zero: The Cartesian Theorem Prover</a> (2019), and the <a href="https://github.com/digama0/mm0">Metamath Zero repository</a>.</li>
+<li>Generating Theorems by Generating Proof Structures <a href="https://link.springer.com/chapter/10.1007/978-3-032-32589-1_3">https://link.springer.com/chapter/10.1007/978-3-032-32589-1_3</a></li>
+<li>Mladen Pavicic, <a href="https://doi.org/10.1007/BF00671784">A new axiomatization of unified quantum logic</a> (1992).</li>
+</ul>
+<p>Books:</p>
+<ul>
+<li>Holly P. Hirst and Jeffry L. Hirst, <a href="https://www.appstate.edu/~hirstjl/primer/hirst.pdf">A Primer for Logic and Proof</a> (2015).</li>
+<li>Douglas Hofstadter, <a href="https://www.ratiocination.org/Courses/phil3505/wp-content/uploads/2017/08/Hofstadter__Godel-Escher-Bach-excerpt-on-MU-puzzle.pdf">Godel, Escher, Bach, Chapter I: The MU-puzzle</a>.</li>
+<li>Gonczarowski and Nisan 2022, <a href="https://www.logicthrupython.org/">Mathematical Logic through Python</a></li>
+<li>Harrison 2009, <a href="https://www.cl.cam.ac.uk/~jrh13/atp/">Handbook of Practical Logic and Automated Reasoning</a> (OCaml)</li>
+<li>Friedman and Eastlund 2015, <a href="https://the-little-prover.github.io/">The Little Prover</a> (custom language)</li>
+<li>Pierce et al. 2016, <a href="https://softwarefoundations.cis.upenn.edu/lf-current/">Software Foundations: Logical Foundations</a> (Rocq)</li>
+<li>Wadler 2018, <a href="https://plfa.github.io/">Programming Language Foundations in Agda (PLFA)</a> </li>
+<li>Smolka 2026 (draft), <a href="https://www.ps.uni-saarland.de/~smolka/drafts/mpctt.pdf">Modeling and Proving in Computational Type Theory</a> (Rocq)</li>
+<li>Shankar 1994, <a href="https://www.csl.sri.com/~shankar/goedel-book.html">Metamathematics, Machines and Gödel's Proof</a> (Machine-checked metamathematics)</li>
+<li>Przemyslaw Prusinkiewicz and Aristid Lindenmayer, <a href="https://algorithmicbotany.org/papers/abop/abop-ch1.pdf">The Algorithmic Beauty of Plants, Chapter 1</a>.</li>
+</ul>
+    </article>
+  </main>
+  <script>
+(function () {
+  var groups = ["theme", "width", "type", "text"];
+  var defaults = { theme: "system", width: "normal", type: "sans", text: "normal" };
+  var allowed = {
+    theme: { system: true, light: true, dark: true },
+    width: { normal: true, wide: true, compact: true },
+    type: { sans: true, serif: true },
+    text: { small: true, normal: true, large: true }
+  };
+  var namePrefix = "md2html-reader:";
+
+  function apply(name, value) {
+    if (value === defaults[name]) {
+      delete document.documentElement.dataset[name];
+      return;
+    }
+    document.documentElement.dataset[name] = value;
+  }
+
+  function readWindowState() {
+    if (!window.name || window.name.indexOf(namePrefix) !== 0) return {};
+    try {
+      return JSON.parse(window.name.slice(namePrefix.length)) || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveWindowState(name, value) {
+    var state = readWindowState();
+    state[name] = value;
+    try {
+      window.name = namePrefix + JSON.stringify(state);
+    } catch (error) {}
+  }
+
+  function readSetting(name) {
+    var value = null;
+    try {
+      value = localStorage.getItem("md2html-reader-" + name);
+    } catch (error) {
+      value = null;
+    }
+    if (!value) value = readWindowState()[name];
+    return allowed[name][value] ? value : null;
+  }
+
+  function saveSetting(name, value) {
+    try {
+      localStorage.setItem("md2html-reader-" + name, value);
+    } catch (error) {}
+    saveWindowState(name, value);
+  }
+
+  groups.forEach(function (name) {
+    var saved = readSetting(name);
+    if (saved) apply(name, saved);
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    groups.forEach(function (name) {
+      var saved = readSetting(name);
+      var inputs = Array.prototype.slice.call(document.querySelectorAll('input[name="' + name + '"]'));
+      inputs.forEach(function (input) {
+        if (saved && input.value === saved) input.checked = true;
+        input.addEventListener("change", function () {
+          if (!input.checked) return;
+          apply(name, input.value);
+          saveSetting(name, input.value);
+          if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise().catch(function () {});
+          }
+        });
+      });
+    });
+  });
+})();
+  </script>
+</body>
+</html>
