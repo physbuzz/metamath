@@ -56,7 +56,7 @@ course on functional analysis taught by John Cagnol, where a few peer-graded ass
 came back as "not rigorous enough," though I tried to use the same level of rigor as the 
 instructor.
 
-Though it's steeped in rigor, most of these things didn't quite inspire creativity from me 
+Though they're steeped in rigor, most of these things didn't quite inspire creativity from me
 until I read Stephen Wolfram's A New Kind of Science[^1]. There's a section on the axioms for
 Boolean algebra, and proving that a set of axioms can follow from a single NAND axiom.
 
@@ -64,7 +64,7 @@ Boolean algebra, and proving that a set of axioms can follow from a single NAND 
 but I still think it has a wonderful set of inspirations. What other
 books from 2013 can inspire fresh undergrads to enumerate systems, code up
 creative models, and do large computer searches over axiom systems and 
-theorems, with Computer Algebra System (CAS) examples code to boot? Fine, 
+theorems, with Computer Algebra System (CAS) example code to boot? Fine,
 criticize but give a replacement. Even in 2026, it's super inspiring, and 
 you can do even better by getting great references + implementations with LLMs.
 
@@ -110,7 +110,7 @@ with device $B.$ He creates a jig that automatically runs through all the inputs
 we can replace device $A$ with device $B.$
 
 Well, that's okay, but we can't say that we're proving the theorems of Boolean algebra. 
-In fact, when we ask our engineer if he can show me a proof of $A\texttt{ or }B=B\texttt{ or }A,$ 
+In fact, when we ask our engineer if he can show us a proof of $A\texttt{ or }B=B\texttt{ or }A,$
 he stares at us kind of funny. To him "$\texttt{or}$" is just a matter of how he connects pipes or wires,
 so there's nothing to prove. We find this a bit strange... but the engineer has his own basis
 for theorem checking, so surely there's a way to get it to work with our axioms for Boolean algebra.
@@ -133,7 +133,7 @@ costs $120, and was approved by the state education board.
 > but I don't see how that would remedy the issue. Why not explain the Boolean algebra axioms on pen and paper?
 
 Absolutely not! We're trying to establish the foundations of mathematics from an original 
-point of view, why do we have to introduce a writing systems? The axioms of Boolean algebra require a 
+point of view, why do we have to introduce a writing system? The axioms of Boolean algebra require a
 writing system now? Where in the proofs applying the axioms do we use the assumption of our writing system?
 
 > Okay, then there are proof checkers out there, just use one of those.
@@ -144,7 +144,7 @@ the human brain a bit like that, where do the assumptions of neuronal firings co
 axioms? If the answer is "nowhere", then we should be able to encode it in the engineer's system where we can say:
 what the pipes represent is up for debate, but that the pipe has water running out of the end is plain to see.
 
-I felt that no one could give me a straight answer, and that I only recieved elementary discrete math
+I felt that no one could give me a straight answer, and that I only received elementary discrete math
 explanations in response. I didn't quite appreciate that I was trying to find cracks in the foundations of math
 and drill a borehole through them!
 
@@ -176,9 +176,9 @@ resolution of the above. Again, we focus on the engineer analogy and the enginee
 of a proof.
 
 First, his concept of a proof checker is fine, and maybe is even good for a foundation of 
-mathematics with a little more elbow grease[^2]. But the assertions
+mathematics with a little more elbow grease[^2]. But making the assertions
 that the engineer naturally wants to make about the ability of various digital logic assemblies
-to be replaced with each other,
+to be replaced with each other
 is not the same as proving theorems in what modern mathematicians
 understand as "the axioms of Boolean algebra." Once we start talking about Boolean algebra, 
 we indeed have to pull in the cultural and human-specific baggage, and this is where the 
@@ -247,7 +247,7 @@ That was my experience, not completely identical to the story in Megill's book, 
 way I wrote it here doesn't convey the full depth of frustration!
 But I was incredibly happy to see a story which hit so close to home. 
 
-Okay, thought, now we actually have to build stuff with Metamath. And it should be noted that although
+Okay, though, now we actually have to build stuff with Metamath. And it should be noted that although
 like our engineer's system of pipes Metamath is not Turing complete, it's still a regular old computer
 program on a von Neumann architecture. So I'm not completely carrying out the analogy 
 set forth in this story.
