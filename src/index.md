@@ -66,31 +66,6 @@ AI warning in any section that hasn't been reviewed and thoroughly worked throug
 > [!WARNING]
 > Usually there's a "AI made this and I haven't reviewed it yet" statement here.
 
-## Other Sources and Links
-
-(TODO links and citations here should be to DOIs and stuff not to the local PDFs. This text should be deleted
-after the todo is done).
-
-Prose and notes: 
-
-- (TODO link [DOI?] and correct title) How to Trust a Machine-Checked Proof. Essential reading.
-- (TODO link) The Challenge of Computer Mathematics. Essential reading. Barendregt coined the term "de Bruijn criterion" in 1997. 
-- (TODO link) The Impact of the Lambda Calculus in Logic and Computer Science by Henk Barendregt, Bulletin of Symbolic Logic 3(2), 181–215 (1997) (paper that coined the term, 'cuz I might as well link it).
-- (TODO link to Gaifman's notes). This is at the very least the most direct definition of a 
-Hilbert-style formal system. It seems to be a bit overly-broad though, I'd argue it says Metamath 
-itself is Hilbert-style though we say colloquially that the logics represented in various Metamath
-databases need not be Hilbert-style. 
-But Norm Megill et al are very careful to never say "Metamath is Hilber-style." So whatever, we call
-Metamath Hilbert-inspired and move on, I was a stickler over terminology for way too long.
-
-Book notes:
-
-- The metamath book. You know it, I know it.
-- (TODO link+title) Harper. I'm using ch1-3. when I saw "alpha equivalence" in `peano.mm` I knew I had to.
-- (TODO link) Kleene 19xx, Introduction to Metamathematics Kleene.
-- (TODO link) Mendelson, introduction to mathematical logic.
-- (TODO link) Sam Buss Introduction to Mathematical Logic (course notes, 2023).
-
 ## Stuff I want to do:
 
 - Formalize something regarding Turing machines
@@ -98,48 +73,28 @@ Book notes:
 - Find the shortest proof of some statement using a SAT solver
 - Formalize some theorems in plane geometry from Hilbert's axioms
 - Primality certificates (Pratt 1975?)
-- Read and create examples from Mario Carneiro "Models for Metamath" 2016 (TODO link)
+- Read and create examples from Mario Carneiro "[Models for Metamath](https://arxiv.org/abs/1601.07699)" 2016
 
-## way more links
+## Primary Sources I'm using
 
-... TODO: collate
-
+- The metamath book. You know it, I know it.
+- Harper, [Practical Foundations for Programming Languages](https://www.cs.cmu.edu/~rwh/pfpl.html). I'm using ch1-3. when I saw "alpha equivalence" in `peano.mm` I knew I had to.
+- Kleene 1952, [Introduction to Metamathematics](https://shop.elsevier.com/books/introduction-to-metamathematics/kleene/978-0-7204-2103-3).
+- Mendelson, [Introduction to Mathematical Logic](https://doi.org/10.1201/b18519).
+- Sam Buss [Introduction to Mathematical Logic](https://www.math.ucsd.edu/~sbuss/IntroMathLogic/Fullbook_Draft.pdf) (course notes, 2023).
 
 Papers:
 
-- Generating Theorems by Generating Proof Structures https://link.springer.com/chapter/10.1007/978-3-032-32589-1_3
+- [How to Believe a Machine-Checked Proof](https://doi.org/10.7146/brics.v4i18.18945). Essential reading.
+- [The Challenge of Computer Mathematics](https://doi.org/10.1098/rsta.2005.1650). Essential reading. Barendregt coined the term "de Bruijn criterion" in 1997. 
+- [The Impact of the Lambda Calculus in Logic and Computer Science](https://doi.org/10.2307/421013) by Henk Barendregt, Bulletin of Symbolic Logic 3(2), 181–215 (1997) (paper that coined the term, 'cuz I might as well link it).
+- Gaifman, [A Hilbert Type Deductive System for Sentential Logic, Completeness and Compactness](https://www.columbia.edu/~hg17/ViewMathLogic/view1-deductive-system.pdf) (2002). This is at the very least the most direct definition of a 
+Hilbert-style formal system. It seems to be a bit overly-broad though, I'd argue it says Metamath 
+itself is Hilbert-style though we say colloquially that the logics represented in various Metamath
+databases need not be Hilbert-style. 
+But Norm Megill et al are very careful to never say "Metamath is Hilber-style." So whatever, we call
+Metamath Hilbert-inspired and move on, I was a stickler over terminology for way too long.
 
-Books:
 
-- Pierce et al. 2016, [Software Foundations: Logical Foundations](https://softwarefoundations.cis.upenn.edu/lf-current/) (Rocq)
-- Wadler 2018, [Programming Language Foundations in Agda (PLFA)](https://plfa.github.io/) 
-- Friedman and Eastlund 2015, [The Little Prover](https://the-little-prover.github.io/) (custom language)
-- Smolka 2026 (draft), [Modeling and Proving in Computational Type Theory](https://www.ps.uni-saarland.de/~smolka/drafts/mpctt.pdf) (Rocq)
-- Harrison 2009, [Handbook of Practical Logic and Automated Reasoning](https://www.cl.cam.ac.uk/~jrh13/atp/) (OCaml)
-- Gonczarowski and Nisan 2022, [Mathematical Logic through Python](https://www.logicthrupython.org/)
-- Shankar 1994, [Metamathematics, Machines and Gödel's Proof](https://www.csl.sri.com/~shankar/goedel-book.html) (Machine-checked metamathematics)
 
-## tiny proof checkers
-
-> [!WARNING]
-> This has been compiled by AI and has not yet been reviewed
-
-Tiny proof checkers:
-
-- Hirrolot, [How to Implement Dependent Types in 80 Lines of Code](https://gist.github.com/hirrolot/27e6b02a051df333811a23b97c375196?utm_source=chatgpt.com) (OCaml, Calculus of Constructions). An exceptionally small implementation of dependent type checking, including dependent function types, lambda abstraction, application, and beta reduction. Uses higher-order abstract syntax (HOAS) to simplify variable binding and substitution. A demonstration of how little code is needed for the mathematical core, although it is not a complete standalone proof-checking environment.
-
-- Andrej Bauer, [How to Implement Dependent Type Theory I](https://math.andrej.com/2012/11/08/how-to-implement-dependent-type-theory-i/?utm_source=chatgpt.com) (OCaml, 92-line core). A particularly approachable tutorial implementing dependent type theory with a hierarchy of universes, dependent functions, substitution, normalization, and type inference. The complete program includes a parser and interactive interface. Parts II and III explore normalization by evaluation, de Bruijn indices, and explicit substitutions. Probably the best pedagogical starting point.
-
-- 45deg, [Proofglyph](https://github.com/45deg/proofglyph) (OCaml, Logical Framework). A small proof checker implementing the dependent lambda calculus underlying LF. Particularly interesting as a comparison with Metamath because different formal systems can be represented by declaring their judgments and inference rules. Uses de Bruijn indices and beta reduction, with a stack-oriented proof format and a separate readable frontend. Also has a [browser-based demonstration](https://45deg.github.io/proofglyph/?utm_source=chatgpt.com).
-
-- John Harrison, [HOL Light](https://github.com/jrh13/hol-light) (OCaml, classical higher-order logic). A mature theorem prover built around a comparatively small kernel implementing primitive inference rules. Unlike the dependent type theory examples, HOL Light uses simple type theory and an LCF-style architecture. Worth examining because its small logical foundation supports a substantial library of formalized mathematics, although the complete system is considerably larger than the other examples.
-
-- Frank Pfenning et al., [Twelf](https://twelf.org/wiki/lf/) (Standard ML, Logical Framework). An established implementation of LF for representing deductive systems using dependent types. Includes proof checking, logic programming, and machinery for verifying metatheorems about encoded systems. Much larger than the minimal implementations above, but useful for seeing what a fully developed LF environment looks like.
-
-Related paper:
-
-- Harper, Honsell, and Plotkin, [A Framework for Defining Logics](https://www.lfcs.inf.ed.ac.uk/reports/87/ECS-LFCS-87-23/). The original presentation of LF, explaining how syntax, inference rules, and proofs of different formal systems can be represented using dependent type theory. Particularly relevant for understanding the mathematical ideas behind Proofglyph and Twelf.
-
-Survey of proof checkers:
-- https://www.researchgate.net/publication/337829832_A_Survey_on_Theorem_Provers_in_Formal_Methods
-- Freek Wiedijk 2003, [Comparing Mathematical Provers (PDF)](https://www.cs.ru.nl/F.Wiedijk/comparison/diffs.pdf). Section 4.2, page 10, contains a table comparing 15 systems specifically against the de Bruijn criterion. Wiedijk identifies HOL, Coq, Otter/Ivy, Isabelle, Agda, PhoX, Metamath, Lego, and Omega as satisfying it. He also discusses the distinction between having a small kernel and having an independently checkable proof.
+Other links can be found in [links.html](links.html)
