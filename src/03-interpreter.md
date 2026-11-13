@@ -13,7 +13,7 @@ title: "3. Writing a Metamath Interpreter"
 
 Since it's such a simple language, I decided that the best way to understand things is to write an interpreter myself.
 Depending on how much coding experience you have, this may or may not be the best organization for you. 
-The best reference for this is, no surprise, Megill ch 4. Oh right, even if you don't write an interpreter yourself,
+The best reference for this is, no surprise, Megill ch 4. Even if you don't write an interpreter yourself,
 the quiz questions at the bottom of the page might be useful!
 Links: [Chapter html](book/index.html#the-metamath-language), [pdf on metamath.org](https://us.metamath.org/downloads/metamath.pdf#page=129).
 
@@ -206,7 +206,7 @@ disjoint variables.
 
 
 
-## suggested questions
+## Quiz Questions
 
 ### Question
 
@@ -353,6 +353,8 @@ wff y
 |- y
 ```
 
+(convention w/ stack growing downwards)
+
 ### Question
 
 In Metamath, does an active essential hypothesis still become mandatory if it doesn't occur in a `$p`
@@ -392,7 +394,7 @@ The proof succeeds if every step is valid and the final stack contains only the 
 ### Question
 
 In Metamath, suppose we're in a database, in the middle of verifying a proof.
-We have the following database and proof stack: 
+We have the following database: 
 
 ```mm
 $c wff |- ( ) -> A B $.
@@ -404,14 +406,14 @@ ${
 $}
 ```
 
-The proof stack, from bottom to top:
+The proof stack looks like the following:
 
 ```text
 wff A
 |- ( A -> B )
 ```
 
-Does applying `rule` to the stack below succeed; if so, what gets pushed? If not, what could we change
+Does applying `rule` to the stack succeed? If so, what gets pushed? If not, what could we change
 on the stack to make it succeed?
 
 #### Answer
@@ -421,63 +423,3 @@ That cannot be unified with `|- ( A -> B )` because both occurrences of `P` must
 
 If the second stack entry were `|- ( A -> A )`, the application would succeed. It would consume both entries and push
 `|- A`.
-
-### Question
-
-*Note:* This question was AI generated and has not been reviewed.
-
-In Metamath, is the following proof valid?
-
-```mm
-$c term ( ) $.
-$v x $.
-fx $f term x $.
-empty $a term $.
-wrap $a term ( x ) $.
-th $p term ( ) $= empty wrap $.
-```
-
-#### Answer
-
-Yes. `empty` has no mandatory hypotheses, so it pushes the one-symbol expression `term`. When applying `wrap`, we
-compare this with the floating hypothesis `term x`. The typecodes match, and there is nothing after the typecode, so
-`x` is replaced by the empty sequence.
-
-The result is `term ( )`, exactly what `th` claims. Metamath allows empty replacements. The expression on the stack is
-not empty; it is the replacement for `x` that is empty.
-
-### Question
-
-*Note:* This question was AI generated and has not been reviewed.
-
-In Metamath, is the following axiom declaration valid?
-
-```mm
-$c |- ( ) -> $.
-odd $a |- ( -> ) $.
-```
-
-#### Answer
-
-It is a legal axiom. Its expression starts with a declared constant, and all its math symbols are active. There are no
-variables requiring floating hypotheses. Metamath does not require a separate `wff` construction when declaring an
-axiom, and does not check that these symbols make sense as ordinary propositional logic.
-
-We decide which axioms to put in the database. The verifier checks applications of those axioms according to their
-mandatory hypotheses; it does not establish that our chosen axioms express the mathematics we intended.
-
-### Question
-
-*Note:* This question was AI generated and has not been reviewed.
-
-Suppose a Metamath proof passes its local stack and substitution checks but uses a theorem whose proof contains `?`;
-what has been established?
-
-#### Answer
-
-We have checked that the conclusion follows from the hypotheses and assertions used by this proof. We have not
-established it from the axioms and the theorem's hypotheses, because one of the assertions used still has an unfinished
-proof.
-
-To claim a complete proof, we also need complete proofs of the earlier theorems it uses, including their dependencies.
-A locally correct application of a theorem does not by itself verify that theorem's proof.

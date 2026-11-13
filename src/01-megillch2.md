@@ -142,6 +142,18 @@ Especially useful stuff in the interactive CLI:
 
 ## Quiz Questions
 
+### Question
+In Metamath, what is a math symbol? What characters are allowed in a math symbol?
+
+#### Answer
+A math symbol refers specifically to a constant or variable. Math symbols are allowed to be any ascii symbols in the range 
+`!` all the way through `~`, with the exclusion of the `$` character. This is expressed in EBNF as 
+
+```
+_PRINTABLE-CHARACTER ::= [#x21-#x7e]
+MATH-SYMBOL ::= (_PRINTABLE-CHARACTER - '$')+
+```
+
 ### Question 1
 
 In Metamath, what does a typecode refer to?
@@ -230,11 +242,11 @@ hypotheses that must be satisfied before being used?
 Similarities: `$a` and `$p` are both *assertions*. They are labeled statements followed by a typecode and any number of math
 *symbols*.
 
-The axiom statement `$a` must end with a `$.` after its math symbols. But the proof statement `$p` has its math symbols
+Differences: The axiom statement `$a` must end with a `$.` after its math symbols. But the proof statement `$p` has its math symbols
 followed by `$=` and then a sequence of labels, signifying the Metamath proof steps, followed by `$.` A Metamath proof
 may also contain a `?` signifying the proof is incomplete.
 
-Both kinds of assertion can have hypotheses that must be satisfied when the assertion is used.
+Both kinds of assertion can have mandatory hypotheses that must be satisfied when the assertion is used.
 
 ### Question 9
 
@@ -310,24 +322,34 @@ tpl.vacuous $p term ( u + v ) $= tu tv tpl $.
 
 ### Question 12 
 
-In Metamath, in the middle of a proof, an axiom is `a2 $a |- ( t + 0 ) = t $.`. The mandatory hypothesis of `a2` is
-`tt $f term t $.` and the term on the top of the proof stack is `term ( r + 0 )`. What is the resulting expression after
-applying `a2`?
+In Metamath, suppose we're in the middle of checking a proof and the term on top of the proof stack is `term ( r + 0 )`.
+What happens when we apply the axiom `a2 $a |- ( t + 0 ) = t $.` ?
 
-Assume conventions of `demo0.mm`, so things like `|-` and `term` and so on are constants.
+Note: Assume usual conventions, ie. we've declared `$v t $. $c |- ( ) = 0 $. $tt $f term t $.`
 
 #### Answer
 
-The result is `|- ( ( r + 0 ) + 0 ) = ( r + 0 )`.
+`term ( r + 0 )` is popped from the proof stack and the result pushed to the proof stack is `|- ( ( r + 0 ) + 0 ) = ( r + 0 )`.
 
 The statement on the proof stack `term ( r + 0 )` is unified with the mandatory hypothesis `term t` to find the
 replacement rule, by which we replace every variable `t` in the axiom's list of math symbols with the list of math
 symbols `( r + 0 )`.
 
+### Question
+
+In Metamath, what are other ways to say "list of math symbols"?
+
+#### Answer
+
+A list of math symbols is known as an expression.
+
+In `tpl $a term ( r + t ) $.` [appendix C.2.2](https://us.metamath.org/downloads/metamath.pdf#page=209) calls `term ( r + t )` a constant-prefixed expression, but both `term ( r + 0 )` and
+`( r + 0 )` can both be called expressions.
+
 ### Question 13
 
-In Metamath, start with an empty proof stack and the following database. Trace the proof fragment `tt tze tpl tt weq`.
-What statement is left on the stack after applying the statements?
+What blank in the Metamath database below causes the proof to check? That is, what does the 
+proof fragment `tt tze tpl tt weq` build?
 
 ```metamath
 $c term wff 0 + = ( ) $.
@@ -337,11 +359,14 @@ tr $f term r $.
 tze $a term 0 $.
 tpl $a term ( t + r ) $.
 weq $a wff t = r $.
+mystery $p ____ $= tt tze tpl tt weq $.`
 ```
 
 #### Answer
 
-The proof fragment constructs `wff ( t + 0 ) = t` and pushes it to the proof stack.
+```mm
+mystery $p wff ( t + 0 ) = t $= tt tze tpl tt weq $.`
+```
 
 1. `tt` pushes `term t`.
 2. `tze` pushes `term 0`.
@@ -352,8 +377,7 @@ The proof fragment constructs `wff ( t + 0 ) = t` and pushes it to the proof sta
 
 ### Question 14 
 
-In the following Metamath database, how many mandatory hypotheses does `mp` have? How does this differ from the way we
-normally think about modus ponens in mathematics?
+In the following Metamath database, how many mandatory hypotheses does `mp` have?
 
 ```metamath
 $c wff |- ( ) -> $.
@@ -373,18 +397,18 @@ $}
 proof stack to contain the following four entries, where the last statement is the top of the stack.
 
 ```text
-wff ( a b c )
-wff ( x y z )
-|- ( a b c )
-|- ( ( a b c ) -> ( x y z ) )
+wff Q
+wff P
+|- Q
+|- ( Q -> P )
 ```
 
 Normally in mathematics we think of modus ponens as having two premises. And indeed we could imagine that just given the
 two entries off the top of the stack, we can infer what must replace the variables `P` and `Q`. But the Metamath
 verifier doesn't figure this kind of thing out for us (in other words: it doesn't have a complex unification algorithm),
-instead the floating hypotheses tell us exactly how things are parsed. First we unify `wff ( a b c )` with the mandatory
-hypothesis `$f wff P $.` to figure out that `P` should be replaced with `( a b c )`. Next, we unify `wff ( x y z )` with
-mandatory hypothesis `$f wff Q $.` to figure out that `Q` should be replaced with `( x y z )`. For the next two
+instead the floating hypotheses tell us exactly how things are parsed. First we unify `wff Q` with the mandatory
+hypothesis `$f wff P $.` to figure out that `P` should be replaced with `Q`. Next, we unify `wff P` with
+mandatory hypothesis `$f wff Q $.` to figure out that `Q` should be replaced with `P`. For the next two
 mandatory hypotheses `min` and `maj`, we simply have to check that their expressions, after substitution, match the
 corresponding proof-stack entries.
 
@@ -399,16 +423,14 @@ $$
 \end{gather*}
 $$
 
-Using these axioms and modus ponens, prove $t=t$ with a standard mathematical proof.
+Using these axioms and modus ponens, prove $t=t$ with a standard mathematical proof. Describe how you would write the proof in the Metamath proof assistant. 
 
-Next, describe how you would write the proof in the Metamath proof assistant, assuming the database defines all the
-terms (such as in `demo0.mm` of ch2). It might be worthwhile to open up the metamath proof assistant to go through the
-steps yourself from memory.
+Note: Assume the database defines all the terms such as in `demo0.mm` of ch2. You probably don't want
+to write it all out by hand, but going through in the metamath proof assistant might be worthwhile.
 
 #### Hint
 
-The second part of the question is section 2.4. It might be useful to open up the proof assistant and recreate the
-`demo0.mm` proof. In the metamath CLI, commands `prove th1`, `delete all`, and the command `show new_proof` with
+The second part of the question is section 2.4. In the metamath CLI, commands `prove th1`, `delete all`, and the command `show new_proof` with
 arguments `/lemmon` or `/all` can be useful. From there, you'll want to use the command `assign n label` to assign line
 `n` to proof step `label`. Finally, you can get it to a point where `improve all` can take over.
 
