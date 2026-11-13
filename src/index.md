@@ -2,20 +2,19 @@
 title: "Metamath Study Notes"
 ---
 
-Hosted on [mathandcode.com/books/metamath](https://www.mathandcode.com/books/metamath/).
-See also: [local version of the metamath book](book/index.html), 
-[pdf metamath book on metamath.org](https://us.metamath.org/downloads/metamath.pdf).
 
 # Metamath Study Notes
 
 Independently studying Metamath and its applications while staunchly saying
 "if I have to verify it in my head and not in a computer program then it's not math."
 
-
-
 I mean seriously, you can't teach me about primitive symbols and then say "oh yeah but these
 represent different things so they're totally different." You just taught me to divorce
 the symbols from words, then staple words back on! But I'm getting ahead of myself.
+
+Hosted on [mathandcode.com/books/metamath](https://www.mathandcode.com/books/metamath/).
+See also: [local version of the metamath book](book/index.html), 
+[pdf metamath book on metamath.org](https://us.metamath.org/downloads/metamath.pdf).
 
 ## Contents
 
@@ -67,6 +66,7 @@ AI warning in any section that hasn't been reviewed and thoroughly worked throug
 > Usually there will be a "AI made this and I haven't reviewed it yet" statement here.
 
 I can't bear to read AI writing so I don't expect you to bear it either.
+The real question is, do I expect you to bear my writing? I'll have to reflect on this.
 
 ## Stuff I want to do:
 
