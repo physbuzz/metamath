@@ -7,7 +7,7 @@ title: "05 Variables, Binding, and Predicate Calculus"
 <nav class="nav">
     <span class="activenav"><a href="04-propmm.html">← Previous</a></span>
     <span class="activenav"><a href="index.html">↑ Up</a></span>
-    <span class="activenav"><a href="06-setmm.html">Next →</a></span>
+    <span class="inactivenav" aria-disabled="true">Next →</span>
 </nav>
 
 ---
@@ -176,13 +176,14 @@ variable. There are other theorems for less restrictive situations.
 Continue with the implication and negation exercises from 4.1.1–4.1.5.
 Nothing from the supplied-connective section is needed. The standalone
 `ai/predicate-calculus/small-exercises.mm` includes checked solutions to those
-earlier exercises and leaves just the five new targets below blank.
+earlier exercises and leaves just the eight new targets below blank.
 `small-reference.mm` contains their completed solutions. The original
 `src/code-04/myset.mm` remains your working file.
 
-These are the entire additions to the language and axioms. `setvar` is a
+We start with these additions to the language and axioms. `setvar` is a
 syntactic type name; it introduces no set-theoretic axioms. `weq` constructs
-variable-equality formulas, but we do not assume any laws of equality here.
+variable-equality formulas. Until 5.1.4 there are no laws of equality, so
+`x = y` is just a formula that happens to contain two variables.
 
 ```metamath
 $c setvar A. = $.
@@ -269,9 +270,81 @@ variable in common for arguments required to be disjoint. Both must report a
 **disjoint variable (`$d`) violation**. Metamath can exit successfully despite
 reporting proof errors, so inspect the diagnostic.
 
-This gives us a small toolkit for moving implications through quantifiers.
-Specialization, existential operations, and bound-variable change need further
-machinery. We will explore those in the full library next.
+### 5.1.4 Equality: two more axioms, three more constructions
+
+So far the quantifier only moves implications around. Tarski's system has two
+more axioms for a language whose only predicate is equality:
+
+```metamath
+${
+  $d x y $.
+  ax6v $a |- -. A. x -. x = y $.
+$}
+
+ax-7 $a |- ( x = y -> ( x = z -> y = z ) ) $.
+```
+
+
+`ax6v` says that something equals `y`: it is not the case that every `x`
+differs from it. `ax-7` says that two things equal to the same thing are equal
+to each other. Together with `ax-gen`, `ax-4`, and `ax-5` these are all of
+Tarski's predicate axioms for this language; `set.mm` adds `ax-8` and `ax-9`
+for membership. Our `ax6v` is Axiom B7 of Tarski, which requires `x` and `y`
+to be distinct. In `set.mm` the axiom `ax-6` has no such condition and `ax6v`
+is a theorem that weakens it.
+
+Prove these in order. They need nothing beyond chapter 04 and 5.1.2.
+
+```metamath
+${
+  $d x y $.
+  equid $p |- x = x $= ? $.
+$}
+
+equcomi $p |- ( x = y -> y = x ) $= ? $.
+
+${
+  $d ph x $.
+  $d x y $.
+  spvw $p |- ( A. x ph -> ph ) $= ? $.
+$}
+```
+
+
+`equid` has a distinctness condition on a variable that does not occur in
+its statement: `y` is a dummy variable used inside the proof. After proving
+it, compare
+
+```text
+show statement equid /full
+show statement spvw /full
+```
+
+Metamath lists `<x,y>` as an *optional* pair in both. A mandatory pair
+constrains everyone who applies the theorem; an optional pair only constrains
+the proof. `equcomi` applies `equid` and needs no `$d` at all.
+
+`spvw` removes a quantifier that binds nothing. Even this needs `ax6v`: in an
+empty domain `A. x ph` would hold for every `ph`. Its converse is `ax-5`, so
+the two implications of `19.3v` are now both available. We have no `<->` here
+to state them as one equivalence.
+
+#### Hints
+
+- `equid`: this one is longer than the others. Specialize `ax-7` to `( y = x -> ( y = x -> x = x ) )` and contract with `pm2.43i`. Contrapose with `con3i` and lift over `y` with `alimi`. `ax-5` on `-. x = x` gives the missing first link for `syl`; this is the step using `$d x y $.`. Contrapose with `con1i` and detach `ax6v`.
+- `equcomi`: this one should be quick. Specialize `ax-7` with `z := x`, swap the antecedents with `com12`, and detach `equid`.
+- `spvw`: aim for `( A. x ph -> ( -. ph -> A. x -. x = y ) )` using `pm2.21`, `al2imi`, `ax-5` on `-. ph`, `syl`, and `com12`. `ax6v` refutes the inner consequent, so `pm2.21i` and `imim2i` change it to `ph`. Finish with `pm2.18`.
+
+For a third rejection experiment, delete `$d x y $.` from the completed
+`equid`. `make -C ai/predicate-calculus invalid` writes that variant too:
+
+```sh
+metamath 'read "ai/predicate-calculus/invalid/missing-dummy-pair.mm"' 'verify proof equid' exit
+```
+
+This is where we stop building. Bound-variable change, the existential
+quantifier, and anything stated with `<->`, `/\`, or `\/` need a lot more
+groundwork, and `set.mm` has already done it. We continue there.
 
 ## 5.2 Working Inside `set.mm`
 
@@ -461,7 +534,7 @@ $}
 #### Hints
 
 - `albii`: extract both implications with `biimpi` and `biimpri`, use `alimi` twice, and assemble with `impbii`. Avoid the closed lifting theorem `albi` for this exercise.
-- `19.3v`: combine restricted specialization `spvw` and `ax-5` with `impbii`.
+- `19.3v`: combine restricted specialization `spvw` and `ax-5` with `impbii`. We proved `spvw` from the axioms in 5.1.4; the library's route goes through `spnfw`.
 - `19.9v`: apply `19.3v` to `-. ph`, lift through negation with `notbii`, and compose with `df-ex` and double negation using `bitri`. Use `impbii` with `notnotr` and `notnot` to orient double negation as needed.
 - `eximi`: contrapose the premise with `con3i`, apply `alimi`, and contrapose again. Extract the two appropriately directed implications from `df-ex` and compose with `syl`. Avoid the closed theorem `exim` as a shortcut.
 - `19.26`: derive the forward direction by applying `alimi` to `simpl` and `simpr`, then `jca`. For the converse use `alanimi` with `id`. Finish with `impbii`.

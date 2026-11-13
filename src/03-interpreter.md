@@ -194,6 +194,8 @@ study propositional calculus proofs a little bit before getting to
 disjoint variables. 
 
 
+2. Read ch4 and write a C++ metamath interpreter, and try it on David Wheeler's [set of mm test cases](https://github.com/david-a-wheeler/metamath-test). (Appendices B, E may be relevant but not needed). Study/implement appendix D, the MIU system.
+
 
 
 

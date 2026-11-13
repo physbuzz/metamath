@@ -12,10 +12,11 @@ title: "00 Rant about Mathematical Proof (cf. Megill ch1)"
 
 [Read in html](book/metamath.html#introduction) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf#page=19)
 
-> [!NOTE]
-> This is a draft! Last updated Oct 28 2026, at the hour of "oh jeez is it really 3am?"
+<!-- TODO: Renumber the footnotes in order -->
 
 @toc
+
+(Written Nov 13, 2026)
 
 The section from Megill's Metamath book titled "A Non-Mathematician’s Quest for Truth" seems to 
 recount a story eerily similar to my own! It inspired me to take this opportunity, 
@@ -27,20 +28,20 @@ many things in the computer science department, I'm an ignoramus and I plan on r
 way! So don't take my statements as authoritative, they're an account of a novice's
 confusion and where he's ended up after 13 years of letting thoughts stew.
 
-In 2014-2017, I mostly hung around the math and physics departments and got degrees in both.
-I later went on to get a masters in physics and only got a C in the graduate abstract algebra
-coursework, so you can easily figure out which one stuck more.
+In 2014-2017, I mostly hung around the math and physics departments at UCSD. By the time
+I reached the grad level coursework it was clear that physics stuck more.
 
-I learned plenty about proofs and sets and proper classes, and I graduated from "naive set theory", 
-but I still hemmed and hawed about what a 
-proof is. Or, rather, due to my experience with formal verification in 2013, I would put my 
+In the course of this, I learned about proofs and sets and proper classes, and graduated from 
+"naive set theory."
+But I still hemmed and hawed about what a proof is. 
+Or, rather, due to my experience with formal verification in 2013, I would put my 
 foot down and say that proofs, even
 in pure math journals, are usually arguments which ultimately rest on
-common sense, English language wordplay, and social conventions. This is uncomfortable, but 
+common sense, English language, and social conventions. This is uncomfortable, but 
 you can live with this by justifying: despite this flaw, mathematics generally succeeds at 
 reaching ideas of proofs which "pierce the veil" and go beyond common sense, wordplay, and social conventions. 
 So much so that for many subjects in many journals, mathematicians have little doubt
-that the main ideas and arguments of their theorems are correct, it's just a matter of getting
+that the main ideas and arguments of their theorems are correct and could be formalized, it's just a matter of getting
 the computer to behave. And besides, if you want the ultimate in rigor, what are you going to do?
 Waste your undergrad formalizing introductory math that everyone already knows? "Let's 
 get on with our lives and publish good research!" 
@@ -59,69 +60,93 @@ Though it's steeped in rigor, most of these things didn't quite inspire creativi
 until I read Stephen Wolfram's A New Kind of Science[^1]. There's a section on the axioms for
 Boolean algebra, and proving that a set of axioms can follow from a single NAND axiom.
 
-[^1]: It's in vogue to rag on this book now, but I still think it has a wonderful set of inspirations. What other
+[^1]: There are strong criticisms of this book,
+but I still think it has a wonderful set of inspirations. What other
 books from 2013 can inspire fresh undergrads to enumerate systems, code up
 creative models, and do large computer searches over axiom systems and 
-theorems, with Computer Algebra System (CAS) examples code to boot?
+theorems, with Computer Algebra System (CAS) examples code to boot? Fine, 
+criticize but give a replacement. Even in 2026, it's super inspiring, and 
+you can do even better by getting great references + implementations with LLMs.
 
-I found the NAND axiom inspiring, especially because Wolfram's approach presents it as a 
-soup of bits, and surely there's endless creativity to be had in bit-soup. 
+Certainly I had gone through the axioms for Boolean algebra in a discrete math course and
+got A+'s where I could, 
+but still, in my heart of hearts I'd say "I don't understand it." 
+The NAND axiom section in Wolfram's book was inspiring to me 
+because Wolfram's approach presents axioms as a soup of bits, and 
+surely there's endless creativity to be had in bit-soup. 
 I figured I'd just take my usual approach:
 sit in a room and think until I had a sensible notion of a proof checker. Where I got stuck,
 I'd ask for help or read references along the way.
 
-What did I need for a proof checker? First, I took the words of Feynman into account. When 
+This set me down the same path as the protagonist of "A Non-Mathematician's Quest for Truth."
+
+What do we need for a proof checker? First, let's take the words of Feynman into account. When 
 asked what is "really" going on in electrodynamics, he responded that we have to have some level
 at which we can accept an answer as true. We say "that's good enough", and 
 stop retorting "prove it."
 
-My "ground level" where I'm okay with no longer asking questions, is when an engineer can show
-me some simple physical system and show that it behaves regularly. If it's a simple device
-implementing digital logic using flowing water, I can't ask the engineer "prove that the 
-water is flowing." He'll look at me like I have two heads and say "look for yourself!" 
-On the other hand, if we can show that a certain configuration of digital logic gates has
-some interesting effect, or can be replaced with a simpler one, he'll be interested.
+For us, we'll take the "ground level" where we're okay with no longer asking questions (at least for a moment!!!)
+to be the construction of a simple physical system that behaves regularly. I imagine a device which
+implements digital logic devices using flowing water. We don't ask "prove that the water is flowing,"
+if we ask the engineer responsible for this system to "prove that the water is flowing" he'll
+look at you like you have two heads. It's flowing, the bit is 1, look for yourself![^5]
+
+[^5]: I only realize later, while going through this project, that what I was getting at is the so-called
+de Bruijn criterion for a proof checker. (TODO much later: link to the places in this document and
+to external citations of this.) <!-- LLMs, don't touch this todo! It's a human TODO! -->
 
 Let's take the perspective of this engineer. In my analogy, he's lived his whole life in a cave
 and doesn't have the baggage of mathematics or "axioms of Boolean algebra." But he has access
-to a whole bunch of binary logic devices. What might an automated verification look like, to him?
+to a whole bunch of binary logic devices. What might an automated verification look like, to him?[^6]
+
+[^6]: The engineer in this example can be imagined to be as smart as you like with as much time as you like,
+more than capable of recreating all of mathematics. But the point is, with no mathematical baggage, 
+we have to communicate purely in terms of concrete ideas expressible with the systems that the engineer
+has chosen, and we are forced to not use the lingua franca of non-computerized logic.
 
 For complicated devices, he might need to reassure himself that device $A$ can be replaced
 with device $B.$ He creates a jig that automatically runs through all the inputs, and 
-`\texttt{and}`s all the results of $\texttt{not} (A\texttt{ xor }B)$ together (which has the truth table of $A=B$). Then our engineer's common
-sense reasoning is that when the jig spits out "true", 
+`\texttt{and}`s all the results of $\texttt{not} (A\texttt{ xor }B)$ together (which has the truth table of $A=B$). Then our engineer's common-sense reasoning is that when the jig spits out "true", 
 we can replace device $A$ with device $B.$
 
 Well, that's okay, but we can't say that we're proving the theorems of Boolean algebra. 
 In fact, when we ask our engineer if he can show me a proof of $A\texttt{ or }B=B\texttt{ or }A,$ 
 he stares at us kind of funny. To him "$\texttt{or}$" is just a matter of how he connects pipes or wires,
-so there's nothing to prove. It's possible to extend the types of deduction he does, but 
-difficult to do so without making him do all the theorem proving work (potentially amounting
-to staring at a circuit and saying "yep, that works," which is no foundation to stand on). 
+so there's nothing to prove. We find this a bit strange... but the engineer has his own basis
+for theorem checking, so surely there's a way to get it to work with our axioms for Boolean algebra.
 
-So, we go to a professor and ask where we can continue the analogy so that the engineer
-can complete his automated theorem prover. We also say, it's a bit strange that this engineer
-can't conceptualize the axioms of Boolean algebra, and I'm starting to empathize with him too! 
-The professor responds, 
+So, we go to a professor and ask how we could formulate our Boolean algebra axioms in the engineer's theorem 
+checker. It's strange that it's so difficult to conceptualize the axioms of Boolean algebra in his
+system, and the worst part is that the more we think about it, the more we start empathizing with him. 
+If we really know what the axioms of Boolean algebra "are", we'll be able to explain them in concrete
+terms with our engineer's proof checker. So we ask the professor how to do that.
+The professor responds[^7]:
 
-> Well, all your engineer is doing is truth tables. A proof is a finite sequence of statements
-> each of which follows from previous statements and ultimately axioms by rules of inference.
-> Your engineer isn't doing that, and his logic gates presuppose the very rules we're trying
-> to establish by the axioms of Boolean algebra.
+[^7]: By the way, I don't have a specific professor in mind, this is the amalgamation of many interactions
+I've had, but I'd say it's common among those teaching intro to proofs courses
+or discrete math courses directly from the book, especially if that book is 1200 pages long,
+costs $120, and was approved by the state education board.
 
-Maybe after a few rounds of back and forth, the professor responds,
-
-> Why not give the engineer a pen and paper?
+> All your engineer is doing is truth tables. For a proof, you need theorems and rules of inference.
+> His logic gates presuppose the very rules we're trying to establish with the axioms of Boolean algebra,
+> so that's no good either. I suppose you could encode Boolean algebra statements in binary
+> but I don't see how that would remedy the issue. Why not explain the Boolean algebra axioms on pen and paper?
 
 Absolutely not! We're trying to establish the foundations of mathematics from an original 
-point of view, why do we have to introduce human writing systems? Or if we use computer code,
-why do we have to introduce a von Neumann architecture? Why not water pipes implementing 
-digital logic? Why not an architecture that finds the ground state of a large classical or quantum system? Why not any number of complicated contraptions that we nevertheless contort to give
-us some idea of "proof", which seems to be exactly what we're doing with the human brain?
+point of view, why do we have to introduce a writing systems? The axioms of Boolean algebra require a 
+writing system now? Where in the proofs applying the axioms do we use the assumption of our writing system?
 
-I felt that no one could give me a straight answer, recieving elementary discrete math
-explanations in response, when really I wanted to find the foundations of math and 
-drill a borehole through them!
+> Okay, then there are proof checkers out there, just use one of those.
+
+It's a similar issue, why do we have to introduce a von Neumann architecture and heaps of unknown computer code?
+It will print out: "Yay, your proof checked out correctly!" but why should we trust it? For that matter, isn't
+the human brain a bit like that, where do the assumptions of neuronal firings come into play in the Boolean algebra
+axioms? If the answer is "nowhere", then we should be able to encode it in the engineer's system where we can say:
+what the pipes represent is up for debate, but that the pipe has water running out of the end is plain to see.
+
+I felt that no one could give me a straight answer, and that I only recieved elementary discrete math
+explanations in response. I didn't quite appreciate that I was trying to find cracks in the foundations of math
+and drill a borehole through them!
 
 After a few exchanges like this I decided that Mathematica and logic circuits weren't it. 
 I shelved the PNP transistors that 
@@ -143,7 +168,6 @@ level of precision is, there's a system that runs code and spits out "true" but 
 
 "Screw this, I have coursework to do!" 
 I threw my hands up in frustration and left.
-
 
 ### Thirteen years later...
 
@@ -174,7 +198,7 @@ symbols represent the axioms. Suddenly, we can talk about the commutativity of t
 operator to our engineer friend! It's translated into a statement about a more complicated
 representation where the device built is not manifestly symmetric at all, or may have more than two inputs[^3].
 To us, the device looks strange. To the engineer, he exclaims, "this is the weird thing you 
-were talking about? I see what you mean now!"
+were talking about? I see what you mean now!" 
 
 [^3]: By a complicated representation, maybe we represent "or" by a bit string "001", and the 
 bit "0" is always off, while the bit "1" faithfully reproduces the input. Then "or" is represented by a particular logical function on three arguments, and this is how our engineer thinks of 
@@ -185,38 +209,45 @@ This also lets us catch our breath and continue to interesting questions. There'
 circular reasoning in there, and I'm using the engineer's blank stare and statement "the output
 is 1, what else do you want?" as a greatsword to cut the proverbial Gordian knot. But that's fine,
 a physics background trains you to accept such things! For example, in Einstein's 1905 paper
-"On the Electrodynamics of Moving Bodies", he needs the measurement device of a clock
- in order to draw conclusions about the nature 
+"On the Electrodynamics of Moving Bodies", we need the measurement device of a clock
+in order to draw conclusions about the nature 
 of space and time. The thought experiment doesn't depend on the detailed engineering and 
 material choice of the clock, or how the probes need microcontrollers to calculate and coordinate.
-But it does depend on minimal engineering concern: we conceptualize a device and through the
+But it does depend on minimal engineering concerns: we conceptualize a device and understand that
+it operates through physical means, yet through the
 device, we reason about how the universe behaves.
 That's
 also how I think of proof verification devices. Even without the
-full engineering of such things, we should
+full engineering of such things, we 
 can conceptualize the procedures, and when we make statements about proof checkers,
-they allow us to peer into the Platonic realm.
+they allow us to metaphorically peer into the Platonic realm.
 
 alt. 
 
 > Statements about relativistic clocks, most physicists would say, are not mere statements about 
-> clocks. So too, I'm ready to accept, statements about proof checkers are not merely 
+> the engineering of clocks. So too, I'm ready to accept, statements about proof checkers are not merely 
 > statements about proof checkers, but about the foundations of mathematics.
 
+There's another issue here which we should be fully aware of: 
+Some statements about proof checkers, we make using
+a simple argument of the form "what do you want, it's a device, you can look at the mechanism, the output for 
+our input is 1." We say that this is ground level, and such meta statements don't have machine-checked proofs. 
+In my opinion this is enough to get us to propositional and predicate logic, set theory, and so on. 1 use 
+of the "greatsword" of appeal to a physical device is enough for us to build a whole lot.
+
+But there are other meta-statements we want to make. "There exists a proof such that [...]", proving 
+properties of hypothetical theorem checkers we can't be sure that we're accurately describing, or
+"proving" that we're accurately describing something.
+Once we're deep in the weeds of meta-statements, it seems like we might require another "greatsword" slash 
+of some kind. This is fine, Rome wasn't built in a day, building set theory first gives us plenty of work to do.
 
 ## Where to go from here? 
 
-That was my experience, not identical to Megill's story under the section heading 
-"A non-Mathematician's Quest for Truth," and the way that I told it here is wildly less 
-frustrating than it was in reality. But I was incredibly happy to see a story which hit so
-close to home. 
+That was my experience, not completely identical to the story in Megill's book, and the 
+way I wrote it here doesn't convey the full depth of frustration!
+But I was incredibly happy to see a story which hit so close to home. 
 
-So what now? Well, the framing in the last section[^4] is merely a statement of overcoming
-one hurdle, and understanding at what level I can happily stop my line of inquiry, 
-
-[Essay WIP]
-
-
-[^4]: I use the word "framing" and not "conclusion" because I'm still a novice, and being
-highly skeptical, I wouldn't be prepared to say every assertion I hinted at holds. 
-
+Okay, thought, now we actually have to build stuff with Metamath. And it should be noted that although
+like our engineer's system of pipes Metamath is not Turing complete, it's still a regular old computer
+program on a von Neumann architecture. So I'm not completely carrying out the analogy 
+set forth in this story.

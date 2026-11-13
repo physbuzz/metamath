@@ -44,6 +44,7 @@
   </script>
   
   <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/alert.css">
   
   <style>
 
@@ -90,42 +91,139 @@
       </details>
     </header>
     <article class="page-content">
-<p><a href="book/metamath.html">Read in html</a> &nbsp;|&nbsp; <a href="book/metamath.pdf">Read in pdf</a> | <a href="https://us.metamath.org/downloads/metamath.pdf">Read on metamath.org</a>.</p>
+<p>Hosted on <a href="https://www.mathandcode.com/books/metamath/">mathandcode.com/books/metamath</a>.</p>
+<p><a href="book/metamath.html">Read in html</a> &nbsp;|&nbsp; <a href="book/metamath.pdf">Read in pdf</a> | .</p>
 <h1 id="metamath-study-notes">Metamath Study Notes</h1>
-<p>Studying Metamath and its applications, starting with Norm Megill's 2019 Metamath book. I realized only after creating this layout that it doesn't quite make sense to work through chapter by chapter so I'll have to reorganize these markdown files.</p>
-<p>The approach I'll probably take is:</p>
+<p>Independently studying Metamath and its applications while staunchly saying
+"if I have to verify it in my head and not in a computer program then it's not math."</p>
+<p>I mean seriously, you can't teach me about primitive symbols and then say "oh yeah but these
+represent different things so they're totally different." You just taught me to divorce
+the symbols from words, then staple words back on! But I'm getting ahead of myself.</p>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="00-rant.html">0 Rant about Mathematical Proof (cf. Megill ch1)</a></li>
+<li><a href="01-megillch2.html">1 Working through a Metamath Proof by Hand (Megill ch2)</a></li>
+<li><a href="02-sicp-logic.html">2 Bonus chapter: Connection with Logic Programming (cf. SICP 4.4)</a></li>
+<li><a href="03-interpreter.html">3 Writing a C++ Metamath Interpreter (Megill ch4)</a></li>
+<li><a href="04-propmm.html">4 Studying Propositional Calculus with Metamath</a></li>
+<li><a href="05-predicate-calculus.html">5 Variables, Binding, and Predicate Calculus</a></li>
+<li><a href="05-5-practical-foundations.html">5.5 Bonus chapter: Deigning to write proofs in English (Harper ch1-3)</a></li>
+</ul>
+<h2 id="intro">Intro</h2>
+<p>This project started from reading through Norm Megill's <a href="https://us.metamath.org/downloads/metamath.pdf">public domain Metamath book</a>, but grew into its own
+study project.
+My goals are:</p>
 <ol>
-<li>read ch2 and refer to ch4 to try to parse the proof in ch2.</li>
-<li>Read ch4 and write a C++ metamath interpreter, and try it on David Wheeler's <a href="https://github.com/david-a-wheeler/metamath-test">set of mm test cases</a>. (Appendices B, E may be relevant but not needed). Study/implement appendix D, the MIU system.</li>
-<li>Read ch3 and understand some implications of <code>set.mm</code>, while using the commands in ch5.</li>
-<li>Read appendix C, and perhaps Mario Carneiro's Models for Metamath.</li>
-<li>Mini formalization project.</li>
+<li>Build up to making formally verified metamathematical statements, inside Metamath. At the outset, 
+it's very difficult to determine how ambitious to be. The best path to this appears to be doing this
+through <code>set.mm</code>, from which we use set theory tools to make metamathematical statements.</li>
+<li>Learn logic and metamathematics from a verifier-first perspective. "If it's not formally verified, it's folk knowledge,
+it's scattering bones and reading them"--is what I'd like to say, but in fact we still have to touch base
+with references. I haven't found any book that goes as far as I would like, perhaps they exist in the
+Lean- or Agda-sphere.</li>
+<li>Learn the history and terminology around important areas, while connecting to and citing literature. 
+Thus, if I say a nonsequitur in conversation with logicians, I can at least say "oh, I was using the 
+definition in Gaifman's 2002 student notes, what one are you using?" This helps us avoid (but doesn't 
+entirely prevent) developing totally wacko ideas while completing independent studies.</li>
+<li>Deign to learn some of the important English language proofs, where we only our brains as proof checkers.
+This is how most of the literature works so it really can't be avoided. Also, sometimes, such as in <code>peano.mm</code>, 
+the metamath database contains a lot of exposition in the form of prose assertions justifying the 
+properties of the axioms.</li>
+<li>Perhaps learn some type theory (formalized in <code>.mm</code>) while we're at it.</li>
 </ol>
-<p>For the formalization project, here's a few things I want to study:</p>
+<p>The reason for my staunch "if it's not formally verified it doesn't exist" stance is not philosophy-first
+nor because I think it's pedagogically good. I simply don't understand the books. I can get an A in the coursework
+and repeat the English language proofs, but I am not sure that I'm not getting them wrong. I know that the
+verifier consisting of the examiner's brain finds the argument convincing, but I can't be sure that there's
+any sense to it at all. So I've been deeply deeply confused for a number of years and only now am I repairing that.</p>
+<p>AI usage: I've found AI to be an absolutely horrible teacher, an OK problem set generator, 
+and an absolutely amazing reference-finder, so I use it 0% for teaching and terminology, 60% problem set generations
++ human review (in the form of actually doing the problems), and 95% for finding references. For teaching,
+I think it gets stuck in a deep "intro to proofs" attractor. Dawg I'm a decade out from intro to proofs.
+Doesn't help that there's much less material with a verifier-first perspective. Anyways I also try to put an
+AI warning in any section that hasn't been reviewed and thoroughly worked through, like this one:</p>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>Usually there's a "AI made this and I haven't reviewed it yet" statement here.</p>
+</div>
+<h2 id="other-sources-and-links">Other Sources and Links</h2>
+<p>(TODO links and citations here should be to DOIs and stuff not to the local PDFs. This text should be deleted
+after the todo is done).</p>
+<p>Prose and notes: </p>
+<ul>
+<li>(TODO link [DOI?] and correct title) How to Trust a Machine-Checked Proof. Essential reading.</li>
+<li>(TODO link) The Challenge of Computer Mathematics. Essential reading. Barendregt coined the term "de Bruijn criterion" in 1997. </li>
+<li>(TODO link) The Impact of the Lambda Calculus in Logic and Computer Science by Henk Barendregt, Bulletin of Symbolic Logic 3(2), 181–215 (1997) (paper that coined the term, 'cuz I might as well link it).</li>
+<li>(TODO link to Gaifman's notes). This is at the very least the most direct definition of a 
+Hilbert-style formal system. It seems to be a bit overly-broad though, I'd argue it says Metamath 
+itself is Hilbert-style though we say colloquially that the logics represented in various Metamath
+databases need not be Hilbert-style. 
+But Norm Megill et al are very careful to never say "Metamath is Hilber-style." So whatever, we call
+Metamath Hilbert-inspired and move on, I was a stickler over terminology for way too long.</li>
+</ul>
+<p>Book notes:</p>
+<ul>
+<li>The metamath book. You know it, I know it.</li>
+<li>(TODO link+title) Harper. I'm using ch1-3. when I saw "alpha equivalence" in <code>peano.mm</code> I knew I had to.</li>
+<li>(TODO link) Kleene 19xx, Introduction to Metamathematics Kleene.</li>
+<li>(TODO link) Mendelson, introduction to mathematical logic.</li>
+<li>(TODO link) Sam Buss Introduction to Mathematical Logic (course notes, 2023).</li>
+</ul>
+<h2 id="stuff-i-want-to-do">Stuff I want to do:</h2>
 <ul>
 <li>Formalize something regarding Turing machines</li>
 <li>Enumerate the smallest theorems of some theory</li>
 <li>Find the shortest proof of some statement using a SAT solver</li>
 <li>Formalize some theorems in plane geometry from Hilbert's axioms</li>
 <li>Primality certificates (Pratt 1975?)</li>
-<li>Read and create examples from Mario Carneiro "Models for Metamath" 2016</li>
+<li>Read and create examples from Mario Carneiro "Models for Metamath" 2016 (TODO link)</li>
 </ul>
-<p>Other things I want to do:</p>
+<h2 id="way-more-links">way more links</h2>
+<p>... TODO: collate</p>
+<p>Papers:</p>
 <ul>
-<li>Write a bonus chapter of SICP, "Metamath using Logic Programming" based on <a href="https://www.mathandcode.com/books/sicp/ch4/notes-ch4-4.html">ch 4.4.</a>, with (probably extremely slow, academic-curiosity-only) automatic proof discovery and certificate generation. I believe the tools of SICP 4.4 make this easy. SICP just implements the machinery and says "people use this for both proofs and databases, isn't that funny?"</li>
+<li>Generating Theorems by Generating Proof Structures <a href="https://link.springer.com/chapter/10.1007/978-3-032-32589-1_3">https://link.springer.com/chapter/10.1007/978-3-032-32589-1_3</a></li>
 </ul>
-<p>I'll probably reorganize this at some point. Studying chapter-by-chapter isn't really</p>
-<h2 id="contents">Contents</h2>
+<p>Books:</p>
 <ul>
-<li><a href="00-rant.html">00 Rant about Mathematical Proof (cf. Megill ch1)</a></li>
-<li><a href="01-megillch2.html">01 Working through a Metamath Proof by Hand (Megill ch2)</a></li>
-<li><a href="02-sicp-logic.html">02 Connection with Logic Programming (cf. SICP 4.4)</a></li>
-<li><a href="03-interpreter.html">03 Writing a Metamath Interpreter (Megill ch4)</a></li>
+<li>Pierce et al. 2016, <a href="https://softwarefoundations.cis.upenn.edu/lf-current/">Software Foundations: Logical Foundations</a> (Rocq)</li>
+<li>Wadler 2018, <a href="https://plfa.github.io/">Programming Language Foundations in Agda (PLFA)</a> </li>
+<li>Friedman and Eastlund 2015, <a href="https://the-little-prover.github.io/">The Little Prover</a> (custom language)</li>
+<li>Smolka 2026 (draft), <a href="https://www.ps.uni-saarland.de/~smolka/drafts/mpctt.pdf">Modeling and Proving in Computational Type Theory</a> (Rocq)</li>
+<li>Harrison 2009, <a href="https://www.cl.cam.ac.uk/~jrh13/atp/">Handbook of Practical Logic and Automated Reasoning</a> (OCaml)</li>
+<li>Gonczarowski and Nisan 2022, <a href="https://www.logicthrupython.org/">Mathematical Logic through Python</a></li>
+<li>Shankar 1994, <a href="https://www.csl.sri.com/~shankar/goedel-book.html">Metamathematics, Machines and Gödel's Proof</a> (Machine-checked metamathematics)</li>
 </ul>
-<p>Planned:</p>
+<h2 id="tiny-proof-checkers">tiny proof checkers</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This has been compiled by AI and has not yet been reviewed</p>
+</div>
+<p>Tiny proof checkers:</p>
 <ul>
-<li><a href="04-propmm.html">04 Studying Propositional Calculus with Metamath</a></li>
+<li>
+<p>Hirrolot, <a href="https://gist.github.com/hirrolot/27e6b02a051df333811a23b97c375196?utm_source=chatgpt.com">How to Implement Dependent Types in 80 Lines of Code</a> (OCaml, Calculus of Constructions). An exceptionally small implementation of dependent type checking, including dependent function types, lambda abstraction, application, and beta reduction. Uses higher-order abstract syntax (HOAS) to simplify variable binding and substitution. A demonstration of how little code is needed for the mathematical core, although it is not a complete standalone proof-checking environment.</p>
+</li>
+<li>
+<p>Andrej Bauer, <a href="https://math.andrej.com/2012/11/08/how-to-implement-dependent-type-theory-i/?utm_source=chatgpt.com">How to Implement Dependent Type Theory I</a> (OCaml, 92-line core). A particularly approachable tutorial implementing dependent type theory with a hierarchy of universes, dependent functions, substitution, normalization, and type inference. The complete program includes a parser and interactive interface. Parts II and III explore normalization by evaluation, de Bruijn indices, and explicit substitutions. Probably the best pedagogical starting point.</p>
+</li>
+<li>
+<p>45deg, <a href="https://github.com/45deg/proofglyph">Proofglyph</a> (OCaml, Logical Framework). A small proof checker implementing the dependent lambda calculus underlying LF. Particularly interesting as a comparison with Metamath because different formal systems can be represented by declaring their judgments and inference rules. Uses de Bruijn indices and beta reduction, with a stack-oriented proof format and a separate readable frontend. Also has a <a href="https://45deg.github.io/proofglyph/?utm_source=chatgpt.com">browser-based demonstration</a>.</p>
+</li>
+<li>
+<p>John Harrison, <a href="https://github.com/jrh13/hol-light">HOL Light</a> (OCaml, classical higher-order logic). A mature theorem prover built around a comparatively small kernel implementing primitive inference rules. Unlike the dependent type theory examples, HOL Light uses simple type theory and an LCF-style architecture. Worth examining because its small logical foundation supports a substantial library of formalized mathematics, although the complete system is considerably larger than the other examples.</p>
+</li>
+<li>
+<p>Frank Pfenning et al., <a href="https://twelf.org/wiki/lf/">Twelf</a> (Standard ML, Logical Framework). An established implementation of LF for representing deductive systems using dependent types. Includes proof checking, logic programming, and machinery for verifying metatheorems about encoded systems. Much larger than the minimal implementations above, but useful for seeing what a fully developed LF environment looks like.</p>
+</li>
 </ul>
+<p>Related paper:</p>
+<ul>
+<li>Harper, Honsell, and Plotkin, <a href="https://www.lfcs.inf.ed.ac.uk/reports/87/ECS-LFCS-87-23/">A Framework for Defining Logics</a>. The original presentation of LF, explaining how syntax, inference rules, and proofs of different formal systems can be represented using dependent type theory. Particularly relevant for understanding the mathematical ideas behind Proofglyph and Twelf.</li>
+</ul>
+<p>Survey of proof checkers:
+- <a href="https://www.researchgate.net/publication/337829832_A_Survey_on_Theorem_Provers_in_Formal_Methods">https://www.researchgate.net/publication/337829832_A_Survey_on_Theorem_Provers_in_Formal_Methods</a>
+- Freek Wiedijk 2003, <a href="https://www.cs.ru.nl/F.Wiedijk/comparison/diffs.pdf">Comparing Mathematical Provers (PDF)</a>. Section 4.2, page 10, contains a table comparing 15 systems specifically against the de Bruijn criterion. Wiedijk identifies HOL, Coq, Otter/Ivy, Isabelle, Agda, PhoX, Metamath, Lego, and Omega as satisfying it. He also discusses the distinction between having a small kernel and having an independently checkable proof.</p>
     </article>
   </main>
   <script>

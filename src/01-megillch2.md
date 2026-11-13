@@ -68,9 +68,9 @@ $( Prove a theorem $)
     $.
 @src-end
 
-## Working through the Proof without knowing Metamath
+## Working through the proof without knowing Metamath
 
-I had great success in looking at the central proof example in chapter 2, and saying with conviction, "this is a ridiculously simple interaction of a stack and a substitution system."
+I found success in looking at the central proof example in chapter 2, and saying with conviction, "this is a ridiculously simple interaction of a stack and a substitution system."
 There are only so many ways you can parse through a stack and substitute stuff
 as you read through the proof (the list of `tt tt weq tt ...` statements),
 and so eventually you'll stumble on the correct algorithm.
@@ -81,13 +81,20 @@ For example, two sequences that occur a few times in the proof are:
 - `tt weq` (occurs 5 times)
 
 Let's look at the first one. First, `tt` is our floating hypothesis (`$f`) which
- declares `t` as a variable of typecode `term`, so `term t` is pushed to the stack. (Note: the word "typecode" is not used until chapter 4!! I thought of it as the "tag" for `t`, but typecode is the usual term)
+declares `t` as a variable of typecode `term`, so `term t` is pushed to the stack. 
+(Note: the word "typecode" is not used until chapter 4!! I thought of it as the "tag" for `t`, 
+but typecode is the usual term)
 
 Second, `term 0` is pushed to the stack.
 
-Third, we want to push `tpl` to the stack. `tpl`'s definition is `tpl $a term ( t + r ) $.`, which has two placeholders/variables `t` and `r`. The real way to phrase this is that we have two *mandatory hypotheses*. We pop from the stack to substitute our `term 0` in for the second placeholder (the most recent mandatory hypothesis). We pop from the stack to substitute our secondmost recent mandatory hypothesis. And we're left with `term ( t + 0 )`.
+Third, we want to push `tpl` to the stack. `tpl`'s definition is `tpl $a term ( t + r ) $.`, which has two placeholders aka variables `t` and `r`. The real way to phrase this is that we have two *mandatory hypotheses*. We pop from the stack to substitute our `term 0` in for the second placeholder (the most recent mandatory hypothesis). We pop from the stack to substitute our secondmost recent mandatory hypothesis. And we're left with `term ( t + 0 )`.
 
-Up to the last two statements, this is the whole procedure of the proof. push terms, pop terms when we need to substitute variables. There are no surprises or nonsequiturs up until the modus ponens rules. Just before we parse the first `mp`, the stack looks like the following. All the impenetrable work has gone into building these expressions, and I cannot stress enough that it is not that interesting (which means if you're confused, you should work through this by hand to convince yourself yeah, it's just substituting stuff in). 
+Turning our attention back to the whole proof, actually repeating this procedure works perfectly up until
+the last two statements (`mp mp`).
+We push terms when we hit an `$f` or the axiom with only constants in it `tze`, and we pop terms when we need 
+to substitute variables. There are no surprises or nonsequiturs up until the modus ponens rules. 
+Just before we parse the first `mp`, the stack looks like the following. And I'd like to reemphasize that
+all the impenetrable work up until `mp mp` proceeds exactly like the `tt tze tpl` example with no surprises.
 
 ```
 wff ( t + 0 ) = t
@@ -99,9 +106,15 @@ wff ( ( t + 0 ) = t -> t = t )
 |- ( ( t + 0 ) = t -> ( ( t + 0 ) = t -> t = t ) ) 
 ```
 
-When we parse `mp`, I initially thought we had two mandatory hypotheses meaning we pop two things from the stack (the most recent two turnstiles) and deduce what `P` and `Q` must be. But in fact, we don't do deductions like that in Metamath!
-The substitutions for `P` and `Q` must be given explicitly, they are not deduced.
-Therefore we need to pop four things from the stack in total. In order, the things we pop (the four mandatory hypotheses for `mp`) are `|- ( P -> Q )`, `|- P`, `Q`, `P`. The order is because this is the reverse order of how they appear in the database. This is established on page 130, section 4.2.5, of the Metamath book. Okay, so we pop four things from the stack, do our substitutions, and push turnstile `Q`. The proof stack now looks like this:
+When we parse `mp`, I initially thought we had two mandatory hypotheses meaning we pop two things from the stack 
+(the most recent two turnstiles) and deduce what `P` and `Q` must be. But in fact, we don't get that fancy 
+in Metamath! The substitutions for `P` and `Q` must be given explicitly, they are not figured out from
+fancy algorithms. 
+Therefore we need to pop four things from the stack in total. In order, the things we pop (the four mandatory 
+hypotheses for `mp`) are `|- ( P -> Q )`, `|- P`, `Q`, `P`. The order is because this is the reverse order of 
+how they appear in the database. This is established on page 130, section 4.2.5, of the Metamath book. Okay, 
+so we pop four things from the stack, do our substitutions, and push turnstile `Q`. The proof stack now looks 
+like this:
 
 ```
 wff ( t + 0 ) = t
@@ -124,8 +137,6 @@ Especially useful stuff in the interactive CLI:
 - `prove theorem1` -> `delete all` to practice.
 - `assign 1 mp` -> Assign proof line 1 to the hypothesis `mp`.
 - `improve all` -> used in ch2 for, when the "proof structure" is complete, there's still a lot of statements to fill, so `improve` can automatically construct those statements.
-
-
 
 
 ## Quiz Questions
@@ -206,6 +217,8 @@ available hypotheses and earlier assertions.
 
 For example, given the mandatory-hypothesis-free axiom `tze $a term 0 $.`, the statement `th $p term 0 $= tze $.` proves `term 0`.
 
+A proof can have a `?` in it, meaning the proof will not be checked and has unfinished steps.
+
 ### Question 8
 
 What are the differences and similarities between the Metamath statements `$a` and `$p`? Can they have mandatory
@@ -232,9 +245,12 @@ hypotheses that must be satisfied before being used?
 Similarities: `$f` and `$e` are both *hypotheses*. They are labeled statements with a typecode constant at the start of their
 expressions. Both end with `$.` and have no proof attached.
 
-A floating hypothesis `$f` has exactly one variable after its typecode, specifying that variable's type, eg.
-`tt $f term t $.` An essential hypothesis `$e` has any number of math symbols after its typecode and supplies a logical
-premise, eg. `min $e |- P $.`
+A floating hypothesis `$f` has exactly one variable after its typecode, and is use to specify that 
+variables type as its typecode. eg. `tt $f term t $.` not only makes a hypothesis `tt` which we can use 
+in proofs, it also says the variable `t` has typecode `term`.
+
+An essential hypothesis `$e` has any number of math symbols after its typecode and is meant to supply a 
+logical premise, for example the "minor" hypothesis of modus ponens: `min $e |- P $.`
 
 Neither statement has mandatory hypotheses of its own. When a hypothesis is used in a proof, its expression
 is pushed onto the proof stack unchanged.
