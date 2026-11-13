@@ -3,8 +3,8 @@ title: "Metamath Study Notes"
 ---
 
 Hosted on [mathandcode.com/books/metamath](https://www.mathandcode.com/books/metamath/).
-
-[Read in html](book/index.html) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf) | .
+See also: [local version of the metamath book](book/index.html), 
+[pdf metamath book on metamath.org](https://us.metamath.org/downloads/metamath.pdf).
 
 # Metamath Study Notes
 
@@ -19,12 +19,12 @@ the symbols from words, then staple words back on! But I'm getting ahead of myse
 
 ## Contents
 
-- [0 Rant about Mathematical Proof (cf. Megill ch1)](00-rant.html)
-- [1 Working through a Metamath Proof by Hand (Megill ch2)](01-megillch2.html)
-- [2 Bonus chapter: Connection with Logic Programming (cf. SICP 4.4)](02-sicp-logic.html)
-- [3 Writing a C++ Metamath Interpreter (Megill ch4)](03-interpreter.html)
-- [4 Studying Propositional Calculus with Metamath](04-propmm.html)
-- [5 Variables, Binding, and Predicate Calculus](05-predicate-calculus.html)
+- [0. Rant about Mathematical Proof](00-rant.html)
+- [1. Working through a Metamath Proof by Hand (Megill ch2)](01-megillch2.html)
+- [2. Bonus Chapter: Connection with Logic Programming (cf. SICP 4.4)](02-sicp-logic.html)
+- [3. Writing a Metamath Interpreter](03-interpreter.html)
+- [4. Studying Propositional Calculus with Metamath](04-propmm.html)
+- [5. Variables, Binding, and Predicate Calculus](05-predicate-calculus.html)
 - [5.5 Bonus chapter: Deigning to write proofs in English (Harper ch1-3)](05-5-practical-foundations.html)
 
 ## Intro
@@ -64,7 +64,9 @@ Doesn't help that there's much less material with a verifier-first perspective. 
 AI warning in any section that hasn't been reviewed and thoroughly worked through, like this one:
 
 > [!WARNING]
-> Usually there's a "AI made this and I haven't reviewed it yet" statement here.
+> Usually there will be a "AI made this and I haven't reviewed it yet" statement here.
+
+I can't bear to read AI writing so I don't expect you to bear it either.
 
 ## Stuff I want to do:
 

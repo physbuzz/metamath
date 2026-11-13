@@ -1,8 +1,6 @@
 ---
-title: "01 Working through a Metamath Proof by Hand (Megill ch2)"
+title: "1. Working through a Metamath Proof by Hand (Megill ch2)"
 ---
-
-<h1 id="01-megillch2" style="border-bottom: none;">01 Working through a Metamath Proof by Hand (Megill ch2)</h1>
 
 <nav class="nav">
     <span class="activenav"><a href="00-rant.html">← Previous</a></span>
@@ -10,7 +8,10 @@ title: "01 Working through a Metamath Proof by Hand (Megill ch2)"
     <span class="activenav"><a href="02-sicp-logic.html">Next →</a></span>
 </nav>
 
-[Book html](book/index.html#using-the-metamath-program) &nbsp;|&nbsp; [Book pdf](book/metamath.pdf#page=55)
+<h1 id="01-megillch2" style="border-bottom: none;">1. Working through a Metamath Proof by Hand (Megill ch2)</h1>
+
+
+Notes while reading Megill ch. 2. Links: [Chapter html](book/index.html#using-the-metamath-program), [pdf on metamath.org](https://us.metamath.org/downloads/metamath.pdf#page=55).
 
 @toc
 

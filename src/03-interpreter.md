@@ -1,8 +1,7 @@
 ---
-title: "03 Writing a Metamath Interpreter (Megill ch4)"
+title: "3. Writing a Metamath Interpreter"
 ---
 
-<h1 id="03-interpreter" style="border-bottom: none;">03 Writing a Metamath Interpreter (Megill ch4)</h1>
 
 <nav class="nav">
     <span class="activenav"><a href="02-sicp-logic.html">← Previous</a></span>
@@ -10,9 +9,17 @@ title: "03 Writing a Metamath Interpreter (Megill ch4)"
     <span class="activenav"><a href="04-propmm.html">Next →</a></span>
 </nav>
 
-[Read in html](book/index.html#the-metamath-language) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf#page=129)
+<h1 id="03-interpreter" style="border-bottom: none;">3. Writing a Metamath Interpreter</h1>
 
-# Stuff I Learned from Writing an Interpreter
+Since it's such a simple language, I decided that the best way to understand things is to write an interpreter myself.
+Depending on how much coding experience you have, this may or may not be the best organization for you. 
+The best reference for this is, no surprise, Megill ch 4. Oh right, even if you don't write an interpreter yourself,
+the quiz questions at the bottom of the page might be useful!
+Links: [Chapter html](book/index.html#the-metamath-language), [pdf on metamath.org](https://us.metamath.org/downloads/metamath.pdf#page=129).
+
+@toc
+
+## Introduction
 
 On the first pass, I ignored disjoint variables and compressed proofs. The 
 first task is to fill in the proof database, and second to actually check

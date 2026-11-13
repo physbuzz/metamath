@@ -1,8 +1,6 @@
 ---
-title: "02 Connection with Logic Programming (cf. SICP 4.4)"
+title: "2. Bonus Chapter: Connection with Logic Programming (cf. SICP 4.4)"
 ---
-
-<h1 id="02-sicp-logic" style="border-bottom: none;">02 Connection with Logic Programming (cf. SICP 4.4)</h1>
 
 <nav class="nav">
     <span class="activenav"><a href="01-megillch2.html">← Previous</a></span>
@@ -10,8 +8,11 @@ title: "02 Connection with Logic Programming (cf. SICP 4.4)"
     <span class="activenav"><a href="03-interpreter.html">Next →</a></span>
 </nav>
 
+<h1 id="02-sicp-logic" style="border-bottom: none;">2. Bonus Chapter: Connection with Logic Programming (cf. SICP 4.4)</h1>
 
-> [!NOTE] This is a bonus section! If you don't understand or care about Lisp, 
+
+> [!NOTE] 
+> This is a bonus section! If you don't understand or care about Lisp, 
 > or you don't care about Structure and Interpretation of Compute Programs (SICP) ch4-4 
 > it's probably not worth it to read. But I worked through the chapter recently so it begs
 > the connection.

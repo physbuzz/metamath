@@ -1,8 +1,6 @@
 ---
-title: "05 Variables, Binding, and Predicate Calculus"
+title: "5. Variables, Binding, and Predicate Calculus"
 ---
-
-<h1 id="05-predicate-calculus" style="border-bottom: none;">05 Variables, Binding, and Predicate Calculus</h1>
 
 <nav class="nav">
     <span class="activenav"><a href="04-propmm.html">← Previous</a></span>
@@ -10,16 +8,16 @@ title: "05 Variables, Binding, and Predicate Calculus"
     <span class="inactivenav" aria-disabled="true">Next →</span>
 </nav>
 
----
+<h1 id="05-predicate-calculus" style="border-bottom: none;">5. Variables, Binding, and Predicate Calculus</h1>
 
-> [!WARNING]
-> AI-generated material has not been human-reviewed. Reference proofs are
-> mechanically checked; exercise files intentionally contain blanks.
+Links: [Chapter html](book/index.html#3.2.2-predicate-calculus), [pdf on metamath.org](https://us.metamath.org/downloads/metamath.pdf#page=82). All that work and we've only gone 5 pages forwards in the pdf, lol.
 
+> [!CAUTION]
+> This document is completely AI-generated and has not been reviewed. 
 
 @toc
 
-# 5 Variables, Binding, and Predicate Calculus
+## Introduction
 
 Okay, now for the disjoint variables. In chapter 4 I wanted to get a feel for
 classical logic by actually proving things in Metamath. Here I want to do the

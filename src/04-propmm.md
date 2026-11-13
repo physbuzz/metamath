@@ -1,8 +1,7 @@
 ---
-title: "04 Studying Propositional Calculus with Metamath"
+title: "4. Studying Propositional Calculus with Metamath"
 ---
 
-<h1 id="04-propmm" style="border-bottom: none;">04 Studying Propositional Calculus with Metamath</h1>
 
 <nav class="nav">
     <span class="activenav"><a href="03-interpreter.html">← Previous</a></span>
@@ -10,18 +9,17 @@ title: "04 Studying Propositional Calculus with Metamath"
     <span class="activenav"><a href="05-predicate-calculus.html">Next →</a></span>
 </nav>
 
-[Read in html](book/index.html#abstract-mathematics-revealed) &nbsp;|&nbsp; [Read in pdf](book/metamath.pdf#page=77)
+<h1 id="04-propmm" style="border-bottom: none;">4. Studying Propositional Calculus with Metamath</h1>
 
----
+Links: [Chapter html](book/index.html#abstract-mathematics-revealed), [pdf on metamath.org](https://us.metamath.org/downloads/metamath.pdf#page=77).
 
-> [!WARNING]
-> These notes have a lot of AI-suggested problems in them that have not yet
-> been reviewed. I put a warning at the start of each section that has not been human-reviewed.
-> I tend to rewrite all the AI stuff I read.
+> [!NOTE]
+> These notes have some AI-suggested problems in them that have not yet
+> been reviewed.
 
 @toc
 
-# 4 Studying Propositional Calculus with Metamath
+## Introduction
 
 Now that we're set on the intricacies of Metamath, sans 
 disjoint variables and compressed proofs, I want to familiarize myself with classical logic
