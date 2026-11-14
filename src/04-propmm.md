@@ -197,6 +197,11 @@ Also note, metamath proof assistant commands:
 - `assign n label`, `delete all`, `prove label`, `save new_proof`, `show new_proof/all/lemmon`, `improve all` should be familiar.
 - `save new_proof` and `write source` to save and modify your target file (eg. myset.mm)
 - `match step n` (or `match all`) is super useful to list available unifications.
+- `improve last /depth 1` attempts a more substantial proof search. Depth 2, 3, etc. quickly makes the search expensive.
+- `search` does a textual search of the proof database (TODO, check, reference ch5) `/comments` 
+- `show new_proof /unknown` or `/essential`
+- `let variable $32 = "A = B"` assigns something mid-expression to the expression you want.
+- `undo` and `redo`
 
 ### 4.1.1 Implication: first proofs and useful derived rules
 
@@ -700,7 +705,6 @@ and we want to prove $\vdash \varphi.$ First, in steps 2 and 3 we
 show that each implication holds individually. Then, in step 4 
 we combine the cases to show $\vdash D\to\varphi.$ And finally we use 
 modus ponens to show $\vdash \varphi.$
-
 
 $$
 \begin{array}{rll}
