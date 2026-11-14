@@ -8,6 +8,6 @@ This started as going through Norm Megill's Metamath book, but I think that it w
 
 Later I'll put it on my website at [mathandcode.com/books/metamath/](https://www.mathandcode.com/books/metamath/).
 
-It uses [github.com/physbuzz/md2html](https://www.github.com/physbuzz/md2html) to build the pages.
+It uses [github.com/physbuzz/md2html](https://www.github.com/physbuzz/md2html) to build the pages and [github.com/physbuzz/pagequiz](https://www.github.com/physbuzz/pagequiz) for the quiz.
 
 I also made a [html version of Megill's Metamath book](https://www.mathandcode.com/books/metamath/book/). Since it's public domain I can upload it to github no worries! Woohoo!

@@ -15,7 +15,7 @@ markdown:
 	$(MD2HTML) --jekyll-markdown -o $(MARKDOWN_OUTPUT)
 
 quiz:
-	$(PAGEQUIZ) questions -o html/quiz --template questions/template.html --fonts-output html/assets/mathjax/woff2
+	$(PAGEQUIZ) questions -o html/quiz --template questions/template.html --fonts-output html/assets/mathjax/woff2 --force
 
 rebuild:
 	$(MD2HTML) --clean --force
