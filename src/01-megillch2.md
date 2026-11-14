@@ -142,7 +142,7 @@ Especially useful stuff in the interactive CLI:
 
 ## Quiz Questions
 
-### Question
+### Question 1
 In Metamath, what is a math symbol? What characters are allowed in a math symbol?
 
 #### Answer
@@ -154,7 +154,7 @@ _PRINTABLE-CHARACTER ::= [#x21-#x7e]
 MATH-SYMBOL ::= (_PRINTABLE-CHARACTER - '$')+
 ```
 
-### Question 1
+### Question 2
 
 In Metamath, what does a typecode refer to?
 
@@ -168,7 +168,7 @@ there is no complicated "type system", so this is really just a constant that is
 Note: For some reason, "typecode" isn't defined until chapter 4.1! But it's the correct term, so I'm using it from 
 the beginning.
 
-### Question 2
+### Question 3
 
 In Metamath, what does the statement `$c` mean and how is it used?
 
@@ -178,7 +178,7 @@ In Metamath, what does the statement `$c` mean and how is it used?
 the other primitive symbols you want to define like `(`, `)`, `|-`, `->`. The `$c` statement must be closed with a `$.`
 symbol. For example: `$c wff term ( ) |- -> $.`
 
-### Question 3
+### Question 4
 
 In Metamath, what does the statement `$v` mean and how is it used?
 
@@ -190,7 +190,7 @@ In Metamath, what does the statement `$v` mean and how is it used?
 Every variable used in an essential hypothesis or assertion must have an active floating hypothesis specifying its typecode.
 When applying an assertion, the proof must supply expressions satisfying its mandatory hypotheses.
 
-### Question 4
+### Question 5
 
 In Metamath, what does the statement `$e` mean and how is it used?
 
@@ -199,7 +199,7 @@ In Metamath, what does the statement `$e` mean and how is it used?
 `e` stands for essential hypothesis. It is also called a logical hypothesis. It must have a label, followed by `$e`, a
 typecode constant, and any number of math symbols, ending with `$.`, eg. `mytheorem $e |- ( P -> Q ) $.`
 
-### Question 5
+### Question 6
 
 In Metamath, what does the statement `$f` mean and how is it used?
 
@@ -208,7 +208,7 @@ In Metamath, what does the statement `$f` mean and how is it used?
 `f` stands for floating hypothesis. It is also called a variable-type hypothesis. It must have a label, followed by
 `$f`, a typecode constant, and a variable, ending with `$.`. eg. `tt $f term t $.`
 
-### Question 6
+### Question 7
 
 In Metamath, what does the statement `$a` mean and how is it used?
 
@@ -218,7 +218,7 @@ In Metamath, what does the statement `$a` mean and how is it used?
 a typecode constant, and zero or more math symbols, ending with `$.`. For example: `tze $a term 0 $.` This asserts that
 `0` is a term. Axiomatic assertions can express syntax rules as well as logical axioms and inference rules.
 
-### Question 7
+### Question 8
 
 In Metamath, what does the symbol `$p` mean, and how is it used?
 
@@ -232,7 +232,7 @@ For example, given the mandatory-hypothesis-free axiom `tze $a term 0 $.`, the s
 
 A proof can have a `?` in it, meaning the proof will not be checked and has unfinished steps.
 
-### Question 8
+### Question 9
 
 What are the differences and similarities between the Metamath statements `$a` and `$p`? Can they have mandatory
 hypotheses that must be satisfied before being used?
@@ -248,7 +248,7 @@ may also contain a `?` signifying the proof is incomplete.
 
 Both kinds of assertion can have mandatory hypotheses that must be satisfied when the assertion is used.
 
-### Question 9
+### Question 10
 
 What are the differences and similarities between the Metamath statements `$f` and `$e`? Can they have mandatory
 hypotheses that must be satisfied before being used?
@@ -268,7 +268,7 @@ logical premise, for example the "minor" hypothesis of modus ponens: `min $e |- 
 Neither statement has mandatory hypotheses of its own. When a hypothesis is used in a proof, its expression
 is pushed onto the proof stack unchanged.
 
-### Question 10
+### Question 11
 
 Recall the Metamath database of Megill ch2, which included statements such as...
 
@@ -292,7 +292,7 @@ It is also important that `tze` is not a hypothesis. When the mandatory hypothes
 floating hypothesis, this can end up giving us a replacement rule telling us what a given variable gets replaced by.
 This process--unification--makes no sense to apply to the constant `0`.
 
-### Question 11
+### Question 12
 
 In Metamath, consider the axiom `tpl $a term ( t + r ) $.`, how many mandatory hypotheses are required?
 How would you apply it in a proof?
@@ -320,7 +320,7 @@ tpl $a term ( t + r ) $.
 tpl.vacuous $p term ( u + v ) $= tu tv tpl $.
 ```
 
-### Question 12 
+### Question 13 
 
 In Metamath, suppose we're in the middle of checking a proof and the term on top of the proof stack is `term ( r + 0 )`.
 What happens when we apply the axiom `a2 $a |- ( t + 0 ) = t $.` ?
@@ -335,7 +335,7 @@ The statement on the proof stack `term ( r + 0 )` is unified with the mandatory 
 replacement rule, by which we replace every variable `t` in the axiom's list of math symbols with the list of math
 symbols `( r + 0 )`.
 
-### Question
+### Question 14
 
 In Metamath, what are other ways to say "list of math symbols"?
 
@@ -346,7 +346,7 @@ A list of math symbols is known as an expression.
 In `tpl $a term ( r + t ) $.` [appendix C.2.2](https://us.metamath.org/downloads/metamath.pdf#page=209) calls `term ( r + t )` a constant-prefixed expression, but both `term ( r + 0 )` and
 `( r + 0 )` can both be called expressions.
 
-### Question 13
+### Question 15
 
 What blank in the Metamath database below causes the proof to check? That is, what does the 
 proof fragment `tt tze tpl tt weq` build?
@@ -375,7 +375,7 @@ mystery $p wff ( t + 0 ) = t $= tt tze tpl tt weq $.`
 4. `tt` pushes `term t`.
 5. `weq` consumes the two terms and pushes `wff ( t + 0 ) = t`.
 
-### Question 14 
+### Question 16 
 
 In the following Metamath database, how many mandatory hypotheses does `mp` have?
 
@@ -412,7 +412,7 @@ mandatory hypothesis `$f wff Q $.` to figure out that `Q` should be replaced wit
 mandatory hypotheses `min` and `maj`, we simply have to check that their expressions, after substitution, match the
 corresponding proof-stack entries.
 
-### Question 15
+### Question 17
 
 Consider the axiom schemas
 
@@ -459,7 +459,7 @@ we'll just get `( $5 + 0 ) = $5` for example). Finally, if all logical steps are
 This is a brief explanation so this answer may be insufficient. If you get stuck reproducing the proof in the proof
 explorer, refer to [Megill ch2.4](book/index.html#2.4-your-first-proof) and follow the CLI usage.
 
-### Question 16
+### Question 18
 
 In the Metamath CLI, remember the ch2 example:
 

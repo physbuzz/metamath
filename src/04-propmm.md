@@ -625,14 +625,24 @@ peirce $p |- ( ( ( ph -> ps ) -> ph ) -> ph ) $= ? $.
 - For `peirce`, use `pm2.61i`, splitting on `ph`. One case is an axiom instance;
   for the other, try `syl` with explosion as its first premise.
 
-### 4.1.6 The other connectives, which we're skipping
+### 4.1.6 The other connectives
 
-> [!WARNING]
-> This section was written by AI and hasn't been reviewed yet.
+From here, it's natural to introduce other connectives like `<->` for iff, `/\` for and, and
+`\/` for or. I'm not going to do practice problems for this, it would be an exercise in tedium, 
+but it's worthwhile to see the definitions using `df-*` notation.
 
-Everything so far used only `->` and `-.`. Of course `set.mm` also has "if and
-only if", "and", and "or". Each one gets a syntax rule (`wb`, `wa`, `wo`) and
-one defining axiom:
+The pages are quite good, especially [`df-bi`](https://us.metamath.org/mpeuni/df-bi.html) 
+and [`wb`](https://us.metamath.org/mpeuni/wb.html)
+which explains the reason
+that we naturally want to pull in all of the machinery of these connectives:
+
+> On the other hand, definitions are often useful
+> to write shorter proofs, so in (i)set.mm we will generally not try to avoid
+> them.  This is why, for instance, some theorems which do not contain
+> disjunction in their statement are placed after the section on disjunction
+> because a shorter proof using disjunction is possible.
+
+The definitions are:
 
 ```metamath
 df-bi $a |- -. ( ( ( ph <-> ps ) -> -. ( ( ph -> ps ) -> -. ( ps -> ph ) ) )
@@ -641,34 +651,72 @@ df-an $a |- ( ( ph /\ ps ) <-> -. ( ph -> -. ps ) ) $.
 df-or $a |- ( ( ph \/ ps ) <-> ( -. ph -> ps ) ) $.
 ```
 
-`df-bi` looks awful because it has to define `<->` without being allowed to
-use `<->`. Read `-. ( A -> -. B )` as "A and B" and it says two things: the
-biconditional implies both directions, and both directions imply the
-biconditional. Once `<->` exists, `df-an` and `df-or` can be written the way
-you'd expect a definition to look.
-
-Note that these are `$a` statements. Metamath checks what follows from them
-exactly like it does for any other axiom. It does not check that they are
-honest definitions, that is, that they don't let us prove anything new about
-the symbols we already had. The Proof Explorer discusses this in
+These are axiom `$a` statements, and Metamath doesn't check that these are honest definitions (which
+should not allow us to prove any theorems we couldn't otherwise prove). cf.
 [Appendix 4, A Note on Definitions](https://us.metamath.org/mpeuni/mmset.html#definitions).
 
-I'm not going to build up the theory of these connectives. It is a lot of
-theorems, and it's more of the same skill we practiced in 4.1.1 to 4.1.5.
-Section 5.1 only needs implication and negation, and section 5.2 works inside
-the full `set.mm`, where all of this is already proved.
+Some of the more useful theorems are given here:
 
-The few rules worth recognizing by name when they show up later:
-[`biimpi`](https://us.metamath.org/mpeuni/biimpi.html) and
-[`biimpri`](https://us.metamath.org/mpeuni/biimpri.html) pull the two
-implications out of an equivalence, and
-[`impbii`](https://us.metamath.org/mpeuni/impbii.html) puts them back together.
-[`simpl`](https://us.metamath.org/mpeuni/simpl.html) and
-[`simpr`](https://us.metamath.org/mpeuni/simpr.html) take a conjunction apart,
-and [`jca`](https://us.metamath.org/mpeuni/jca.html) builds one.
-[`orc`](https://us.metamath.org/mpeuni/orc.html) and
-[`olc`](https://us.metamath.org/mpeuni/olc.html) introduce a disjunction, and
-[`jaoi`](https://us.metamath.org/mpeuni/jaoi.html) is proof by cases on one.
+$$
+\begin{array}{ccc}
+\href{https://us.metamath.org/mpeuni/biimpi.html}{\texttt{biimpi}} &
+\href{https://us.metamath.org/mpeuni/biimpri.html}{\texttt{biimpri}} &
+\href{https://us.metamath.org/mpeuni/impbii.html}{\texttt{impbii}} \\[8pt]
+\displaystyle \frac{\vdash (\varphi\leftrightarrow \psi)}{\vdash (\varphi\to\psi)} &
+\displaystyle \frac{\vdash (\varphi\leftrightarrow \psi)}{\vdash (\psi \to\varphi)} &
+\displaystyle \frac{\vdash (\varphi\to \psi) \quad \vdash (\psi\to\varphi)}{\vdash (\varphi\leftrightarrow\psi)}
+\end{array}
+$$
+
+$$
+\begin{array}{ccc}
+\href{https://us.metamath.org/mpeuni/simpl.html}{\texttt{simpl}} &
+\href{https://us.metamath.org/mpeuni/simpr.html}{\texttt{simpr}} &
+\href{https://us.metamath.org/mpeuni/jca.html}{\texttt{jca}} \\[8pt]
+\displaystyle \frac{}{\vdash((\varphi\land\psi)\to\varphi)} &
+\displaystyle \frac{}{\vdash((\varphi\land\psi)\to\psi)} &
+\displaystyle \frac{\vdash(\varphi\to\psi)\quad\vdash(\varphi\to\chi)}
+                   {\vdash(\varphi\to(\psi\land\chi))}
+\end{array}
+$$
+
+$$
+\begin{array}{ccc}
+\href{https://us.metamath.org/mpeuni/orc.html}{\texttt{orc}} &
+\href{https://us.metamath.org/mpeuni/olc.html}{\texttt{olc}} &
+\href{https://us.metamath.org/mpeuni/jaoi.html}{\texttt{jaoi}} \\[8pt]
+\displaystyle \frac{}{\vdash(\varphi\to(\varphi\lor\psi))} &
+\displaystyle \frac{}{\vdash(\varphi\to(\psi\lor\varphi))} &
+\displaystyle \frac{\vdash(\varphi\to\psi)\quad\vdash(\chi\to\psi)}
+                   {\vdash((\varphi\lor\chi)\to\psi)}
+\end{array}
+$$
+
+One interesting thing this allows us to do is proof by cases. 
+
+Suppose we have $\vdash ((\varphi\land\psi)\lor(\varphi\land\chi)),$
+which we'll write as $D$ for short,
+and we want to prove $\vdash \varphi.$ First, in steps 2 and 3 we 
+show that each implication holds individually. Then, in step 4 
+we combine the cases to show $\vdash D\to\varphi.$ And finally we use 
+modus ponens to show $\vdash \varphi.$
+
+
+$$
+\begin{array}{rll}
+1. & \vdash D & \text{given} \\[4pt]
+2. & \vdash((\varphi\land\psi)\to\varphi) &
+\texttt{simpl} \\[4pt]
+3. & \vdash((\varphi\land\chi)\to\varphi) &
+\texttt{simpl} \\[4pt]
+4. & \vdash(D\to\varphi) &
+\texttt{jaoi}\;2,3 \\[4pt]
+5. & \vdash\varphi &
+\texttt{ax-mp}\;1,4
+\end{array}
+$$
+
+To remember the application of such theorems, we'll just rely on using a proof assistant (yamma, mmj2).
 
 ### 4.1.7 Carew Meredith's sole axiom for propositional calculus
 

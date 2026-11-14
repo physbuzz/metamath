@@ -208,7 +208,7 @@ disjoint variables.
 
 ## Quiz Questions
 
-### Question
+### Question 1
 
 In Metamath, what is the difference between a math symbol and a statement label? Can a label have the same name as a
 math symbol? If a hypothesis is in a block, can we reuse the label of a hypothesis after its block has closed?
@@ -223,7 +223,7 @@ Labels must be unique throughout the database, even when the statements they lab
 Closing a block does not let us reuse its hypothesis labels. A label also can't share a name with any constant
 or variable.
 
-### Question
+### Question 2
 
 In Metamath, what does it mean for a math symbol to be active? Can symbols be declared again?
 
@@ -237,7 +237,7 @@ A variable is active from the point it's declared to the end of its block. Inact
 any statement, they must have a floating hypothesis associated with them defining the typecode, and the typecode of
 the variable may not change upon redeclaration.
 
-### Question
+### Question 3
 
 In the following database, which statements go inactive at the end of the block `$}`? 
 What are `pass`'s mandatory hypotheses, and what does applying it in a proof outside of the block do?
@@ -269,7 +269,7 @@ term foo
 
 This would satisfy the two mandatory hypotheses of `pass` without issue.
 
-### Question
+### Question 4
 
 In Metamath, can a variable have two active floating hypotheses? Can blocks shadow variables?
 
@@ -291,7 +291,7 @@ $}
 
 but this is not allowed. So scoping follows special semantics in Metamath that might not be familiar from other languages.
 
-### Question
+### Question 5
 
 How do we determing a Metamath assertion's mandatory variables, and mandatory hypotheses and their order? 
 
@@ -325,7 +325,7 @@ ${
 $}
 ```
 
-### Question
+### Question 6
 
 In the following Metamath database, what are the mandatory hypotheses of `rule`, in order? Give the
 hypotheses in the order they must be satisfied on the proof stack, from bottom to top.
@@ -355,7 +355,7 @@ wff y
 
 (convention w/ stack growing downwards)
 
-### Question
+### Question 7
 
 In Metamath, does an active essential hypothesis still become mandatory if it doesn't occur in a `$p`
 statement's proof? What about if it doesn't share any math symbols with an `$a` statement?
@@ -367,7 +367,7 @@ We still apply the same procedure when checking the proof, and such cases might 
 we still pop symbols off the proof stack and compare the symbols in the proof stack with the symbols in the 
 mandatory hypothesis for consistency.
 
-### Question
+### Question 8
 
 In Metamath, describe how the verifier processes the statement labels in a proof (ignoring disjoint variable restrictions).
 
@@ -391,7 +391,7 @@ we push the result of applying our replacement rule to the assertion's expressio
 
 The proof succeeds if every step is valid and the final stack contains only the theorem's expression.
 
-### Question
+### Question 9
 
 In Metamath, suppose we're in a database, in the middle of verifying a proof.
 We have the following database: 
