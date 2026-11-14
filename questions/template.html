@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Metamath quiz</title>
+  <link rel="icon" href="data:,">
+  {{ styles }}
+  <link rel="stylesheet" href="../assets/base.css">
+  <style>
+    /* Use the book's palette for the quiz controls and dialogs. */
+    :root,
+    :root[data-theme],
+    :root[data-typeface],
+    :root[data-measure],
+    :root[data-size] {
+      --bg: var(--reader-panel-bg);
+      --text: var(--reader-text);
+      --heading: var(--reader-heading);
+      --muted: var(--reader-muted);
+      --rule: var(--reader-rule);
+      --soft: var(--reader-soft);
+      --link: var(--reader-link);
+      --selected: var(--reader-nav-active);
+      --sans: var(--reader-ui-font);
+      --mono: var(--reader-mono-font);
+      --body-font: var(--reader-body-font);
+      --text-size: var(--reader-text-size);
+      --measure: var(--reader-measure);
+    }
+
+    /* Pagequiz's Aa controls use these attribute names. */
+    :root[data-typeface="serif"] {
+      --reader-body-font: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    }
+    :root[data-size="small"] { --reader-text-size: .8rem; }
+    :root[data-size="large"] { --reader-text-size: 1rem; }
+    :root[data-measure="wide"] { --reader-measure: 980px; }
+    :root[data-measure="compact"] { --reader-measure: 680px; }
+
+    .quiz-shell .page { width: 100%; margin: 0; padding: 0; }
+    .quiz-shell .page-header {
+      margin: 0 0 1rem;
+      padding: 0 0 .6rem;
+      border-top: 0;
+    }
+    .quiz-shell .page-header h1 {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      font: 400 20pt/1.2 var(--reader-body-font);
+    }
+    .quiz-shell .page-header h1 a { color: inherit; }
+    .quiz-shell .page-footer { font-family: var(--reader-ui-font); }
+    .quiz-shell .question-body h2,
+    .quiz-shell .reveal h2 { font-size: 1.2em; }
+    .quiz-shell .question-body h3,
+    .quiz-shell .reveal h3 { font-size: 1.1em; }
+  </style>
+  {{ scripts }}
+</head>
+<body>
+  <template id="pagequiz-brand">
+    <h1><a href="../index.html" aria-label="Pagequiz — back to Metamath notes">Metamath</a> Quiz</h1>
+  </template>
+  <div class="container quiz-shell">
+    {{ content }}
+  </div>
+</body>
+</html>

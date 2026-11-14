@@ -15,7 +15,7 @@ Links: [Chapter html](book/index.html#3.2.2-predicate-calculus), [pdf on metamat
 > [!CAUTION]
 > This document is completely AI-generated and has not been reviewed. 
 
-@toc
+@toc(hn)
 
 ## Introduction
 

@@ -6,11 +6,10 @@ title: "Metamath Study Notes"
 # Metamath Study Notes
 
 Independently studying Metamath and its applications while staunchly saying
-"if I have to verify it in my head and not in a computer program then it's not math."
-
-I mean seriously, you can't teach me about primitive symbols and then say "oh yeah but these
-represent different things so they're totally different." You just taught me to divorce
-the symbols from words, then staple words back on! But I'm getting ahead of myself.
+"if I have to verify it in my head and not in a computer program then it's not math." 
+I've had a very difficult time learning foundations and metalogic, I think 
+because I took "we're only allowed to use the rules we've defined" a little
+too literally. Metamath is solving that for me so it's a fun time.
 
 Hosted on [mathandcode.com/books/metamath](https://www.mathandcode.com/books/metamath/).
 See also: [local version of the metamath book](book/index.html), 
