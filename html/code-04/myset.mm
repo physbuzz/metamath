@@ -185,57 +185,75 @@ $( closed forms of explosion
 pm2.21 $p |- ( -. ph -> ( ph -> ps ) ) $=
   wph wn wph wps wph wn id pm2.21d $.
 pm2.24 $p |- ( ph -> ( -. ph -> ps ) ) $=
-  ? ? ? ? pm2.21d $.
+  wph wn wph wps wph wps pm2.21 com12 $.
 
-$( Clavius law: if a formula follows from its own negation, then it's true. $)
-pm2.18 $p |- ( ( -. ph -> ph ) -> ph ) $= ? $.
+$( Clavius law: if a formula follows from its own negation, then it's true. 
+   (Contributed by ?who?, 14-Nov-2026.) $)
+pm2.18 $p |- ( ( -. ph -> ph ) -> ph ) $=
+  wph wn wph wi wph wph wn wph wi wph wph wn wph wi wph wn wph wph wn wph wi wn
+  wph wph wn wph wi wn pm2.21 a2i con4d pm2.43i $.
 
-$( Double negation elimination $)
-notnotr $p |- ( -. -. ph -> ph ) $= ? $.
+$( Double negation elimination 
+   (Contributed by ?who?, 14-Nov-2026.) $)
+notnotr $p |- ( -. -. ph -> ph ) $=
+  wph wn wn wph wn wph wi wph wph wn wph pm2.21 wph pm2.18 syl $.
 
-$( Double negation introduction $)
-notnot $p |- ( ph -> -. -. ph ) $= ? $.
+$( Double negation introduction 
+   (Contributed by ?who?, 14-Nov-2026.) $)
+notnot $p |- ( ph -> -. -. ph ) $=
+  wph wn wn wph wph wn notnotr con4i $.
 $( who's there? $)
 
 $( Contraposition 2 $)
 ${
   con2i.a $e |- ( ph -> -. ps ) $.
-  con2i $p |- ( ps -> -. ph ) $= ? $.
+  con2i $p |- ( ps -> -. ph ) $=
+    wph wn wps wph wn wn wph wps wn wph notnotr con2i.a syl con4i $.
 $}
 
 $( Contraposition 1 $)
 ${
   con1i.1 $e |- ( -. ph -> ps ) $.
-  con1i $p |- ( -. ps -> ph ) $= ? $.
+  con1i $p |- ( -. ps -> ph ) $=
+    wph wps wn wph wn wps wps wn wn con1i.1 wps notnot syl con4i $.
 $}
 
 $( Contraposition 3 $)
 ${
   con3i.a $e |- ( ph -> ps ) $.
-  con3i $p |- ( -. ps -> -. ph ) $= ? $.
+  con3i $p |- ( -. ps -> -. ph ) $=
+    wph wn wps wn wph wn wn wph wps wn wn wph notnotr wph wps wps wn wn con3i.a
+    wps notnot syl syl con4i $.
 $}
 
 $( Modus tollens $)
 ${
   mto.1 $e |- -. ps $.
   mto.2 $e |- ( ph -> ps ) $.
-  mto $p |- -. ph $= ? $.
+  mto $p |- -. ph $=
+    wps wn wph wn mto.1 wph wps mto.2 con3i ax-mp $.
 $}
 
 $( Proof by cases $)
 ${
   pm2.61i.1 $e |- ( ph -> ps ) $.
   pm2.61i.2 $e |- ( -. ph -> ps ) $.
-  pm2.61i $p |- ps $= ? $.
+  pm2.61i $p |- ps $=
+    wps wn wps wi wps wps wn wph wn wps wph wps pm2.61i.1 con3i pm2.61i.2 syl
+    wps pm2.18 ax-mp $.
 $}
 
 $( Reductio ad absurdum $)
 ${
   pm2.65i.1 $e |- ( ph -> ps ) $.
   pm2.65i.2 $e |- ( ph -> -. ps ) $.
-  pm2.65i $p |- -. ph $= ? $.
+  pm2.65i $p |- -. ph $=
+    wps wn wph wn wph wps pm2.65i.1 con3i wph wps wn pm2.65i.2 con3i pm2.61i $.
 $}
 
 $( Pierce's law. Note that it seems to not use negation... but
-   it's in the section with ax-3? How curious. $)
-peirce $p |- ( ( ( ph -> ps ) -> ph ) -> ph ) $= ? $.
+   it's in the section with ax-3? How curious. 
+   (Contributed by ?who?, 14-Nov-2026.) $)
+peirce $p |- ( ( ( ph -> ps ) -> ph ) -> ph ) $=
+  wph wph wps wi wph wi wph wi wph wph wps wi wph wi ax-1 wph wn wph wps wi wph
+  wps wi wph wi wph wi wph wps pm2.21 wph wps wi wph pm2.27 syl pm2.61i $.

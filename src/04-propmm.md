@@ -107,7 +107,7 @@ also has the wonderful footnote:
 
 To repeat myself, Buss writes modus ponens as:
 
-$$\frac{A\qquad A\to B}{B}$$
+$$\frac{A\quad A\to B}{B}$$
 
 
 Okay, there's a little worry that I have here. Going by Gaifman's notes, interpreted liberally,
@@ -137,7 +137,7 @@ $$\frac{\vdash \varphi\quad\vdash(\varphi\to \psi)}{\vdash \psi}\quad\texttt{ax-
 
 and the more complicated [`syl`](https://us.metamath.org/mpeuni/syl.html)
 
-$$\frac{\vdash(\psi\to \varphi)\qquad\vdash(\varphi\to \chi)}{\vdash(\psi\to \chi)}\quad\texttt{syl}.$$
+$$\frac{\vdash(\psi\to \varphi)\quad\vdash(\varphi\to \chi)}{\vdash(\psi\to \chi)}\quad\texttt{syl}.$$
 
 While `ax-mp` is an axiom, `syl` is (in Harper's terminology) a derived rule, or in our 
 terminology a theorem. It should be noted that
@@ -310,7 +310,8 @@ Prove [`pm2.43i`](https://us.metamath.org/mpeuni/pm2.43i.html),
 [`sylcom`](https://us.metamath.org/mpeuni/sylcom.html), [`com12`](https://us.metamath.org/mpeuni/com12.html),
 [`pm2.27`](https://us.metamath.org/mpeuni/pm2.27.html), and [`imim2i`](https://us.metamath.org/mpeuni/imim2i.html).
 
-These start to get a little more interesting.
+These start to get a little more interesting. Note that "pm" stands for Principia Mathematica, so we're already 
+working through The Book :)
 
 
 ```metamath
@@ -1045,3 +1046,371 @@ metatheoretic machinery in order to write "$T$ is Hilbert-type" as a theorem ins
 
 
 
+### Question 3
+
+What are modus ponens, modus tollens, and hypothetical syllogism?
+Write them as inference rules.
+
+#### Answer
+
+Modus ponens:
+
+$$\frac{\vdash\varphi\quad\vdash(\varphi\to\psi)}{\vdash\psi}
+\quad\texttt{ax-mp}$$
+
+Modus tollens:
+
+$$\frac{\vdash\neg\psi\quad\vdash(\varphi\to\psi)}{\vdash\neg\varphi}
+\quad\texttt{mto}$$
+
+Hypothetical syllogism:
+
+$$\frac{\vdash(\varphi\to\psi)\quad\vdash(\psi\to\chi)}
+{\vdash(\varphi\to\chi)}\quad\texttt{syl}$$
+
+In Metamath inside `set.mm`, `ax-mp` is an `$a` statement. `mto` and `syl` are `$p` statements.
+
+### Question 4
+
+What are the three axioms of propositional calculus used in
+`set.mm`?
+
+#### Answer
+
+$$\begin{aligned}
+\texttt{ax-1}:&\quad\vdash(\varphi\to(\psi\to\varphi))\\
+\texttt{ax-2}:&\quad\vdash((\varphi\to(\psi\to\chi))\to
+  ((\varphi\to\psi)\to(\varphi\to\chi)))\\
+\texttt{ax-3}:&\quad\vdash((\neg\varphi\to\neg\psi)\to(\psi\to\varphi)).
+\end{aligned}$$
+
+They form Lukasceiwicz' axiom system S2 for propositional calculus.
+These are really axiom schemes, as discussed in Buss 2023. (TODO fix name spelling, link to Buss' notes) 
+
+They can be memorized as 
+
+
+### Question 5
+
+Metamath's `set.mm` has the convention of having 
+inference, deduction, and closed forms of a theorem. 
+Explain this convention and illustrate it using modus ponens.
+
+#### Answer
+
+An inference form has essential hypotheses:
+
+$$\frac{\vdash\varphi\quad\vdash(\varphi\to\psi)}{\vdash\psi}
+\quad\texttt{ax-mp}.$$
+
+A deduction form carries a shared antecedent:
+
+$$\frac{\vdash(\chi\to\varphi)\quad\vdash(\chi\to(\varphi\to\psi))}
+{\vdash(\chi\to\psi)}\quad\texttt{mpd}.$$
+
+A closed form has no essential hypotheses:
+
+$$\vdash(\varphi\to((\varphi\to\psi)\to\psi))\quad\texttt{pm2.27}.$$
+
+The suffixes `i` and `d` usually indicate inference and deduction forms, respectively. 
+cf. [the roof explorer's discussion](https://us.metamath.org/mpeuni/mmnatded.html) of the three forms.
+
+### Question 6
+
+What does it mean to discharge a hypothesis?
+How does Metamath's `set.mm` deal with not being able to easily discharge hypotheses?
+
+#### Answer
+
+Discharging a hypothesis means removing our dependence on it as an assumption.
+For example, we can imagine discharging the hypotheses of `ax-mp` to get `pm2.27`:
+
+$$
+\begin{array}{cc}
+\href{https://us.metamath.org/mpeuni/ax-mp.html}{\texttt{ax-mp}} &
+\href{https://us.metamath.org/mpeuni/pm2.27.html}{\texttt{pm2.27}} \\[8pt]
+\displaystyle \frac{\vdash\varphi\quad\vdash(\varphi\to\psi)}{\vdash\psi}
+&
+\displaystyle \frac{}{\vdash \varphi\to((\varphi\to\psi)\to\psi)}
+\end{array}
+$$
+
+For propositional calculus, there exists an algorithm to convert a proof of the 
+former into a proof of the latter, and this is a metatheorem known as the
+deduction theorem, which takes much more machinery to tackle.
+
+Normally, we avoid any application of the deduction theorem by directly applying 
+theorems in inference, deduction, or closed form. 
+Much later in `set.mm` there is machinery to apply a "weak deduction theorem." 
+See [converting deductions to theorems](https://us.metamath.org/mpeuni/mmdeduction.html#convert).
+
+### Question 9
+
+Are there theorems (theorem schemes) in classical propositional logic,
+which contain no negation, but are not true in intuitionistic logic? 
+If so, give an example.
+
+#### Answer
+
+
+Peirce's law is an example of such a theorem. 
+
+$$\vdash(((\varphi\to\psi)\to\varphi)\to\varphi).$$
+
+It says that if $\varphi$ follows from assuming $\varphi\to\psi,$
+then $\varphi$ holds, and it relies on the classical axiom for negation.
+See [`peirce`](https://us.metamath.org/mpeuni/peirce.html). In general,
+a formula doesn't need to contain negation to rely on negation axioms in its proof.
+
+### Question 10
+
+What is Clavius's law?
+
+#### Answer
+
+
+[Clavius's law](https://en.wikipedia.org/wiki/Consequentia_mirabilis) is
+
+> If we ought to philosophise, then we ought to philosophise; and if we ought not to philosophise, then we ought to philosophise (i.e. in order to justify this view); in any case, therefore, we ought to philosophise.
+
+This is usually written, in classical logic (theorem 2.18 of Principia Mathematica) as
+
+$$\vdash((\neg\varphi\to\varphi)\to\varphi).$$
+
+There's an interesting and very similar statement in intuitionistic logic, which does not 
+rely on reductio ad absurdum or the law of the excluded middle:
+
+$$\vdash((\varphi\to\neg\varphi)\to\neg\varphi).$$
+
+TODO use latex href links to [`pm2.18`](https://us.metamath.org/mpeuni/pm2.18.html) and `ax-in1`
+
+### Question 11
+
+> [!NOTE]
+> This question was written by AI and has not yet been reviewed.
+
+How are contraposition, double negation, and modus tollens related? Which of these
+contraposition rules are intuitionistically valid?
+
+TODO rewrite in inference rule form w/ href.
+
+$$\begin{aligned}
+\varphi\to\psi&\quad\Longrightarrow\quad\neg\psi\to\neg\varphi,\\
+\varphi\to\neg\psi&\quad\Longrightarrow\quad\psi\to\neg\varphi,\\
+\neg\varphi\to\psi&\quad\Longrightarrow\quad\neg\psi\to\varphi,\\
+\neg\varphi\to\neg\psi&\quad\Longrightarrow\quad\psi\to\varphi.
+\end{aligned}$$
+
+#### Answer
+
+The first two rules are intuitionistically valid. The first is ordinary
+[contraposition](https://us.metamath.org/ileuni/con3.html): if $\varphi$ would
+establish $\psi$, then refuting $\psi$ refutes $\varphi$. The second says that
+if $\varphi$ and $\psi$ are incompatible, they are incompatible in either order;
+see [`con2i`](https://us.metamath.org/ileuni/con2i.html).
+
+The last two require classical logic in general. Intuitionistically, their
+conclusions can be weakened to $\neg\psi\to\neg\neg\varphi$ and
+$\psi\to\neg\neg\varphi$, respectively. Double-negation elimination removes
+the remaining double negation to give the displayed conclusions.
+
+Modus tollens combines the first rule with modus ponens: from
+$\vdash(\varphi\to\psi)$ obtain $\vdash(\neg\psi\to\neg\varphi)$, then
+apply it to $\vdash\neg\psi$. It is therefore intuitionistically valid too.
+
+### Question 12
+
+> [!NOTE]
+> This question was written by AI and has not yet been reviewed.
+
+How does `set.mm` introduce conjunction, disjunction, and biconditional? Why are
+their definitions `$a` statements? What does the Metamath verifier check, and
+what would it mean for a definition to be conservative?
+
+#### Answer
+
+Syntax axioms `wa`, `wo`, and `wb` allow the new connectives to form wffs.
+The defining axioms identify them with expressions built from earlier connectives:
+
+$$\begin{aligned}
+(\varphi\land\psi)&\quad\text{abbreviates}\quad\neg(\varphi\to\neg\psi),\\
+(\varphi\lor\psi)&\quad\text{abbreviates}\quad(\neg\varphi\to\psi),\\
+(\varphi\leftrightarrow\psi)&\quad\text{abbreviates}\quad
+\neg((\varphi\to\psi)\to\neg(\psi\to\varphi)).
+\end{aligned}$$
+
+These lines describe the intended abbreviations. The actual `df-an` and `df-or`
+statements use biconditionals. `df-bi` comes first and expresses its defining
+equivalence using implication and negation, avoiding a circular use of the
+connective being defined. See [`df-bi`](https://us.metamath.org/mpeuni/df-bi.html).
+
+A new connective initially has no logical properties, so its defining relation
+is introduced as a `$a` statement. Metamath has no separate definition command:
+`df-` is a naming convention.
+
+The verifier checks declarations and scoping, and checks that applications of
+assertions satisfy their hypotheses and substitution conditions. A `$a` statement
+has no proof to check. In particular, accepting its syntax does not establish
+that it is a legitimate definition.
+
+Conservativity means that adding the definition proves no new theorems expressible
+entirely in the old language. Establishing that requires a separate argument,
+such as showing how to eliminate the new notation from proofs. See
+[Appendix 4, A Note on Definitions](https://us.metamath.org/mpeuni/mmset.html#definitions).
+
+### Question 13
+
+> [!NOTE]
+> This question was written by AI and has not yet been reviewed.
+
+How does the propositional calculus in `iset.mm` differ from that in `set.mm`?
+What happens to `ax-3`, and why does `notnot` survive while `notnotr` does not?
+
+#### Answer
+
+Both use `ax-1`, `ax-2`, and `ax-mp`. In the implication-and-negation fragment,
+`iset.mm` replaces `ax-3` with
+
+$$\begin{aligned}
+\texttt{ax-in1}:&\quad\vdash((\varphi\to\neg\varphi)\to\neg\varphi),\\
+\texttt{ax-in2}:&\quad\vdash(\neg\varphi\to(\varphi\to\psi)).
+\end{aligned}$$
+
+These allow negation introduction and explosion, but not arbitrary
+double-negation elimination. From $\varphi$, assuming $\neg\varphi$ produces
+a contradiction, so $\varphi\to\neg\neg\varphi$ (`notnot`) survives.
+A refutation of $\neg\varphi$ does not generally supply a proof of $\varphi$,
+so $\neg\neg\varphi\to\varphi$ (`notnotr`) does not survive as a general
+scheme. See [`notnot` in `iset.mm`](https://us.metamath.org/ileuni/notnot.html).
+Peirce's law, Clavius's law, and excluded middle are also unavailable as general
+schemes.
+
+There are changes beyond negation: `iset.mm` gives conjunction and disjunction
+their own axioms, such as [`ax-ia1`](https://us.metamath.org/ileuni/ax-ia1.html)
+and [`ax-io`](https://us.metamath.org/ileuni/ax-io.html). The classical definitions
+in terms of implication and negation do not give the usual intuitionistic
+connectives.
+
+### Question 14
+
+> [!NOTE]
+> This question was written by AI and has not yet been reviewed.
+
+How does `hol.mm` represent reasoning under assumptions? What is the difference
+between `|- R |= S` and an implication expression using `==>`? Why can't we nest
+`|=` as though it were an ordinary implication connective?
+
+#### Answer
+
+`|- R |= S` asserts that under assumption `R`, we have `S`. A combined assumption
+is written `( R , T )`, as in `|- ( R , T ) |= S`. The context is part of the
+asserted expression, although rules may also have separate `$e` hypotheses.
+
+`R` and `S` are terms. The expression `R |= S` is a judgement, not another term
+that can replace either of them. The syntax does not provide a construction
+`term R |= S`, so we cannot substitute a nested judgement where a term is
+required. The full database's
+[`wffMMJ2`](https://us.metamath.org/holuni/wffMMJ2.html) syntax axiom gives it
+typecode `wff`, not `term`.
+
+By contrast, `[ S ==> T ]` is an implication term. For Boolean `S` and `T`, it
+expresses Boolean implication and can occur inside other terms. For example,
+[`mpd`](https://us.metamath.org/holuni/mpd.html) takes `|- R |= S` and
+`|- R |= [ S ==> T ]`, together with `|- T : bool`, to `|- R |= T`.
+This is a derived rule of `hol.mm`; the Metamath verifier itself assigns no
+meaning to either `|=` or `==>`.
+
+### Question 15
+
+
+> [!NOTE]
+> This question was written by AI and has not yet been reviewed.
+
+How does the introductory `ql.mm` example differ from our propositional calculus
+examples? What are its primitive statements and rules, and how do they let us
+prove reflexivity of equality?
+
+#### Answer
+
+In this fragment, variables represent terms. Orthocomplementation forms a term
+`a '`, and an equality `a = b` is a wff. The logical axiom and rules are
+
+$$\vdash a=a''\quad\texttt{ax-a1},$$
+
+$$\frac{\vdash a=b}{\vdash b=a}\quad\texttt{ax-r1},\quad
+\frac{\vdash a=b\quad\vdash b=c}{\vdash a=c}\quad\texttt{ax-r2}.$$
+
+Start with $\vdash a=a''$. Symmetry gives $\vdash a''=a$, and transitivity
+then gives $\vdash a=a$. This is the proof of
+[`id`](https://us.metamath.org/qleuni/id.html).
+
+The example reasons about equality and orthocomplementation using symmetry and
+transitivity. It needs neither implication nor modus ponens. The Metamath
+machinery is the same: substitute expressions into assertions and supply their
+mandatory hypotheses. The database determines which logical rules are available.
+
+### Question 16
+
+
+> [!NOTE]
+> This question was written by AI and has not yet been reviewed.
+
+What is a useful workflow for finding and applying theorems in the Metamath proof
+assistant? How can we find statements that unify with a goal, constrain a
+substitution, and inspect what remains to be proved?
+
+#### Answer
+
+Start with `prove label` and work backwards from the conclusion:
+
+1. Use `show new_proof /unknown` to inspect the unproved steps.
+2. Use `match step n` to find assertions whose conclusions unify with a chosen
+   step. Inspect their hypotheses as well as their conclusions; `search` and
+   the Proof Explorer help when searching by formula or description.
+3. Apply a suitable assertion with `assign n label`. Its mandatory hypotheses
+   become the new goals.
+4. If unification leaves a choice, constrain a working variable with a command
+   such as `let variable $32 = "( ph -> ps )"`. Choose the expression to make
+   the remaining hypotheses provable.
+5. Inspect the result with `show new_proof /essential` or `/unknown`, and repeat.
+   `improve all` can fill in easy steps; `undo` lets us reconsider a choice.
+6. When complete, use `save new_proof` and `write source` to save the work.
+
+A matching conclusion is only a candidate: its hypotheses may make it a poor
+choice. The useful skill is recognizing which rule leaves manageable subgoals.
+See the [proof assistant commands in the Metamath book](book/index.html#5.6-creating-proofs).
+
+### Question 17
+
+
+> [!NOTE]
+> This question was written by AI and has not yet been reviewed.
+
+How could we construct a Metamath proof of an arbitrary classical propositional
+tautology from its truth table? Why should such an algorithm exist, and what
+would it need to produce beyond the truth table itself?
+
+#### Answer
+
+Classical propositional calculus is complete: every formula true under all
+Boolean valuations has a proof from the propositional axioms. A constructive
+completeness proof explains how to build one.
+
+For each row of the truth table, assume the corresponding literals: $p$ when
+that row assigns $p$ true, and $\neg p$ when it assigns $p$ false. Recursively
+follow the formula's construction, using proved rules for the connectives to
+prove each subformula or its negation according to its value in that row.
+For a tautology $A$, every row ends with a proof of $A$ under its literal
+assumptions.
+
+Use the deduction theorem to discharge a literal assumption. Pair the branches
+for $p$ and $\neg p$: they give $p\to A$ and $\neg p\to A$, from which the
+classical proof-by-cases rule `pm2.61i` gives $A$. Repeat for the other variables
+until no literal assumptions remain. Gaifman's
+[completeness argument](https://www.columbia.edu/~hg17/ViewMathLogic/view1-deductive-system.pdf)
+develops this approach.
+
+A Metamath implementation must output actual proof steps, including syntax
+proofs and the instances of axioms or previously proved theorems used in each
+branch. The verifier then checks that proof. A truth table alone is not a
+Metamath proof, and the construction need not produce a short one.
