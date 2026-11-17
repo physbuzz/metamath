@@ -4,7 +4,7 @@ MARKDOWN_OUTPUT ?= markdown-output
 PORT ?= 8002
 HOST ?= 127.0.0.1
 
-.PHONY: all build html markdown quiz rebuild serve watch clean
+.PHONY: all build html markdown quiz rebuild serve watch clean code-02
 
 all: build markdown
 
@@ -26,6 +26,10 @@ serve:
 
 watch:
 	$(MD2HTML) --watch
+
+# Chapter 2.5: SICP query system demonstrations (needs `raco pkg install sicp`).
+# code-02:
+# 	cd src/code-02 && racket demo0-rules.rkt && racket demo0-proofs.rkt && racket prop.rkt
 
 clean:
 	rm -rf html markdown-output

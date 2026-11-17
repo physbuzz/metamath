@@ -18,15 +18,781 @@ Links: [Chapter html](book/index.html#3.2.2-predicate-calculus), [pdf on metamat
 
 ## Introduction.
 
-> [!WARNING]
-> This note is garbage right now
-> This note shouldn't exist for long, why are you looking at it? Go to a different commit man.
+Before getting to predicate calculus, we should spend a bit of time
+seeing how far we can get "without quantifiers." This question and related
+ones such as "why do we need quantifiers?" takes us quite deep into metamathematics
+and the debates of the early 1900's. I should emphasize to logicians reading
+this section that we're coming at the issue from the perspective of Metamath tinkerers
+with total disregard for mathematics, we just want to express fun concepts and we don't
+care how we twist Metamath to get there. From this perspective, many concepts
+of mathematical logic look quite strange and difficult to formulate.
 
-Before getting to predicate calculus, I found it necessary to spend a bit of time
-seeing how far I could get "without quantifiers." 
+We run into a problem immediately: what do we even mean, concretely, by "with quantifiers" or
+"without quantifiers"?
+
+The quantifier axioms in `set.mm` use
+disjoint variable restrictions, so maybe the right framing is
+whether or not `$d` is allowed? Nope, [MPE appendix 7](https://us.metamath.org/mpeuni/mmset.html#subsys) 
+describes how to drop some of the axioms from `set.mm` such that we have predicate logic with no
+disjoint variable restrictions (though the appendix does state that we have to build other 
+machinery to take its place).
+
+From what I can gather, at this point in a truly obstinate Metamath-first approach, 
+we don't have the tools or terminology to motivate quantifiers for any other reason than
+"we \[mathematicians\] often phrase proofs in them" or "the ZFC axioms have quantifiers in them."
+If we're given a obfuscated Metamath database with the variables all renamed, we can't easily
+determine whether it "uses quantifiers" or not, unless we do archaeological work or 
+match the axioms directly to a publication. I really dislike this kind of
+history-first, human-sociology-first statement, but I think it's the best we've got.
+
+Reasons to include quantifiers, appeal to emotion:
+
+- Axioms and statements containing variables are already a sort of "for all" statement. 
+However, we find we can't include "not for all" statements.
+- We also might want to have a $\forall$ statement in an assumption, which can't be done
+with the tools we have so far. (Here I just mean that, in our databases, a statement like 
+`mp.min $e |- P $.` doesn't mean "hypothesize that for all P, turnstile P," rather it can
+be satisfied by any one `wff P` and `|- P`.)
+- We might want nested $\forall$ statements.
+
+Essentially, we have a notion of $\forall$ at the top level of a statement, 
+but we can't do anything where we have to bring $\forall$ inside the statement. 
+TODO: I'm still reading Frege's Begriffschrift, I believe this is the motivation given in there.
+
+Finer points of quantifiers, appeal to Platonic ideals which we don't yet have the tools
+to prove/discuss:
+
+- [Hilbert and Bernays' first epsilon theorem](https://plato.stanford.edu/entries/epsilon-calculus/) 
+states that in certain very general cases, theorems whose proofs involve quantifiers can be rewritten 
+as proofs not involving quantifiers. However, it is not general enough for me to easily make a statement
+like, "all theorems in any Metamath database of such-and-such form can be rewritten so as to not rely
+on the quantifier axioms," because "any Metamath database" is too broad of a thing for me to constrain. 
+The proof of the theorem *does* rely on an algorithm to transform proofs, so it's very constructive and 
+concrete and could be a fun project. But it doesn't give us strong no-go theorems of the form "this new
+system you're writing down contains no new theorems" because it's so easy to write axioms in Metamath
+which land outside its purview.
+- The ideas of [Primitive Recursive Arithmetic](https://en.wikipedia.org/wiki/Primitive_recursive_arithmetic) 
+were developed by Skolem in 1923 with the explicit goal of being quantifier-free. (Skolem's work was later
+made more precise and expanded upon, so we can't say that the full formal system is in that 1923 paper.)
+- Quantifiers [can be viewed as](https://ncatlab.org/nlab/show/hyperdoctrine) left- and right- adjoints to 
+substitution.
+This is far outside the realm where I can comment, but it tells me that if we were in a different universe
+where we chose a different foundation than Metamath, we might have quantifiers beautifully fall out of our 
+theory right about now. So we're not saying quantifiers aren't special, merely that there is nothing 
+special to motivate them in our notes right now. 
+
+Okay, I tried to quarantine all of the things that I cannot concretely formalize into the above writing.
+There's lots of tantalizing stuff, but let's try to illustrate things concretely with examples now.  
+
+## 5.0 Arithmetic With and Without Quantifiers
+
+This section contains no exercises. We're going to start with the theorems 
+developed in the last chapter; so we have all of propositional logic at our
+disposal, and all of the useful theorems and lemmas we want.
+
+### 5.0.1 Common arithmetic axioms
+
+We next can imagine developing arithmetic. Well, no need to develop this all ourselves,
+the best source for the axioms of arithmetic that I found was Peters 2022,
+["Gödel’s Theorem Without Tears,"](https://www.ps.uni-saarland.de/~peters/bachelor/resources/thesis.edited.pdf#page=33) definition 4.16 p.23.
+We already know not to worry about the $\forall$ at the beginning of each formula:
+a theorem scheme already holds for all variables we wish to substitute. The only odd
+axiom out is $\texttt{zos},$ which is indeed specific to Robinson's arithmetic[^1].
+
+[^1]: $\texttt{zos}$ is axiom CD in Peters' notation, I just found that I could never
+remember to write $\texttt{ax-CD}$ in Metamath proofs.
+
+\begin{center}
+\begin{tabular}{cl}
+\texttt{eq-refl} & $\forall x.\; x = x$ \\
+\texttt{eq-sym} & $\forall xy.\; x = y \to y = x$ \\
+\texttt{eq-tr} & $\forall xyz.\; x = y \to y = z \to x = z$ \\
+\texttt{eq-s} & $\forall xy.\; x = y \to \sigma x = \sigma y$ \\
+\texttt{eq-add} & $\forall xyzw.\; x = y \to z = w \to x + z = y + w$ \\
+\texttt{eq-mul} & $\forall xyzw.\; x = y \to z = w \to x \cdot z = y \cdot w$ \\
+\texttt{add-0l} & $\forall x.\; 0 + x = x$ \\
+\texttt{add-sl} & $\forall xy.\; (\sigma x) + y = \sigma(x + y)$ \\
+\texttt{mul-0l} & $\forall x.\; 0 \cdot x = 0$ \\
+\texttt{mul-sl} & $\forall xy.\; (\sigma x) \cdot y = y + x \cdot y$ \\
+\texttt{zns} & $\forall x.\; 0 \ne \sigma x$ \\
+\texttt{zos} & $\forall x.\; x = 0 \lor (\exists y.\; x = \sigma y)$ \\
+\texttt{s-inj} & $\forall xy.\; \sigma x = \sigma y \to x = y$ \\
+\end{tabular}
+\end{center}
+
+Define "System $B$" to be propositional logic, plus all of the above axioms except axiom 
+$\texttt{zos}$ (which is read as "every integer is Zero Or a Successor", as opposed to $\texttt{zns}$ which 
+is "Zero is Not a Successor"). 
+Then my understanding is: 
+
+- Robinson arithmetic is system $B$ plus predicate calculus plus $\texttt{zos}$.
+- Peano arithmetic is system $B$ plus predicate calculus plus induction.
+- Primitive Recursive Arithmetic (PRA) is system $B$ plus primitive recursive functions plus a 
+predicate-free induction axiom.
+
+(TODO cite Feferman, also Avigad, here)
+
+Something I'd like to emphasize here is that we can "prove", or rather construct the term,
+`wff 1 = 0` (ie. `wff S 0 = 0`). This isn't a problem. What is a problem is `|- 1 = 0`,
+constructing that is a big problem.
+
+### 5.0.2 Common arithmetic theorems
+
+After this, we don't really need much ado. We can imagine having a whole host of helper theorems like in 
+propositional logic. A decade ago we might have hemmed and hawed at how long this will take, but in 2026
+we know we can knock it using any number of sledgehammers.
+
+```mm
+${
+  eq-tri.1 $e |- t = u $.
+  eq-tri.2 $e |- u = v $.
+  eq-tri $p |- t = v $=
+    nt nu weq nu nv weq nt nv weq eq-tri.1 eq-tri.2 nt nu nv eq-tr mp2 $.
+$}
+${
+  eq-trd.1 $e |- ( ph -> t = u ) $.
+  eq-trd.2 $e |- ( ph -> u = v ) $.
+  eq-trd $p |- ( ph -> t = v ) $= 
+    wph nu nv weq nt nv weq eq-trd.2 wph nt nu weq nu nv weq nt nv weq wi
+    eq-trd.1 nt nu nv eq-tr syl mpd $.
+$}
+```
+
+Well, and so on and so forth. But there's one glaring omission that we can't seem to prove...
+commutativity of addition. Or more pointedly, given the axiom scheme `add-0l` which says
+$0 + t = t,$ we'd expect to be able to prove the theorem scheme:
+
+```mm
+add-0r $p |- ( t + 0 ) = t $= ? $.
+```
+
+In fact, we can't prove this! To say "we can't prove it" requires some justification, though.
+Number one, this is a metatheorem the likes of which I keep trying and failing to dodge. 
+My concrete, novice perspective is the following: Suppose we introduce some constant `num e`, 
+such that the axiom or theorem `|- -. ( e + 0 ) = e` is satisfied. Of course, `|- ( 0 + e ) = e` also
+holds, because that's an axiom of system $B$. If we can prove or argue that this system is consistent, and that
+the system $B$ is also consistent, then it can only be the case that `|- ( t + 0 ) = t` cannot be 
+proved by system $B.$ Okay, but we can't really broach proofs like that without doing a lot more work
+or a lot of a different kind of work, so we shelve that. The fact remains
+that we don't seem to be able to prove `add-0r`.
+
+But there is indeed an induction argument! 
+
+If $(S^n 0+0)=S^n 0$, then $S(S^n+0)=S^{n+1}0$ by axiom `eq-s`. So $(S^{n+1}+0)=S^{n+1}0$ 
+by `add-sl` (and probably `eq-sym` and `eq-tr`). Also, it is certainly true that $0+0=0$ by `add-0l`.
+So mathematical induction could prove this handily! 
+
+### 5.0.3 Induction without quantifiers
+
+Here we're surely forced to use quantifiers, right? Nope!
+
+Mathematical induction is usually phrased as the following rule[^2]:
+
+[^2]: I omit the use of turnstiles
+because I'm not talking about a Metamath essential hypothesis with typecode `|-`.
+
+$$\frac{P(0)\quad P(t)\to P(t+1)}{P(u)}$$
+
+(TODO: check and cite. I know I read good occurrences of induction as used in other books)
+
+For us this is a bit awkward because we haven't built the machinery to define functions.
+Really what we want to do is something like the following: 
+
+Say our well-formed formula is $\varphi,$ which takes the value `r + 0 = r`, and which 
+we want to "act like a function" in some way. One example is that we need to evaluate
+this at $r=0.$ But... Metamath is just going to replace $\varphi$ with a fixed expression,
+and it has to be that same expression at every occurrence in our formula! We can't say 
+"at this point, unify $\varphi$ with `|- 0 + 0 = 0`, but then later on try to unify it
+with `|- S t + 0 = S t`." 
+
+How do we solve this? First off, we realize that $\varphi$ can only be unified with one
+thing, so in the example case we've been using we say that phi is the wff `x + 0 = x`. 
+How do we ensure that this doesn't get unified with `0 + 0 = 0` once, ruining our ability
+to substitute other values of $x$? The answer is that `x` cannot be of typecode `num`.
+
+We instead do a very clever trick. At least I think it's very clever. We make the following
+definitions:
+
+```mm
+$c var $.
+$v x $.
+vx $f var x $.
+nx $a num x $.
+xzero $p |- ( x = 0 -> ( x + 0 ) = x ) $=
+  vx nx n0 weq vx nx n0 nadd n0 vx nx vx nx n0 weq vx nx n0 nadd n0 n0 nadd n0
+  vx nx n0 n0 eq-add-left n0 n0 nadd n0 weq vx nx n0 weq n0 add-0l a1i eq-trd
+  vx nx n0 eq-sym eq-trd $.
+```
+
+We put $x=0$ in our antecedent, and then use the axioms of our arithmetic to 
+"perform the substitution". The axioms of our arithmetic are usable because 
+we're always allowed to convert `var x` to `num x` via `nx`. Yet we can never
+unify, say, `S 0` in place of `x` because we would need `var S 0`, which 
+we can never build.
+
+I absolutely love this, because it's very instructive for us on two counts: 
+It gives us a Metamath programming trick which we can use, which is
+essentially the same notion as an object variable in logic. 
+And it gives us a method to construct our axiom systems (our axiom systems
+must be sufficiently powerful that we can apply the operations above which
+should be interpreted as "substituting the variable for zero"). I think that's
+a very general lesson about theory building.
+
+(TODO: improve the above paragraph. Also cite the "object variable" thing.)
+
+Introducing a `var` leads us to one other piece of machinery, whose construction
+requires the use of disjoint variables.
+
+Suppose we introduce vars and we manage to prove the
+theorem `|- x + 0 = x`. We wouldn't actually be able to use this to prove `|- t + 0 = t`,
+because t is a num. We can't allow `t` to be converted into a `var` either, as this would 
+lead us straight back to the problem that we just fixed. 
+No issue, we just apply our trick of "evaluating at a variable" again. We introduced 
+the axiom `$a num x $.` to deal with `var`s, what's one more axiom?
+
+Let $\varphi$ be our `wff` which we think of as a function of `x`. And $\psi$ is the value
+of x as the `num t` that we want to plug in. Then we just create an axiom saying we can plug
+in that value:
+
+```mm
+${ 
+  subnum.1 $e |- ( x = t -> ( ph <-> ps ) ) $.
+  subnum.2 $e |- ph $.
+  subnum $a |- ps $.
+$}
+```
+
+It looks good, but in fact we can now prove `|- 1 = 0`. Why? Take `ph := x = x`, `t := 0`, `ps := x = 0`.
+We conclude `|- x = 0`. A second application of `subnum` with `ph := x = 0`, `t := 1`, and `ps := 1 = 0` 
+concludes `|- 1 = 0`.
+
+What went wrong? In our first application of `subnum`, an $x$ was leftover in our formula even though
+we were supposed to be substituting for $x$! The problem is that we allowed the variable $x$ to occur
+anywhere in $\psi$. This is exactly what the disjoint variable restriction, `$d ... $.` prevents:
+
+```mm
+${ 
+  $d x ps $. $d x t $.
+  subnum.1 $e |- ( x = t -> ( ph <-> ps ) ) $.
+  subnum.2 $e |- ph $.
+  subnum $a |- ps $.
+$}
+```
+
+TODO: comment on the reason for the t variable restriction.
+
+Compare this to a similar theorem inside set.mm, [`vtocl`](https://us.metamath.org/mpeuni/vtocl.html).
+
+*Now*, we can begin to construct our induction axiom.
+Well, we have a formula $\varphi$ which is our $P(x)$. We have a base case,
+$P(0)$ which I will call $\psi$. The conclusion of our rule, $P(t)$ which can 
+be evaluated at any `num t`, I'll call $\tau.$ The naming and ordering of the 
+essential hypotheses is something we inherit from `set.mm` by the way, don't blame me 
+for it![^3]
+
+[^3]: An example of this is [nnind](https://us.metamath.org/mpeuni/nnind.html).
+
+```mm
+${
+  $d x ps $. $d x ta $. $d x t $.
+  ax-ind.at-zero $e |- ( x = 0 -> ( ph <-> ps ) ) $.
+  ...
+  ax-ind.at-num $e |- ( x = t ->  ( ph <-> ta ) ) $.
+  ax-ind.base $e |- ps $.
+  ...
+  ax-ind $a |- ta $.
+$}
+```
+
+Okay, and of course we also don't want our expression for $P(t)\to P(t+1)$ to unify
+with some specific `num t`, so that has to be a var as well. 
+So we evaluate at y (call the wff $\chi$), evaluate at y+1 (call the wff $\theta$), 
+and have our inductive hypothesis $(\chi\to\theta)$.
+
+```mm
+${
+  $d x ps $. $d x ta $. $d x t $. 
+  $d x ch $. $d x th $. 
+  $d x y $. $d y ph $.
+  ax-ind.at-zero $e |- ( x = 0 -> ( ph <-> ps ) ) $.
+  ax-ind.at-var $e |- ( x = y -> ( ph <-> ch ) ) $.
+  ax-ind.at-succvar $e |- ( x = S y -> ( ph <-> th ) ) $.
+  ax-ind.at-num $e |- ( x = t ->  ( ph <-> ta ) ) $.
+  ax-ind.base $e |- ps $.
+  ax-ind.step $e |- ( ch -> th ) $.
+  ax-ind $a |- ta $.
+$}
+```
+
+And there we have it, our axiom of induction!
+
+
+
+SCRATCHWORK BELOW HERE
+
+
+
+We need to evaluate it at $r=0,$ $r=t,$ $r=t+1,$ and $r=s,$ because these are the 
+four places we evaluate $P$ in our induction inference rule. Let's take the $r=0$ case and say 
+that $\varphi$ assumes the value $\psi$ at $r=0.$ Well, the phrasing "if r=0 then phi equals psi"
+is very suggestive, so we might want to say
+$(r=0)\to(\psi\leftrightarrow\varphi).$ The intent of this is to say
+that at zero, the wff $\phi$ takes on value $\psi.$ Well, there's one issue here right off the bat: $\psi$ could
+also contain the metavariable $r$. No problem, we've been saving just the tool for that! 
+
+
+Okay, converting to metamath-pseudocode:
+
+```mm
+${
+  ax-ind.1 $e P ( 0 ) $.
+  ax-ind.2 $e P ( t ) -> P ( S t ) $.
+  ax-ind $a P ( u )
+$}
+```
+
+
+
+While it could be natural to do so, I'm drawing the line somewhere!! This is not a full 
+development of arithmetic from scratch. We simply want to see an axiom that is sufficient to 
+prove our theorem using induction. 
+
+
+
+
+
+Alright, let's try to put this into Metamath form. We're going to have essential hypotheses, so
+we'll have something like:
+
+```mm
+${
+  ax-ind.1 $e ... $.
+  ax-ind $a TODO
+$}
+```
+
+
+Our proposition, $\varphi,$ is $t+0=t.$ To evaluate this proposition at zero, we care about the 
+statement $t=0\to \varphi$
+
+[AI SECTION BEGIN]
+
+More precisely, we need to distinguish a formula from a formula with an
+argument singled out for substitution. If $P(x)$ is $x+0=x$, we want to
+relate it to $P(0)$, which is $0+0=0$. Metamath has no built-in operation
+`ph(0)` for doing this. An equality guard such as `x = 0` can help, but it
+matters what we allow in the position occupied by `x`.
+
+Here is a small example before we tackle induction. Suppose we have proved
+
+$$x=0\to\psi,$$
+
+where $x$ does not occur in $\psi$. Since this is a theorem for arbitrary
+$x$, it holds when $x$ has value zero. Therefore $\psi$ holds. Changing the
+value of $x$ does not change $\psi$, precisely because $x$ does not occur
+there. This motivates the following theorem-to-theorem rule:
+
+```mm
+${
+  $d x ps $.
+  at-zero.1 $e |- ( x = 0 -> ps ) $.
+  at-zero $a |- ps $.
+$}
+```
+
+This is a proposed extra rule, not something we already get from
+propositional logic. It illustrates one operation we might want when
+working with equality guards: after proving `x = 0 -> P(0)`, we can remove
+the guard, because the instance `P(0)` no longer contains `x`.
+
+Now suppose we declared `nx $f num x $.`. This would let us substitute
+`S 0` for `x`. Choose `ps` to be `S 0 = 0`. The premise becomes
+
+```text
+|- ( S 0 = 0 -> S 0 = 0 )
+```
+
+which is just an instance of `id`! The rule would then conclude
+
+```text
+|- S 0 = 0
+```
+
+The `$d` condition does not prevent this: both substituted expressions
+contain only constants. The argument for the rule has broken because
+`S 0` cannot take the value zero. A position intended for an independently
+varying variable has accepted a fixed arithmetic expression.
+
+To prevent this, give individual variables their own type, with a rule
+allowing them to be used as arithmetic terms:
+
+```mm
+$c var $.
+$v x y $.
+vx $f var x $.
+vy $f var y $.
+nvar $a num x $.
+```
+
+There is no rule constructing `var 0` or `var S t`. Thus `at-zero` now
+requires a variable in its `x` position, and the bad application above
+fails: we can prove `num S 0`, but cannot prove `var S 0`.
+
+The rule `nvar` is essential to using these variables in equations. Given
+the existing syntax rule `weq $a wff t = u $.`, whose arguments have type
+`num`, we can prove:
+
+```mm
+eq-vars $p wff x = y $= vx nvar vy nvar weq $.
+```
+
+The two uses of `nvar` supply `num x` and `num y`; `weq` then supplies
+`wff x = y`. Likewise, `vx nvar n0 weq` proves `wff x = 0`. These syntax
+proofs can appear directly inside other proofs; we need not give each one
+a separate theorem label.
+
+Declaring a variable to have type `num` is perfectly appropriate for the
+arithmetic rules we already have. The trouble arises when we use that
+type for a position whose intended job is to identify a variable we can
+vary or substitute for. The combination of `var`, `nvar`, and `$d` gives
+us a small amount of machinery for that job. We can then build the
+induction rule using proofs that connect the zero, variable, successor,
+and target instances of our property.
+
+[AI SECTION END]
+
+Since I'm a novice I should clarify the ", I'm relying on the observation that these theorems
+use induction inside `set.mm`, and AI claims (TODO: strengthen citation?). I believe that the
+statement, "it holds for every $S^n 0,$ but we cannot prove it" can be demonstrated by introducing some
+constant `num e` such that in fact, `-. ( e + 0 ) = e` though of course the axiom `( 0 + e ) = e` must hold.
+If the resulting system is consistent -- an argument which I don't know how to make -- then of course
+we shouldn't be able to prove $t+0=t$ because it's not true in this weird new system!
+
+
+Hmm... 
+
+Granted, for any given numbers we can prove $n+m=m+n$ (or rather, $(S^n 0+S^m 0)=(S^m 0+S^n 0)$),
+but we can't seem to prove the general theorem scheme. A more simple and pointed example is
+that we're given $0 + x = x,$ but we can't seem to prove the 
+
+
+which 
+This gives us a concrete reason to introduce quantifiers!!!
+
+
+
+
+# Scratchwork
+
+```mm
+$( Representative arithmetic helpers; the propositional library of set.mm
+   is available, including mp2, mp2d, syl, syl5, syl6, com12, and com23. $)
+
+$( Inference form: detach both premises with mp2. $)
+${
+  eq-tri.1 $e |- t = u $.
+  eq-tri.2 $e |- u = v $.
+eq-tri $p |- t = v $=
+  nt nu weq nu nv weq nt nv weq eq-tri.1 eq-tri.2 nt nu nv eq-tr mp2 $.
+$}
+
+$( Equality transitivity: deduction form. $)
+${
+  eq-trans-d.1 $e |- ( ph -> t = u ) $.
+  eq-trans-d.2 $e |- ( ph -> u = v ) $.
+eq-trans-d $p |- ( ph -> t = v ) $=
+  wph nu nv weq nt nv weq eq-trans-d.2 wph nt nu weq nu nv weq nt nv weq wi
+  eq-trans-d.1 nt nu nv eq-tr syl mpd $.
+$}
+
+$( Equality transitivity: closed form with the premises exchanged by com12. $)
+eq-tr-com $p |- ( u = v -> ( t = u -> t = v ) ) $=
+  nt nu weq nu nv weq nt nv weq nt nu nv eq-tr com12 $.
+
+$( Equality symmetry: inference form. $)
+${
+  eq-symi.1 $e |- t = u $.
+eq-symi $p |- u = t $=
+  nt nu weq nu nt weq eq-symi.1 nt nu eq-sym ax-mp $.
+$}
+
+$( Equality symmetry: deduction form. $)
+${
+  eq-sym-d.1 $e |- ( ph -> t = u ) $.
+eq-sym-d $p |- ( ph -> u = t ) $=
+  wph nt nu weq nu nt weq eq-sym-d.1 nt nu eq-sym syl $.
+$}
+
+$( Successor congruence: inference form. $)
+${
+  eq-si.1 $e |- t = u $.
+eq-si $p |- S t = S u $=
+  nt nu weq nt nS nu nS weq eq-si.1 nt nu eq-s ax-mp $.
+$}
+
+$( Successor congruence: deduction form. $)
+${
+  eq-succ-d.1 $e |- ( ph -> t = u ) $.
+eq-succ-d $p |- ( ph -> S t = S u ) $=
+  wph nt nu weq nt nS nu nS weq eq-succ-d.1 nt nu eq-s syl $.
+$}
+
+$( Congruence in the left argument: closed form. $)
+eq-add-left $p |- ( t = u -> ( t + v ) = ( u + v ) ) $=
+  nv nv weq nt nu weq nt nv nadd nu nv nadd weq wi nv eq-refl nt nu weq nv nv
+  weq nt nv nadd nu nv nadd weq nt nu nv nv eq-add com12 ax-mp $.
+
+$( Congruence in the right argument: closed form. $)
+eq-add-right $p |- ( t = u -> ( v + t ) = ( v + u ) ) $=
+  nv nv weq nt nu weq nv nt nadd nv nu nadd weq wi nv eq-refl nv nv nt nu
+  eq-add ax-mp $.
+
+$( Inference form: detach both premises with mp2. $)
+${
+  eq-add-i.1 $e |- t = u $.
+  eq-add-i.2 $e |- v = w $.
+eq-add-i $p |- ( t + v ) = ( u + w ) $=
+  nt nu weq nv nw weq nt nv nadd nu nw nadd weq eq-add-i.1 eq-add-i.2 nt nu nv
+  nw eq-add mp2 $.
+$}
+
+$( Joint congruence: deduction form. $)
+${
+  eq-add-d.1 $e |- ( ph -> t = u ) $.
+  eq-add-d.2 $e |- ( ph -> v = w ) $.
+eq-add-d $p |- ( ph -> ( t + v ) = ( u + w ) ) $=
+  wph nv nw weq nt nv nadd nu nw nadd weq eq-add-d.2 wph nt nu weq nv nw weq
+  nt nv nadd nu nw nadd weq wi eq-add-d.1 nt nu nv nw eq-add syl mpd $.
+$}
+
+$( Congruence in the left argument: closed form. $)
+eq-mul-left $p |- ( t = u -> ( t * v ) = ( u * v ) ) $=
+  nv nv weq nt nu weq nt nv nmul nu nv nmul weq wi nv eq-refl nt nu weq nv nv
+  weq nt nv nmul nu nv nmul weq nt nu nv nv eq-mul com12 ax-mp $.
+
+$( Congruence in the right argument: closed form. $)
+eq-mul-right $p |- ( t = u -> ( v * t ) = ( v * u ) ) $=
+  nv nv weq nt nu weq nv nt nmul nv nu nmul weq wi nv eq-refl nv nv nt nu
+  eq-mul ax-mp $.
+
+$( Inference form: detach both premises with mp2. $)
+${
+  eq-mul-i.1 $e |- t = u $.
+  eq-mul-i.2 $e |- v = w $.
+eq-mul-i $p |- ( t * v ) = ( u * w ) $=
+  nt nu weq nv nw weq nt nv nmul nu nw nmul weq eq-mul-i.1 eq-mul-i.2 nt nu nv
+  nw eq-mul mp2 $.
+$}
+
+$( Joint congruence: deduction form. $)
+${
+  eq-mul-d.1 $e |- ( ph -> t = u ) $.
+  eq-mul-d.2 $e |- ( ph -> v = w ) $.
+eq-mul-d $p |- ( ph -> ( t * v ) = ( u * w ) ) $=
+  wph nv nw weq nt nv nmul nu nw nmul weq eq-mul-d.2 wph nt nu weq nv nw weq
+  nt nv nmul nu nw nmul weq wi eq-mul-d.1 nt nu nv nw eq-mul syl mpd $.
+$}
+
+$( Two terms equal to the same term are equal. $)
+${
+  eq-common-i.1 $e |- t = v $.
+  eq-common-i.2 $e |- u = v $.
+eq-common-i $p |- t = u $=
+  nt nv nu eq-common-i.1 nu nv eq-common-i.2 eq-symi eq-tri $.
+$}
+
+$( Addition congruence in one argument: inference form. $)
+${
+  eq-add-righti.1 $e |- t = u $.
+eq-add-righti $p |- ( v + t ) = ( v + u ) $=
+  nt nu weq nv nt nadd nv nu nadd weq eq-add-righti.1 nt nu nv eq-add-right
+  ax-mp $.
+$}
+
+$( Compose congruence lemmas to replace a term inside a larger expression. $)
+eq-add-mul $p |- ( t = u -> ( ( t + v ) * w ) = ( ( u + v ) * w ) ) $=
+  nt nu weq nt nv nadd nu nv nadd weq nt nv nadd nw nmul nu nv nadd nw nmul
+  weq nt nu nv eq-add-left nt nv nadd nu nv nadd nw eq-mul-left syl $.
+
+$( Cancel matching successors, in both directions. $)
+ss-eq $p |- ( S S t = S S u <-> t = u ) $=
+  nt nS nS nu nS nS weq nt nu weq nt nS nS nu nS nS weq nt nS nu nS weq nt nu
+  weq nt nS nu nS s-inj nt nu s-inj syl nt nu weq nt nS nu nS weq nt nS nS nu
+  nS nS weq nt nu eq-s nt nS nu nS eq-s syl impbii $.
+
+$( A successor is not zero. $)
+snz $p |- -. S t = 0 $=
+  nt nS n0 weq n0 nt nS weq nt zns nt nS n0 eq-sym mto $.
+
+$( Calculation step: from t + u = v, obtain S t + u = S v. $)
+${
+  add-stepi.1 $e |- ( t + u ) = v $.
+add-stepi $p |- ( S t + u ) = S v $=
+  nt nS nu nadd nt nu nadd nS nv nS nt nu add-sl nt nu nadd nv add-stepi.1
+  eq-si eq-tri $.
+$}
+
+$( Calculation step: from t * u = v and u + v = w, obtain S t * u = w. $)
+${
+  mul-stepi.1 $e |- ( t * u ) = v $.
+  mul-stepi.2 $e |- ( u + v ) = w $.
+mul-stepi $p |- ( S t * u ) = w $=
+  nt nS nu nmul nu nv nadd nw nt nS nu nmul nu nt nu nmul nadd nu nv nadd nt
+  nu mul-sl nt nu nmul nv nu mul-stepi.1 eq-add-righti eq-tri mul-stepi.2
+  eq-tri $.
+$}
+
+$( One plus an arbitrary term. $)
+add-1l $p |- ( S 0 + t ) = S t $=
+  n0 nS nt nadd n0 nt nadd nS nt nS n0 nt add-sl n0 nt nadd nt nt add-0l eq-si
+  eq-tri $.
+
+$( Two plus an arbitrary term, using the preceding lemma. $)
+add-2l $p |- ( S S 0 + t ) = S S t $=
+  n0 nS nS nt nadd n0 nS nt nadd nS nt nS nS n0 nS nt add-sl n0 nS nt nadd nt
+  nS nt add-1l eq-si eq-tri $.
+
+$( A nested sum with an arbitrary term. $)
+add-2-3-term $p |- ( S S 0 + ( S S S 0 + t ) ) = ( S S S S S 0 + t ) $= ? $.
+
+$( 3 + 2 = 5: one application of the addition-step rule. $)
+add-3-2-value $p |- ( S S S 0 + S S 0 ) = S S S S S 0 $=
+  n0 nS nS n0 nS nS n0 nS nS nS nS add-2-2-value add-stepi $.
+
+$( 2 + 3 = 5: one application of the addition-step rule. $)
+add-2-3-value $p |- ( S S 0 + S S S 0 ) = S S S S S 0 $=
+  n0 nS n0 nS nS nS n0 nS nS nS nS add-1-3-value add-stepi $.
+
+$( Combine two evaluations with the common-value equality rule. $)
+add-3-2 $p |- ( S S S 0 + S S 0 ) = ( S S 0 + S S S 0 ) $=
+  n0 nS nS nS n0 nS nS nadd n0 nS nS n0 nS nS nS nadd n0 nS nS nS nS nS
+  add-3-2-value add-2-3-value eq-common-i $.
+
+$( 2 * 3 = 6: one application of the multiplication-step rule. $)
+mul-2-3-value $p |- ( S S 0 * S S S 0 ) = S S S S S S 0 $=
+  n0 nS n0 nS nS nS n0 nS nS nS n0 nS nS nS nS nS nS mul-1-3-value
+  add-3-3-value mul-stepi $.
+
+$( 3 * 2 = 6: one application of the multiplication-step rule. $)
+mul-3-2-value $p |- ( S S S 0 * S S 0 ) = S S S S S S 0 $=
+  n0 nS nS n0 nS nS n0 nS nS nS nS n0 nS nS nS nS nS nS mul-2-2-value
+  add-2-4-value mul-stepi $.
+
+$( Combine two evaluations with the common-value equality rule. $)
+mul-2-3 $p |- ( S S 0 * S S S 0 ) = ( S S S 0 * S S 0 ) $=
+  n0 nS nS n0 nS nS nS nmul n0 nS nS nS n0 nS nS nmul n0 nS nS nS nS nS nS
+  mul-2-3-value mul-3-2-value eq-common-i $.
+
+$( Transport a known inequality along a proved equation. $)
+${
+  neq-replace.1 $e |- t = u $.
+  neq-replace.2 $e |- -. u = v $.
+neq-replace $p |- -. t = v $=
+  nt nv weq nu nv weq neq-replace.2 nu nt weq nt nv weq nu nv weq wi nt nu
+  neq-replace.1 eq-symi nu nt nv eq-tr ax-mp mto $.
+$}
+
+$( Two is not one. $)
+neq-2-1 $p |- -. S S 0 = S 0 $=
+  n0 nS nS n0 nS weq n0 nS n0 weq n0 snz n0 nS n0 s-inj mto $.
+
+$( 1 + 1 = 2: one application of the addition-step rule. $)
+add-1-1-value $p |- ( S 0 + S 0 ) = S S 0 $=
+  n0 n0 nS n0 nS add-0-1-value add-stepi $.
+
+$( Combine the calculation and inequality lemmas: one plus one is not one. $)
+neq-1p1-1 $p |- -. ( S 0 + S 0 ) = S 0 $=
+  n0 nS n0 nS nadd n0 nS nS n0 nS add-1-1-value neq-2-1 neq-replace $.
+
+$( Two is not three. $)
+neq-2-3 $p |- -. S S 0 = S S S 0 $=
+  n0 nS nS n0 nS nS nS weq n0 n0 nS weq n0 zns n0 nS nS n0 nS nS nS weq n0 nS
+  n0 nS nS weq n0 n0 nS weq n0 nS n0 nS nS s-inj n0 n0 nS s-inj syl mto $.
+
+$( One times t reduces to t + 0, before induction. $)
+mul-1l-base $p |- ( S 0 * t ) = ( t + 0 ) $=
+  n0 nS nt nmul nt n0 nt nmul nadd nt n0 nadd n0 nt mul-sl n0 nt nmul n0 weq
+  nt n0 nt nmul nadd nt n0 nadd weq nt mul-0l n0 nt nmul n0 nt eq-add-right
+  ax-mp eq-tri $.
+
+$( Two times t reduces to t + ( t + 0 ), before induction. $)
+mul-2l-base $p |- ( S S 0 * t ) = ( t + ( t + 0 ) ) $=
+  n0 nS nS nt nmul nt n0 nS nt nmul nadd nt nt n0 nadd nadd n0 nS nt mul-sl n0
+  nS nt nmul nt n0 nadd weq nt n0 nS nt nmul nadd nt nt n0 nadd nadd weq nt
+  mul-1l-base n0 nS nt nmul nt n0 nadd nt eq-add-right ax-mp eq-tri $.
+```
+
+
+# Old article
+
+
+
+
+
+
+From what I understand, 
+
+So we take 
+
+```mm
+$( Terms and equations. $)
+$c num = + * 0 S $.
+$v t u v w $.
+nt $f num t $.  nu $f num u $.  nv $f num v $.  nw $f num w $.
+weq $a wff t = u $.
+n0 $a num 0 $.
+nS $a num S t $.
+nadd $a num ( t + u ) $.
+nmul $a num ( t * u ) $.
+
+$( Peters, Definition 4.16, p. 23: equality in his printed order. $)
+eq-ER $a |- t = t $.
+eq-ES $a |- ( t = u -> u = t ) $.
+eq-ET $a |- ( t = u -> ( u = v -> t = v ) ) $.
+eq-CS $a |- ( t = u -> S t = S u ) $.
+eq-CA $a |- ( t = u -> ( v = w -> ( t + v ) = ( u + w ) ) ) $.
+eq-CM $a |- ( t = u -> ( v = w -> ( t * v ) = ( u * w ) ) ) $.
+```
+
+
+whose premises and conclusion don't involve quantifiers,
+but whose proof involves quantifiers, there exists a proof of the theorem without quantifiers.
+
+ Metamath is too broad of a system to easily make statements like
+
+I think that from a truly obstinate Metamath-first approach, *at this point in our education*,
+we can only say that "using quantifiers" and "not using quantifiers"
+refer to the human estimation and opinion about a Metamath database. To formalize
+"a formal system does or doesn't have quantifiers", we would first, for example, formalize what
+a formal system is inside `set.mm`.
+
+
+
+Does it simply mean with or without the disjoint variable restriction?
+
+
+ not English language philosophizing and that we're really doing something concrete. 
+I'm c
+
+ insisting as using Metamath as a foundation in order to avoid the English language
+struggles I see in class so often. 
+
+
+If I use Metamath as my foundation, though,
+I'm confronted with a bit of an issue... What does "without quantifiers" mean? 
+The only syntax feature I haven't used yet is the disjoint variable restriction, 
+so perhaps that's it? 
+
+ So indeed the class of logics that Metamath allows us to 
+talk about is quite large, which means that if we're creative enough we could certainly
+make very expressive systems that don't follow the usual development of `set.mm`, or 
+apply obfuscation tricks to the point where it's unclear if we are or are not "using quantifiers". 
+
 
 So far we (or I) have been a bit myopic on propositional logic. So we have to remind
-ourselves that we can introduce new symbols. For example, the fundamentals of arithmetic:
+ourselves that we can introduce new symbols and new axioms. 
+
+For example, the fundamentals of arithmetic:
 
 ```mm
 $v t u v$.
@@ -43,32 +809,11 @@ eq-S $a |- ( t = u -> S t = S u ) $.
 
 
 
-If I use Metamath as my foundation, though,
-I'm confronted with a bit of an issue... What does "without quantifiers" mean? 
-The only syntax feature I haven't used yet is the disjoint variable restriction, 
-so perhaps that's it? Nope, [MPE appendix 7](https://us.metamath.org/mpeuni/mmset.html#subsys) 
-describes how to drop some of the axioms from `set.mm` such that we have predicate logic with no
-disjoint variable restrictions. So indeed the class of logics that Metamath allows us to 
-talk about is quite large, which means that if we're creative enough we could certainly
-make very expressive systems that don't follow the usual development of `set.mm`, or 
-apply obfuscation tricks to the point where it's unclear if we are or are not "using quantifiers". 
-
-So from a truly obstinate Metamath-first approach, *at this point in our education*,
-we can only say that "using quantifiers" and "not using quantifiers"
-refer to the human estimation and opinion about a Metamath database. To formalize
-"a formal system does or doesn't have quantifiers", we would first, for example, formalize what
-a formal system is inside `set.mm`.
 
 - This is [Hilbert and Bernays' First Epsilon Theorem](TODO) In any first order logic, for theorems whose premises and conclusion don't involve quantifiers,
 but whose proof involves quantifiers, there exists a proof of the theorem without quantifiers.
 This is [Hilbert and Bernays' First Epsilon Theorem](TODO). This is quite broad, but I don't have
 the expertise to cast it into a statement about "any Metamath database of a specific form."
-- If we proceed to develop a usable theory of arithmetic without using quantifiers, we 
-arrive at a very interesting axiomatization for which I could find no metamath database: 
-[Primitive Recursive Arithmetic](TODO wiki link), which was developed by Skolem with 
-the explicit goal of being quantifier-free.
-- In Lawvere hyperdoctrines and topos theory, a quantifier can be viewed as the adjoint
-to substitutions. No I will not elaborate. (TODO check veracity and link; no need to get crazy with it we don't want an explanation here.)
 - https://plato.stanford.edu/entries/peirce-logic/
 - https://plato.stanford.edu/entries/logical-consequence/
 - https://www.andrew.cmu.edu/user/avigad/Papers/understanding2.pdf
