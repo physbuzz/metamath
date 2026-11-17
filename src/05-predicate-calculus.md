@@ -10,14 +10,198 @@ title: "5. Variables, Binding, and Predicate Calculus"
 
 <h1 id="05-predicate-calculus" style="border-bottom: none;">5. Variables, Binding, and Predicate Calculus</h1>
 
-Links: [Chapter html](book/index.html#3.2.2-predicate-calculus), [pdf on metamath.org](https://us.metamath.org/downloads/metamath.pdf#page=82). All that work and we've only gone 5 pages forwards in the pdf, lol.
+Links: [Chapter html](book/index.html#3.2.2-predicate-calculus), [pdf on metamath.org](https://us.metamath.org/downloads/metamath.pdf#page=82). All that work and we've only gone 5 pages forwards in the pdf!
+
+
+@toc(hn)
+
+
+## Introduction.
+
+> [!WARNING]
+> This note is garbage right now
+> This note shouldn't exist for long, why are you looking at it? Go to a different commit man.
+
+Before getting to predicate calculus, I found it necessary to spend a bit of time
+seeing how far I could get "without quantifiers." 
+
+So far we (or I) have been a bit myopic on propositional logic. So we have to remind
+ourselves that we can introduce new symbols. For example, the fundamentals of arithmetic:
+
+```mm
+$v t u v$.
+nt $f num t $.  nu $f num u $.  nv $f num v $.
+weq $a wff t = u $.
+n0 $a num 0 $.
+nS $a num S t $.
+eq-refl $a |- t = t $.
+eq-sym $a |- ( t = u -> u = t ) $.
+eq-tr $a |- ( t = u -> ( u = v -> t = v ) ) $.
+eq-S $a |- ( t = u -> S t = S u ) $.
+```
+
+
+
+
+If I use Metamath as my foundation, though,
+I'm confronted with a bit of an issue... What does "without quantifiers" mean? 
+The only syntax feature I haven't used yet is the disjoint variable restriction, 
+so perhaps that's it? Nope, [MPE appendix 7](https://us.metamath.org/mpeuni/mmset.html#subsys) 
+describes how to drop some of the axioms from `set.mm` such that we have predicate logic with no
+disjoint variable restrictions. So indeed the class of logics that Metamath allows us to 
+talk about is quite large, which means that if we're creative enough we could certainly
+make very expressive systems that don't follow the usual development of `set.mm`, or 
+apply obfuscation tricks to the point where it's unclear if we are or are not "using quantifiers". 
+
+So from a truly obstinate Metamath-first approach, *at this point in our education*,
+we can only say that "using quantifiers" and "not using quantifiers"
+refer to the human estimation and opinion about a Metamath database. To formalize
+"a formal system does or doesn't have quantifiers", we would first, for example, formalize what
+a formal system is inside `set.mm`.
+
+- This is [Hilbert and Bernays' First Epsilon Theorem](TODO) In any first order logic, for theorems whose premises and conclusion don't involve quantifiers,
+but whose proof involves quantifiers, there exists a proof of the theorem without quantifiers.
+This is [Hilbert and Bernays' First Epsilon Theorem](TODO). This is quite broad, but I don't have
+the expertise to cast it into a statement about "any Metamath database of a specific form."
+- If we proceed to develop a usable theory of arithmetic without using quantifiers, we 
+arrive at a very interesting axiomatization for which I could find no metamath database: 
+[Primitive Recursive Arithmetic](TODO wiki link), which was developed by Skolem with 
+the explicit goal of being quantifier-free.
+- In Lawvere hyperdoctrines and topos theory, a quantifier can be viewed as the adjoint
+to substitutions. No I will not elaborate. (TODO check veracity and link; no need to get crazy with it we don't want an explanation here.)
+- https://plato.stanford.edu/entries/peirce-logic/
+- https://plato.stanford.edu/entries/logical-consequence/
+- https://www.andrew.cmu.edu/user/avigad/Papers/understanding2.pdf
+- https://concrete-semantics.org/
+- https://plato.stanford.edu/entries/proof-theoretic-semantics/
+- WHAT NUMBERS COULD NOT BE
+- https://ncatlab.org/nlab/show/quantification
+
+Okay, so there's a tremendous amount left to do to answer the question "why quantifiers?"
+I feel that, in this presentation, we just haven't built up the tools to motivate it
+as a platonic ideal of some kind. So we have to build it up by the more conventional route,
+by recognizing the social phenomenon that mathematicians say a lot of things using quantifiers,
+and we want to use quantifiers too. 
+
+"But wait!" You object, "mathematicians use the concept of discharging a hypothesis, and we gave 
+that up too. Why not quantifiers?" Well, like, I don't know man, but quantifiers are pretty nice 
+aren't they?
+
+
+## 5.0 
+
+### 5.0.1 An example database without predicates.
+
+
+Well, mathematicians say a lot of things with the concept of "discharging a hypothesis," and we
+seemed to do fine without that, but okay, quantifiers is something we won't give up so easily.
+
+To start with, a metatheorem is already essentially a universal quantifier, the statement
+`$p |- P ( x ) $.` could easily be read as "$\forall x P(x)$". But what we're missing is quantifiers
+inside assertions, especially $\neg \forall x P(x).$ Implication, nesting, etc. is also 
+troublesome. In order to express these things. 
+
+ as it's a "for all" statement.
+But we struggle when we want to write "not ()
+
+
+Thus, *we* have three reasons to introduce quantifiers:
+
+1. Mathematicians 
+
+1. Mathematicians (and us) want to express theorems and assumptions in terms of quantifiers.
+
+2. perhaps we find that we cannot express the theorems that we want without quantifiers or;
+3. perhaps we find that we cannot apply the proof strategies we want without quantifiers.
+
+
+will refer to specific judgements of 
+
+Okay, so 
+
+I could mean "without disjoint variable restrictions," but then we 
+
+If we keep asking fundamental questions about *why* we are developing the particular brand of logic
+that we're developing, we quickly wind up back at the debates of the late 19th and early 20th century.
+I don't have the expertise to cover things in such detail, so -- as always -- take what I say with a 
+grain of salt! 
+
+Before getting to predicate calculus, I found it necessary to spend a bit of time on
+*why* we introduce quantifiers to logic. Three different possibilities come to mind:
+
+1. Perhaps we find that we express a theorem in our new system, built on top of propositional calculus, 
+which we cannot prove without quantifiers;
+
+The answer appears to be points 2 and 3. For point 1, I'm told this is ruled out by Hilbert and Bernay's first
+epsilon theorem, as well as Herbrand's theorem. These theorems basically say that if the assumptions and 
+conclusions of a theorem don't contain quantifiers, we can always eliminate quantifiers from its proof. 
+However I couch my words in "it appears to be" and "I'm told" because
+we're very creative people, and I worry that Metamath makes it very easy to create nonstandard
+systems of logic which lay outside the purview of these theorems. Since we can't formalize those issues right now,
+we'll have to stow any subtleties about point 1 and just assume that points 2 and 3 are what we want.
+Personally I did f
+
+
+
+
+
+
+
+So, we have a few problems with introducing quantified logic. 
+
+The problem with introducing quantified logic is explained well in the Metamath book,
+
+but I'll write a bit to make it more concrete.
+
+Consider Metamath's `ax-5`: 
+```mm
+$c 0 1 2 + num = $. 
+$v x y z $.
+nx $f num x $.
+ny $f num y $.
+nz $f num z $.
+npl $a num ( x + y ) $.
+weq $a wff x = y $.
+
+foo-1 $a ( x + 0 ) = 0 $.
+foo-2 $a 0 + 1 = 0 $.
+${
+  $d x ph $.
+  ax-5 $a |- ( ph -> A. x ph ) $.
+$}
+```
+
+If we ignore the `$d` symbol, and also say we've introduced equality `=` which 
+
+Consider Metamath's 
+
+The problem with introducing quantified logic is as follows.
+
+Say we tried to define quantified logic ourselves. Okay, 
+
+
+ Supposing we have 
+$\forall x \varphi(x,y).$ 
+
+Required reading:
+
+- Tarski 1964, *[A Simplified Nomalization of Predicate Logic with Identity](http://eudml.org/doc/137772)*.
+- Megill 1995, *[A Finitely Axiomatized Formalization of Predicate Calculus with Equality](doi.org/10.1305/ndjfl/1040149359)*.
+
+### Notes on Tarski 1964
+
+So, the 
+
+### Notes on Megill 1995
+
+
+
+
 
 > [!CAUTION]
 > This document is completely AI-generated and has not been reviewed. 
 
-@toc(hn)
-
-## Introduction
+## AI Slop
 
 Okay, now for the disjoint variables. In chapter 4 I wanted to get a feel for
 classical logic by actually proving things in Metamath. Here I want to do the
