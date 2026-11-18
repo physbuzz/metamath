@@ -1320,3 +1320,153 @@ Substituting the two equality formulas into `cbvalvw` produces the additional
 pairs `x,z` and `y,z`. A general theorem about a specified renaming procedure
 would quantify over represented expressions and the procedure's inputs or
 outputs. This exercise supplies one checked instance using an existing rule.
+
+
+
+
+
+
+## Skolem 1923
+[AI SPARKNOTES]
+
+#### What to take away
+
+Read this as a demonstration of how much arithmetic can be done with recursive
+functions, recursive predicates, and induction. Skolem starts with addition and
+gets as far as gcd, lcm, prime factorization, infinitely many primes, and finite
+counting. He is developing arithmetic under a restriction on the kinds of
+statements he uses. He is not proving that quantifiers can be removed from any
+arithmetic theory we might write down.
+
+The restriction is on unbounded *bound* variables. Free variables are welcome:
+$a+b=b+a$ is one of his “functional assertions.” So our use of arbitrary terms
+in theorem schemes is close to what he has in mind. He does not require us to
+replace every theorem by a separate theorem about each numeral. Also,
+“quantifier-free” does not mean “predicate-free”: much of the paper consists of
+introducing predicates and proving things about them.
+
+The editorial introduction explicitly says that this is not a fully specified
+formal system. Skolem takes arithmetic reasoning and substitution of equals for
+equals for granted. In `arith.mm`, those steps need actual rules and proofs.
+That is part of our project, rather than something this paper has already
+specified for us.
+
+#### A short route through the paper
+
+Links below open the [32-page extract](book/dontshare/skolem-1923-foundations-of-elementary-arithmetic.pdf#page=1).
+The page numbers are for that extract; add 312 for the original van Heijenoort PDF.
+
+1. Read the introduction and Skolem's opening, pp. 1–4. Separate the editor's
+   explanation of later primitive recursive arithmetic from Skolem's own claims.
+   The main question is how to replace a search over all numbers by a bounded
+   computation. You can skim the discussion of “the author of Waverley.”
+
+2. Read [§1, pp. 4–5](book/dontshare/skolem-1923-foundations-of-elementary-arithmetic.pdf#page=4)
+   carefully. His first theorem is associativity of addition, followed by the
+   lemma $a+1=1+a$, then commutativity. Each proof shows the same useful pattern:
+   unfold a recursive definition, use the induction hypothesis inside a larger
+   expression, and fold the definition back up. Notice which variable is being
+   inducted on and which other variables remain arbitrary.
+
+3. Read Definition 2 at the start of
+   [§2, p. 5](book/dontshare/skolem-1923-foundations-of-elementary-arithmetic.pdf#page=5),
+   then skim the order proofs. Read Theorems 10–13 in
+   [§3, pp. 8–9](book/dontshare/skolem-1923-foundations-of-elementary-arithmetic.pdf#page=8)
+   if you want multiplication examples: distributivity, associativity, the other
+   distributive law, then commutativity. You don't need to formalize all the order
+   lemmas before trying these algebraic proofs with our axioms.
+
+4. Read the opening of
+   [§4, pp. 9–11](book/dontshare/skolem-1923-foundations-of-elementary-arithmetic.pdf#page=9):
+   Definitions 5–6 and the discussion after Theorem 20. This is the most useful
+   part for our question about quantifiers. It explains both how to define
+   divisibility by recursion and why proving a theorem about that predicate
+   requires more than manipulating equations with supplied witnesses.
+
+5. Jump to [§8, pp. 25–26](book/dontshare/skolem-1923-foundations-of-elementary-arithmetic.pdf#page=25).
+   Skolem now allows finite logical sums and products as convenient notation,
+   and the prime-number arguments become much shorter. Read Theorem 68 and its
+   proof: a prime divisor of $n!+1$ must exceed $n$, so the search for the next
+   prime has the explicit bound $n!+1$. The Markdown transcription loses the
+   factorial in the theorem's displayed upper bound; the PDF has $n!+1$.
+
+For later: §5 deals with partially defined subtraction and division; §6 defines
+and proves properties of gcd and lcm, and explains stronger-looking forms of
+recursion and induction; §7 develops primality and prime factorization in the
+longer notation. The rest of §8 covers unique factorization, bounded least-number
+search, and finite cardinality. Read the statements if curious; leave the proofs
+for another project. Skolem's concluding remark on pp. 31–32 even says he finds
+his own formal presentation too cumbersome.
+
+A notation shortcut: for propositions, $AB$ means $A\land B$, $A+B$ means
+$A\lor B$, and $\bar A+B$ means $A\to B$. An equality between propositions
+expresses equivalence. Finite logical $\Sigma$ and $\Pi$ mean finite OR and AND.
+Also, $D(a,b)$ means that $b$ divides $a$, not the other way around.
+
+#### What to prove in `arith.mm`
+
+Skolem starts at 1, with successor already written $a+1$, and defines addition
+recursively in its second argument. We start at 0 and our `add-sl` recurses in
+the first argument. Keep our conventions. A manageable sequence is:
+
+1. $a+0=a$ (`add-0r`). Induct on $a$. This is the first check that the induction
+   machinery from §5.0.3 can actually be used.
+2. $a+S b=S(a+b)$. Again induct on $a$. This lets successor move through the
+   other argument of addition, and will supply the commutativity step.
+3. $(a+b)+c=a+(b+c)$. Induct on $a$, keeping $b,c$ arbitrary. This is Skolem's
+   Theorem 1 with the induction variable changed to suit our recursion equations.
+4. $a+b=b+a$. Induct on $a$. The base case uses `add-0r`; the step uses the
+   successor lemma and the induction hypothesis:
+   $$S a+b=S(a+b)=S(b+a)=b+S a.$$
+
+Those four are enough for the first pass. They exercise induction, parameters,
+equality substitution, and the reuse of lemmas. There is no need to formalize
+Skolem's entire development to get those lessons. His intermediate lemma
+$a+1=1+a$ is worth understanding, but need not become an extra milestone in our
+zero-based version.
+
+If you want one multiplication theorem, try $(a+b)c=ac+bc$, his Theorem 12.
+With our `mul-sl`, induction on $a$ fits the definition; addition associativity
+does the rearranging in the step. Leave multiplication commutativity until you
+actually want it.
+
+If you want one example about avoiding quantifiers, try his recursive definition
+of $<$, rather than all of §§2–4. In our zero-based notation it becomes
+$$a<0\;\leftrightarrow\;\bot,\qquad
+  a<S b\;\leftrightarrow\;(a<b\lor a=b).$$
+Then prove $a<S a$ and the transitivity of $<$ (his Theorem 3). This gives us
+an actual predicate defined without an existential quantifier, followed by a
+proof using its definition. Stop there unless divisibility itself has become
+the next thing you want to study.
+
+#### Why the divisibility section matters even if we don't formalize it
+
+For positive integers, Skolem defines
+$$\begin{aligned}
+\Delta(a,b,1)&\leftrightarrow a=b,\\
+\Delta(a,b,c+1)&\leftrightarrow\Delta(a,b,c)\lor a=b(c+1),\\
+D(a,b)&\leftrightarrow\Delta(a,b,a).
+\end{aligned}$$
+Here $\Delta(a,b,c)$ checks whether one of the numbers $1,\ldots,c$ is a
+multiplier taking $b$ to $a$. The bound $a$ suffices for divisibility because a
+positive multiplier of $b$ giving $a$ cannot exceed $a$. This replaces an
+existential statement by a recursively defined predicate. The finite search
+can be very slow; efficiency is not the point.
+
+After Theorem 20, he distinguishes two proofs we might otherwise conflate.
+Given $a=bd$ and $b=ce$, showing $a=c(de)$ is a calculation with witnesses
+already supplied. Proving $D(a,b)\land D(b,c)\to D(a,c)$ starts with predicates
+that do not supply those witnesses as terms. His intermediate lemmas do the
+work needed to bridge that gap. This is particularly relevant to our experiments
+with introducing new predicates in Metamath.
+
+The editor's twin-prime comment is about the same issue. Bounding the search
+for a prime by $n!+1$ lets us express that particular existence claim by
+recursion. It does not give a bound for finding a twin-prime pair beyond $n$.
+“So far as possible” does not announce a solution to that problem, nor does the
+introduction prove a general impossibility theorem about every conceivable
+reformulation of the twin-prime conjecture. We can leave that question open and
+still get what we need from this paper: a few induction proofs and a concrete
+example of replacing bounded quantification by recursion.
+
+[/AI SPARKNOTES]

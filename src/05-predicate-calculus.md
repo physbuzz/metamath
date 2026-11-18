@@ -90,35 +90,57 @@ This section contains no exercises. We're going to start with the theorems
 developed in the last chapter; so we have all of propositional logic at our
 disposal, and all of the useful theorems and lemmas we want.
 
+And I really mean we have all of propositional logic. In the file
+[`code-04/prop.mm`](code-04/prop.mm), which 
+is lines 1 through 12192 of `set.mm`, we have 1542 proofs of propositional logic. Basically, we can use 
+$\rightarrow,$ $\leftrightarrow,$ $\land,$ $\lor,$ and $\neg$ to our heart's content.
+Though I don't use them, it also contains and, xor, and probably other stuff, I wasn't picky.
+
 ### 5.0.1 Common arithmetic axioms
 
-We next can imagine developing arithmetic. Well, no need to develop this all ourselves,
+We next can imagine developing arithmetic. For starters, we define numbers of typecode `num`:
+
+```mm
+$c num = + * 0 S $.
+$v t u v w $.
+nt $f num t $.  nu $f num u $.  nv $f num v $.  nw $f num w $.
+weq $a wff t = u $.
+n0 $a num 0 $.
+nS $a num S t $.
+nadd $a num ( t + u ) $.
+nmul $a num ( t * u ) $.
+```
+
+For axioms, there's no need to develop this all ourselves,
 the best source for the axioms of arithmetic that I found was Peters 2022,
 ["Gödel’s Theorem Without Tears,"](https://www.ps.uni-saarland.de/~peters/bachelor/resources/thesis.edited.pdf#page=33) definition 4.16 p.23.
-We already know not to worry about the $\forall$ at the beginning of each formula:
-a theorem scheme already holds for all variables we wish to substitute. The only odd
-axiom out is $\texttt{zos},$ which is indeed specific to Robinson's arithmetic[^1].
+I think most of these axioms are simple enough that you could define them yourself
+given only incidental exposure to the idea of starting with $0$ and applying a successor function $S.$ 
+The only odd
+axiom out is $\texttt{zos},$ which is indeed specific to Robinson's arithmetic[^1] and which
+we do not go into detail on.
 
-[^1]: $\texttt{zos}$ is axiom CD in Peters' notation, I just found that I could never
-remember to write $\texttt{ax-CD}$ in Metamath proofs.
+[^1]: $\texttt{zos}$ is axiom CD in Peters' notation, which I think refers to 
+"case distinction." I renamed the axioms because I found I could never remember stuff like
+$\texttt{ax-AZ}$ in proofs.
 
-\begin{center}
-\begin{tabular}{cl}
-\texttt{eq-refl} & $\forall x.\; x = x$ \\
-\texttt{eq-sym} & $\forall xy.\; x = y \to y = x$ \\
-\texttt{eq-tr} & $\forall xyz.\; x = y \to y = z \to x = z$ \\
-\texttt{eq-s} & $\forall xy.\; x = y \to \sigma x = \sigma y$ \\
-\texttt{eq-add} & $\forall xyzw.\; x = y \to z = w \to x + z = y + w$ \\
-\texttt{eq-mul} & $\forall xyzw.\; x = y \to z = w \to x \cdot z = y \cdot w$ \\
-\texttt{add-0l} & $\forall x.\; 0 + x = x$ \\
-\texttt{add-sl} & $\forall xy.\; (\sigma x) + y = \sigma(x + y)$ \\
-\texttt{mul-0l} & $\forall x.\; 0 \cdot x = 0$ \\
-\texttt{mul-sl} & $\forall xy.\; (\sigma x) \cdot y = y + x \cdot y$ \\
-\texttt{zns} & $\forall x.\; 0 \ne \sigma x$ \\
-\texttt{zos} & $\forall x.\; x = 0 \lor (\exists y.\; x = \sigma y)$ \\
-\texttt{s-inj} & $\forall xy.\; \sigma x = \sigma y \to x = y$ \\
-\end{tabular}
-\end{center}
+$$
+\begin{array}{cl}
+\texttt{eq-refl} & t = t \\
+\texttt{eq-sym} & t = u \to u = t \\
+\texttt{eq-tr} & t = u \to u = v \to t = v \\
+\texttt{eq-s} & t = u \to S t = S u \\
+\texttt{eq-add} & t = u \to v = w \to t + v = u + w \\
+\texttt{eq-mul} & t = u \to v = w \to t \cdot v = u \cdot w \\
+\texttt{add-0l} & 0 + t = t \\
+\texttt{add-sl} & (S t) + u = S(t + u) \\
+\texttt{mul-0l} & 0 \cdot t = 0 \\
+\texttt{mul-sl} & (S t) \cdot u = u + t \cdot u \\
+\texttt{zns} & 0 \ne S t \\
+\texttt{zos} & t = 0 \lor (\exists u.\; t = S u) \\
+\texttt{s-inj} & S t = S u \to t = u \\
+\end{array}
+$$
 
 Define "System $B$" to be propositional logic, plus all of the above axioms except axiom 
 $\texttt{zos}$ (which is read as "every integer is Zero Or a Successor", as opposed to $\texttt{zns}$ which 
@@ -349,6 +371,42 @@ TODO: proof that `|- ( t + 0 ) = t`
 TODO probably a statement that there's nothing new if we repeated the "more interesting proof" down here.
 
 ### 5.0.5 Reading Skolem 1923
+
+- Paper written in 1919 and published in 1923. I'm going to refer to it as Skolem 1923 though.
+
+- I notice that I don't have a good definition of free or bound variable anywhere yet... that should probably be in 5.0.
+
+- Paraphrased foreword comment: "in free-variable arithmetic, we can state and prove that there are infinitely many primes in the sense that $\forall x\exists\text{prime y}: x\lt y\leq x!+1.$ But that there exist infinitely many pairs of twin primes cannot (today) be stated by means of a free-variable formula." The book's preface to Skolem then says "the limitations of free-variable formulas are overcome, so far as possible [...]" which, in the version of PRA the author is talking about, does not 
+mean that it can be stated.
+
+- There are two different "Primitive Recursive Arithmetics" people talk about in modern terminology.
+Number one is "System $B$ + primitive-recursive functions + quantifier-free induction." This can be 
+denoted $\text{PRA}_{\text{qf}}.$ This is the system in which stating the twin prime conjecture 
+cannot be easily done, and it's discussed in Feferman 1993[^4]. On the other hand, many authors (most authors?) use PRA to refer to a system
+with predicate calculus, but with induction restricted to quantifier-free formulas. This is 
+$\text{PRA}_{\text{fo}},$ "System $B$ + primitive-recursive functions + predicates + induction
+restricted to quantifier-free formulas." Both these systems are defined and compared in Avigad 2002[^5].
+
+[^4]: Solomon Feferman (1993), What Rests on What? The Proof-Theoretic Analysis of Mathematics, pp. 7-8
+[^5]: Jeremy Avigad (2002), Ordinal Analysis Without Proofs, 
+
+- In comparing to Metamath definitions, I wonder if Skolem would take issue with the metavariables
+of our system being able to range over an infinite domain. I think not. I think there's something
+buried in the writing here that an implicit leading "forall" outside the equation, which in our case
+is a metavariable with given typecode, can also be seen as a variable name or placeholder and
+not as "ranging over an infinite domain" at all.
+
+Skolem's development:
+
+`a + 1` is already defined for arbitrary `a`. Thus addition can be defined recursively:
+
+**Definition 1:** `a + ( b + 1 ) = ( a + b ) + 1`
+
+... I started reading this paper way too thoroughly, I'm going to read it while working on 
+arith.mm
+
+
+
 
 ## 5.1 Building Predicate Calculus Ourselves
 
