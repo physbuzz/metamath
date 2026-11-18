@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sources</title>
+  <script>
+(function () {
+  var groups = ["theme", "width", "type", "text"];
+  var defaults = { theme: "system", width: "normal", type: "sans", text: "normal" };
+  var allowed = {
+    theme: { system: true, light: true, dark: true },
+    width: { normal: true, wide: true, compact: true },
+    type: { sans: true, serif: true },
+    text: { small: true, normal: true, large: true }
+  };
+  var namePrefix = "md2html-reader:";
+
+  function readWindowState() {
+    if (!window.name || window.name.indexOf(namePrefix) !== 0) return {};
+    try {
+      return JSON.parse(window.name.slice(namePrefix.length)) || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function readSetting(name) {
+    var value = null;
+    try {
+      value = localStorage.getItem("md2html-reader-" + name);
+    } catch (error) {}
+    if (!value) value = readWindowState()[name];
+    return allowed[name][value] ? value : null;
+  }
+
+  groups.forEach(function (name) {
+    var saved = readSetting(name);
+    if (saved && saved !== defaults[name]) {
+      document.documentElement.dataset[name] = saved;
+    }
+  });
+})();
+  </script>
+  
+  <link rel="stylesheet" href="assets/base.css">
+  
+  <style>
+
+  </style>
+  
+  <style>
+
+  </style>
+  
+  
+  
+</head>
+<body>
+  <main class="container">
+    <header class="page-header">
+      <div class="page-title">sources.md</div>
+      <details class="reader-widget">
+        <summary aria-label="reader controls" title="Reader controls">Aa</summary>
+        <form aria-label="reader controls">
+          <fieldset>
+            <legend>Theme</legend>
+            <label><input id="theme-system" name="theme" value="system" type="radio" checked> system</label>
+            <label><input id="theme-light" name="theme" value="light" type="radio"> light</label>
+            <label><input id="theme-dark" name="theme" value="dark" type="radio"> dark</label>
+          </fieldset>
+          <fieldset>
+            <legend>Measure</legend>
+            <label><input id="width-normal" name="width" value="normal" type="radio" checked> normal</label>
+            <label><input id="width-wide" name="width" value="wide" type="radio"> wide</label>
+            <label><input id="width-compact" name="width" value="compact" type="radio"> compact</label>
+          </fieldset>
+          <fieldset>
+            <legend>Type</legend>
+            <label><input id="type-sans" name="type" value="sans" type="radio" checked> sans</label>
+            <label><input id="type-serif" name="type" value="serif" type="radio"> serif</label>
+          </fieldset>
+          <fieldset>
+            <legend>Text</legend>
+            <label><input id="text-small" name="text" value="small" type="radio"> small</label>
+            <label><input id="text-normal" name="text" value="normal" type="radio" checked> normal</label>
+            <label><input id="text-large" name="text" value="large" type="radio"> large</label>
+          </fieldset>
+        </form>
+      </details>
+    </header>
+    <article class="page-content">
+<h1 id="sources">Sources</h1>
+<p>Inventory of <code>src/book/dontshare</code>, matched to actual passages in the study notes.
+Chapter numbers below refer to our notes, not Megill's book. “Listed” means a
+reading recommendation, not evidence that we used the source. “No use located”
+means no identifiable citation or passage; it does not establish that a source
+was never consulted. PDF/DjVu copies are counted once, with OCR companions grouped
+under the same work. Links are relative to the hosted <code>sources.html</code>; PDF page
+numbers count from the first page of the file, with printed page numbers noted
+separately.</p>
+<h2 id="local-copies-and-where-they-came-up">Local copies and where they came up</h2>
+<ul>
+<li>
+<p><a href="book/dontshare/Hilbert%20Type%20Deductive%20System%20Course%20Notes%20Gaifman%202002.pdf#page=1">Gaifman 2002, <em>A Hilbert Type Deductive System for Sentential Logic, Completeness and
+  Compactness</em></a>.
+  <a href="04-propmm.html">Ch04</a>, §4.0.1 and quiz Q2: definitions of <strong>inference rule</strong>,
+  premises/conclusion, and <strong>Hilbert-type deductive system</strong>; the discussion of whether Metamath
+  itself should be called Hilbert-style. The definitions and modus ponens are on <strong>PDF p. 1</strong>
+  (printed p. 1). No use of the completeness/compactness proofs located.</p>
+</li>
+<li>
+<p><a href="book/dontshare/Practical%20Foundations%20for%20Programming%20Languages%20Harper%202012.pdf#page=34">Harper 2012, <em>Practical Foundations for Programming
+  Languages</em></a>.
+  <a href="04-propmm.html">Ch04</a>, §§4.0.1–2: judgments, inductive definitions by rules, premise-free axioms
+  versus proper rules, the tree example, and derived rules. Alpha-equivalence in <code>peano.mm</code> prompted
+  the ch1–3 reading. <a href="05-scratchwork.html">Ch05 scratchwork</a>, §5.0.2, uses ch1 for binding/capture;
+  the ch5.5 reading chapter listed in the contents has no source file yet. Rules and the tree
+  example: <strong>PDF pp. 34–35</strong> (printed pp. 16–17); α-equivalence: <a href="book/dontshare/Practical%20Foundations%20for%20Programming%20Languages%20Harper%202012.pdf#page=28">PDF pp.
+  28–30</a>
+  (printed pp. 10–12).</p>
+</li>
+<li>
+<p><a href="book/dontshare/Introduction%20to%20Mathematical%20Logic%20Buss%202023.pdf#page=55">Buss 2023, <em>Introduction to Mathematical
+  Logic</em></a>.
+  <a href="04-propmm.html">Ch04</a>, §4.0.1: PL-proofs, <code>⊢</code> versus <code>⊨</code>, modus ponens notation, “axiom scheme,”
+  and the quoted historical footnote on Hilbert-style systems. <strong>PDF pp. 55–56</strong> (printed pp.
+  47–48), especially footnote 2 on p. 55 and Definitions II.1–2 on p. 56.</p>
+</li>
+<li>
+<p><a href="book/dontshare/mendelson/Mendelson%20Introduction%20to%20Mathematical%20Logic%206ed%20%282015%29.pdf#page=54">Mendelson, <em>Introduction to Mathematical Logic</em>, 6th ed.
+  (2015)</a>.
+  <a href="04-propmm.html">Ch04</a>, §4.1.1: the <code>id</code> exercise is identified as Lemma 1.8: <strong>PDF pp. 54–55</strong>
+  (printed pp. 29–30 in this edition). Also listed among the <a href="index.html">primary sources</a>. Broader
+  propositional-calculus reading appears in old drafts, but is not evidence of further use in the
+  current chapter.</p>
+</li>
+<li>
+<p><a href="book/dontshare/hirst/hirst.pdf">Hirst &amp; Hirst 2015, <em>A Primer for Logic and Proof</em></a>. <strong>Unused
+  reading recommendation</strong>, acquired through metamath.org; primarily ch04, with ch01 as a secondary
+  association. Listed in <a href="links.html">links</a>; the <a href="04-propmm.html">ch04</a> §4.1.1 <code>id</code> comment
+  mentions “our first proof,” but this inherited cross-reference does not mean we worked from the
+  book. <code>hirst/index.md</code> and <code>hirst/images/</code> are its OCR companions.</p>
+</li>
+<li>
+<p><a href="book/dontshare/tarski1964.pdf#page=15">Tarski 1964, <em>A Simplified Formalization of Predicate Logic with
+  Identity</em></a>. <a href="05-predicate-calculus.html">Ch05</a>, §5.1: the
+  predicate axioms, especially <code>ax6v</code> identified as B7 with distinct <code>x</code>, <code>y</code>: <strong>PDF p. 15</strong>
+  (printed p. 75). Explicitly listed as required reading in <a href="05-scratchwork.html">scratchwork</a>,
+  which also connects Tarski's approach to distinct variables; the dedicated reading notes are
+  unfinished.</p>
+</li>
+<li>
+<p><a href="book/dontshare/megill%201995.pdf">Megill 1995, <em>A Finitely Axiomatized Formalization of Predicate Calculus with
+  Equality</em></a>. <a href="05-scratchwork.html">Ch05 scratchwork</a>, “Required
+  reading” / “Notes on Megill 1995”: listed alongside Tarski for the predicate-calculus work. The
+  notes heading is empty; no specific result from this paper is cited in the current ch05 prose.</p>
+</li>
+<li>
+<p><a href="book/dontshare/Jean%20Van%20Heijenoort%20%28editor%29%20-%20From%20Frege%20to%20Godel_%20A%20Source%20Book%20in%20Mathematical%20Logic%2C%201879-1931%20%281999%2C%20iUniverse%29%20-%20libgen.li.pdf">Van Heijenoort, ed., <em>From Frege to
+  Gödel</em></a>.
+  Covers two
+  references in the <a href="05-predicate-calculus.html">ch05 introduction</a>:</p>
+</li>
+<li><a href="book/dontshare/Jean%20Van%20Heijenoort%20%28editor%29%20-%20From%20Frege%20to%20Godel_%20A%20Source%20Book%20in%20Mathematical%20Logic%2C%201879-1931%20%281999%2C%20iUniverse%29%20-%20libgen.li.pdf#page=313">Skolem 1923, <em>The foundations of elementary arithmetic established by means
+    of the recursive mode of thought, without the use of apparent variables
+    ranging over infinite domains</em></a>: <strong>PDF pp. 313–344</strong>
+    (printed pp. 302–333). The editorial introduction starts on <strong>PDF p. 313</strong>;
+    Skolem's text starts near the bottom of <strong>PDF p. 314</strong>, and his explicit
+    quantifier-free program is on <a href="book/dontshare/Jean%20Van%20Heijenoort%20%28editor%29%20-%20From%20Frege%20to%20Godel_%20A%20Source%20Book%20in%20Mathematical%20Logic%2C%201879-1931%20%281999%2C%20iUniverse%29%20-%20libgen.li.pdf#page=315"><strong>PDF p. 315</strong></a>
+    (printed p. 304).</li>
+<li><a href="book/dontshare/Jean%20Van%20Heijenoort%20%28editor%29%20-%20From%20Frege%20to%20Godel_%20A%20Source%20Book%20in%20Mathematical%20Logic%2C%201879-1931%20%281999%2C%20iUniverse%29%20-%20libgen.li.pdf#page=35">Frege 1879, <em>Begriffsschrift</em></a>: <strong>§§11–12, PDF pp. 35–39</strong>
+    (printed pp. 24–28), on generality, scope, and combinations with negation.
+    The closest passage to ch05's motivation for quantifiers is
+    <a href="book/dontshare/Jean%20Van%20Heijenoort%20%28editor%29%20-%20From%20Frege%20to%20Godel_%20A%20Source%20Book%20in%20Mathematical%20Logic%2C%201879-1931%20%281999%2C%20iUniverse%29%20-%20libgen.li.pdf#page=36"><strong>PDF p. 36</strong></a> (printed p. 25): why the scope marker is
+    necessary when generality occurs inside a judgment. The work's editorial
+    introduction starts at <a href="book/dontshare/Jean%20Van%20Heijenoort%20%28editor%29%20-%20From%20Frege%20to%20Godel_%20A%20Source%20Book%20in%20Mathematical%20Logic%2C%201879-1931%20%281999%2C%20iUniverse%29%20-%20libgen.li.pdf#page=12">PDF p. 12</a>, printed p. 1;
+    Frege's preface starts at PDF p. 16, printed p. 5. Ch05 still marks this
+    reading as a TODO.</li>
+</ul>
+<p>Both works are present in this volume, not missing PDFs.</p>
+<ul>
+<li>
+<p><a href="book/dontshare/seven-virtues.pdf">Farmer, <em>The Seven Virtues of Simple Type Theory</em> (2008; rev.
+  2019)</a>. <a href="04-propmm.html">Ch04</a>, §4.2.3: explicitly assigned
+  reading for the <code>hol.mm</code> excursion and its distinction between <code>|=</code> judgments and object-language
+  implication. No individual theorem from the paper is invoked.</p>
+</li>
+<li>
+<p><a href="book/dontshare/A%20Formulation%20of%20the%20Simple%20Theory%20of%20Types%20Church%201940.pdf">Church 1940, <em>A Formulation of the Simple Theory of
+  Types</em></a>.
+  <a href="04-propmm.html">Ch04</a>, §4.2.3: the other assigned reading for <code>hol.mm</code>; no individual result
+  cited.</p>
+</li>
+<li>
+<p><a href="book/dontshare/How%20to%20Believe%20a%20Machine-Checked%20Proof%20Pollack%201997.pdf">Pollack 1997, <em>How to Believe a Machine-Checked
+  Proof</em></a>.
+  Listed as essential reading in the <a href="index.html">introduction</a>. An old draft
+  (<code>ai/05-logicians-rewrite.md</code>), §5.1.4, explicitly attaches it to trusting the checker and writing
+  independent checkers, referring back to ch03. That passage is not in the current chapters.</p>
+</li>
+<li>
+<p><a href="book/dontshare/The%20Challenge%20of%20Computer%20Mathematics%20Barendregt%20and%20Wiedijk%202005.pdf">Barendregt &amp; Wiedijk 2005, <em>The Challenge of Computer
+  Mathematics</em></a>.
+  <a href="index.html">Introduction</a>, papers list: essential reading in the discussion of the <strong>de Bruijn
+  criterion</strong>. Ch00 names the criterion but has an unfinished citation TODO; no more specific use of
+  this paper located.</p>
+</li>
+<li>
+<p><a href="book/dontshare/Introduction%20to%20Metamathematics%20Kleene%201971.djvu">Kleene, <em>Introduction to Metamathematics</em> (1952; local 1971 copy,
+  DjVu)</a>. Listed among the
+  <a href="index.html">primary sources</a>. An old AI reading list (<code>ai/05-logicians.bak.md</code>), §5.1,
+  recommended §§19–23 for rule notation and formal deduction; that list explicitly says its section
+  references were unchecked. No specific current-chapter use located.</p>
+</li>
+<li>
+<p><a href="book/dontshare/hamilton/Logic%20for%20Mathematicians%20Hamilton%201988%7B91195154%7Ddjvu">Hamilton 1988, <em>Logic for Mathematicians</em>
+  (DjVu)</a>.
+  The <code>ax-mp</code> comment in <a href="code-03/prop.mm">the ch03 database</a> cites Rule 1, p. 73: an inherited
+  Metamath citation. The old reading list (<code>ai/05-logicians.bak.md</code>), §5.1, also recommended it for
+  the three propositional axioms and <code>idALT</code>; no direct use in current chapter prose located.</p>
+</li>
+<li>
+<p><a href="book/dontshare/H.%20Behnke%2C%20F.%20Bachmann%2C%20K.%20Fladt%2C%20W.%20S%C3%BCss%20and%20H.%20Kunle%20-%20Fundamentals%20of%20Mathematics_%20Foundations%20of%20Mathematics_%20The%20Real%20Number%20System%20and%20Algebra%201%20%281974%2C%20MIT%20Press%29%20-%20libgen.li.pdf">Behnke et al., <em>Fundamentals of Mathematics</em>, vol. I
+  (1974)</a>.
+  A traceable connection is <strong>Megill's book</strong>, not a direct citation in our notes:
+  <a href="book/index.html#Ch1.S4.SS3">§1.4.3</a> cites p. 6 on formalism; <a href="book/index.html#Ch4.S5">§4.5</a> cites
+  p. 20 on theorems depending on definitions as well as axioms. Acquisition reason otherwise
+  unconfirmed.</p>
+</li>
+<li>
+<p><a href="book/dontshare/frege/Frege-BasicLaws-1.pdf">Frege, <em>Basic Laws of Arithmetic</em>, vol. I, Ebert–Rossberg translation
+  draft</a>. No direct use located. This is <strong>not</strong> the
+  1879 <em>Begriffsschrift</em> named in ch05; that work is in van Heijenoort above. <code>frege/index.md</code> and
+  <code>frege/images/</code> accompany this <em>Basic Laws</em> translation.</p>
+</li>
+<li>
+<p><a href="book/dontshare/1965-benacerraf.pdf">Benacerraf 1965, <em>What Numbers Could Not Be</em></a>. No citation or
+  identifiable use located; acquisition reason unknown.</p>
+</li>
+<li>
+<p><a href="book/dontshare/ebbinghaus/Mathematical%20Logic%20Ebbinghaus%20Flum%20Thomas%20%282021%29%2893983544%29.pdf">Ebbinghaus, Flum &amp; Thomas, <em>Mathematical Logic</em> (local 2021
+  copy)</a>.
+  No citation or identifiable use located; acquisition reason unknown.</p>
+</li>
+<li>
+<p><a href="book/dontshare/A-Friendly-Introduction-to-Mathematical-Logic.pdf">Leary &amp; Kristiansen 2015, <em>A Friendly Introduction to Mathematical Logic</em>, 2nd
+  ed.</a>. No citation or
+  identifiable use located; acquisition reason unknown.</p>
+</li>
+</ul>
+<h2 id="referenced-works-without-a-copy-in-dontshare">Referenced works without a copy in <code>dontshare</code></h2>
+<p>These are gaps relative to the study notes, not an inventory of every reference
+inside the bundled Metamath book or downloaded <code>.mm</code> databases.</p>
+<ul>
+<li>
+<p>Peters 2022, <em>Gödel's Theorem Without Tears</em>. <strong>Directly used:</strong>
+  <a href="05-predicate-calculus.html">ch05</a>, §5.0.1, takes the arithmetic axioms from Definition 4.16, <a href="https://www.ps.uni-saarland.de/~peters/bachelor/resources/thesis.edited.pdf#page=33">PDF
+  p. 33</a>
+  (printed p. 23); <code>zos</code> is Peters' CD.</p>
+</li>
+<li>
+<p>Abelson &amp; Sussman with Sussman, <em>Structure and Interpretation of Computer Programs</em>. <strong>Directly
+  used:</strong> <a href="02-sicp-logic.html">ch02</a> and <a href="02.5-sicp-logic-redo.html">ch02.5</a>, §4.4's query system:
+  frames, matching/unification, rule search, and modifications to emit proof certificates.</p>
+</li>
+<li>
+<p>Pavičić 1992, <em>A New Axiomatization of Unified Quantum Logic</em>. <a href="04-propmm.html">Ch04</a>, §4.2.2,
+  explicitly cites it when introducing <code>ql.mm</code> and ortholattices.</p>
+</li>
+<li>
+<p>Barendregt 1997, <em>The Impact of the Lambda Calculus in Logic and Computer Science</em>.
+  <a href="index.html">Introduction</a>, papers list: cited specifically for coining “de Bruijn criterion.”
+  Separate from the 2005 Barendregt–Wiedijk paper already present.</p>
+</li>
+<li>
+<p>Wolfram, <em>A New Kind of Science</em>. <a href="00-rant.html">Ch00</a>, “An Undergraduate's Quest for Truth”: the
+  Boolean-algebra/single-NAND-axiom discussion inspired the search over axiom systems. An
+  autobiographical source, not a chapter exercise reference.</p>
+</li>
+</ul>
+<p>Lower-priority gaps, with their limited status preserved:</p>
+<ul>
+<li><a href="index.html">Introduction</a>, future-work list: Carneiro, <em>Models for Metamath</em>
+  (2016); Pratt 1975 on primality certificates is only a tentative “Pratt 1975?”
+  mention, with no title established.</li>
+<li><a href="links.html">Links</a>, tiny-checker comparisons: Harper–Honsell–Plotkin,
+  <em>A Framework for Defining Logics</em>; Wiedijk, <em>Comparing Mathematical Provers</em>
+  (2003), specifically its §4.2 de Bruijn-criterion table; <em>A Survey on Theorem
+  Provers in Formal Methods</em>. These are reading-list entries, not worked sources.</li>
+<li><a href="links.html">Links</a>, other papers: Harrison, <em>Towards Self-Verification of
+  HOL Light</em> (2006); Carneiro, <em>Metamath Zero</em> (2019); <em>Generating Theorems by
+  Generating Proof Structures</em>. Listed only.</li>
+<li><a href="links.html">Links</a>, books/excerpts: Hofstadter's MU-puzzle chapter;
+  Gonczarowski–Nisan, <em>Mathematical Logic through Python</em>; Harrison, <em>Handbook of
+  Practical Logic and Automated Reasoning</em>; Friedman–Eastlund, <em>The Little Prover</em>;
+  <em>Software Foundations: Logical Foundations</em>; <em>Programming Language Foundations
+  in Agda</em>; Smolka, <em>Modeling and Proving in Computational Type Theory</em>;
+  Shankar, <em>Metamathematics, Machines and Gödel's Proof</em>; Prusinkiewicz–Lindenmayer,
+  <em>The Algorithmic Beauty of Plants</em>, ch1. Listed only; some are online books
+  rather than missing PDF dependencies.</li>
+<li><a href="05-scratchwork.html">Ch05 scratchwork</a>, “Old article”: an Avigad PDF
+  (<code>understanding2.pdf</code>) and <em>Concrete Semantics</em> are bare reading links, with no
+  developed use there.</li>
+</ul>
+<p>Not counted as missing: <a href="book/metamath.pdf">Megill's Metamath book</a> is already
+stored beside <code>dontshare</code>. Velleman and Rudin are autobiographical mentions in
+ch00; Hilbert–Ackermann and <em>Principia Mathematica</em> occur in Buss's quoted history
+in ch04, rather than as sources used directly. Ch05's first-epsilon-theorem and
+hyperdoctrine remarks cite web articles, not identified PDFs.</p>
+    </article>
+  </main>
+  <script>
+(function () {
+  var groups = ["theme", "width", "type", "text"];
+  var defaults = { theme: "system", width: "normal", type: "sans", text: "normal" };
+  var allowed = {
+    theme: { system: true, light: true, dark: true },
+    width: { normal: true, wide: true, compact: true },
+    type: { sans: true, serif: true },
+    text: { small: true, normal: true, large: true }
+  };
+  var namePrefix = "md2html-reader:";
+
+  function apply(name, value) {
+    if (value === defaults[name]) {
+      delete document.documentElement.dataset[name];
+      return;
+    }
+    document.documentElement.dataset[name] = value;
+  }
+
+  function readWindowState() {
+    if (!window.name || window.name.indexOf(namePrefix) !== 0) return {};
+    try {
+      return JSON.parse(window.name.slice(namePrefix.length)) || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveWindowState(name, value) {
+    var state = readWindowState();
+    state[name] = value;
+    try {
+      window.name = namePrefix + JSON.stringify(state);
+    } catch (error) {}
+  }
+
+  function readSetting(name) {
+    var value = null;
+    try {
+      value = localStorage.getItem("md2html-reader-" + name);
+    } catch (error) {
+      value = null;
+    }
+    if (!value) value = readWindowState()[name];
+    return allowed[name][value] ? value : null;
+  }
+
+  function saveSetting(name, value) {
+    try {
+      localStorage.setItem("md2html-reader-" + name, value);
+    } catch (error) {}
+    saveWindowState(name, value);
+  }
+
+  groups.forEach(function (name) {
+    var saved = readSetting(name);
+    if (saved) apply(name, saved);
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    groups.forEach(function (name) {
+      var saved = readSetting(name);
+      var inputs = Array.prototype.slice.call(document.querySelectorAll('input[name="' + name + '"]'));
+      inputs.forEach(function (input) {
+        if (saved && input.value === saved) input.checked = true;
+        input.addEventListener("change", function () {
+          if (!input.checked) return;
+          apply(name, input.value);
+          saveSetting(name, input.value);
+          if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise().catch(function () {});
+          }
+        });
+      });
+    });
+  });
+})();
+  </script>
+</body>
+</html>

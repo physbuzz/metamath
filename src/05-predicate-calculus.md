@@ -348,6 +348,8 @@ TODO: proof that `|- ( t + 0 ) = t`
 
 TODO probably a statement that there's nothing new if we repeated the "more interesting proof" down here.
 
+### 5.0.5 Reading Skolem 1923
+
 ## 5.1 Building Predicate Calculus Ourselves
 
 Okay, so we now have some arguments for why the machinery that we're going to introduce
