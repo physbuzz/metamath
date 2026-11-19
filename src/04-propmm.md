@@ -13,11 +13,7 @@ title: "4. Studying Propositional Calculus with Metamath"
 
 Links: [Chapter html](book/index.html#abstract-mathematics-revealed), [pdf on metamath.org](https://us.metamath.org/downloads/metamath.pdf#page=77).
 
-> [!NOTE]
-> These notes have some AI-suggested problems in them that have not yet
-> been reviewed.
-
-@toc
+@toc(hn)
 
 ## Introduction
 
