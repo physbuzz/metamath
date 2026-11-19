@@ -1470,3 +1470,167 @@ still get what we need from this paper: a few induction proofs and a concrete
 example of replacing bounded quantification by recursion.
 
 [/AI SPARKNOTES]
+
+### 5.0.4 draft
+
+> [!WARNING]
+> The rest of this is fully llm written and has not yet been reviewed and edited.
+
+"Every $x$ that equals $t$ satisfies $\varphi$." It's the hypothesis of `vtonum`, pulled
+inside the formula. For this to really mean "$\varphi$ at $t$," we need to get in and get out:
+
+- Getting in: if we proved `|- ( x = t -> ph )` about an arbitrary `x`, we should get the `A. x` version.
+- Getting out: from `A. x ( x = t -> ps )` with no `x` in `ps`, we should get `ps`.
+
+Four axioms do it. They're the first four of `set.mm`'s predicate calculus,
+and we'll build with the first three ourselves in 5.1.
+
+$$
+\frac{\vdash\varphi}{\vdash\forall x\,\varphi}
+\quad\href{https://us.metamath.org/mpeuni/ax-gen.html}{\texttt{ax-gen}}
+$$
+
+Generalization. This one I find very satisfying: in the introduction I complained that
+a statement with variables is already a sort of "for all" statement. `ax-gen` just lets
+us write that down.
+
+$$
+\vdash\forall x\,(\varphi\to\psi)\to(\forall x\,\varphi\to\forall x\,\psi)
+\quad\href{https://us.metamath.org/mpeuni/ax-4.html}{\texttt{ax-4}}
+$$
+
+Modus ponens under a quantifier. With `ax-gen` it gives `alimi`: from
+`|- ( ph -> ps )` get `|- ( A. x ph -> A. x ps )`.
+
+$$
+\vdash\varphi\to\forall x\,\varphi\quad(x\text{ not in }\varphi)
+\quad\href{https://us.metamath.org/mpeuni/ax-5.html}{\texttt{ax-5}}
+$$
+
+Quantifying over a variable that isn't there does nothing. In Metamath this is `$d x ph`,
+the same disjointness condition that saved `vtonum` in 5.0.3.
+
+$$
+\vdash\exists x\,(x=t)\quad(x\text{ not in }t)
+\quad\href{https://us.metamath.org/mpeuni/ax6ev.html}{\texttt{ax-6}}
+$$
+
+Every term equals something. Without this, `A. x ( x = t -> ps )` could be true just because
+nothing equals `t`, and we'd never get `ps` out. (`set.mm` states `ax-6` for two variables, and
+for class terms the same job is done by a hypothesis `A e. V`.)
+
+With these, getting out is the lemma `spcvlem`. Suppose `-. ps`. By `ax-5` that's
+`A. x -. ps`, and with `A. x ( x = t -> ps )` and `ax-4` we get `A. x -. x = t`. That
+contradicts `ax-6`. So `ps`. Wrapping it up with the hypothesis from 5.0.3 gives
+specialization at a term, which is set.mm's [`spcv`](https://us.metamath.org/mpeuni/spcv.html)
+minus the `A e. V`:
+
+```
+MM> show proof spcv /lemmon /renumber
+1 spcv.1         $e |- ( x = t -> ( ph <-> ps ) )
+2 1 biimpd       $p |- ( x = t -> ( ph -> ps ) )
+3 2 com12        $p |- ( ph -> ( x = t -> ps ) )
+4 3 alimi        $p |- ( A. x ph -> A. x ( x = t -> ps ) )
+5 spcvlem        $p |- ( A. x ( x = t -> ps ) -> ps )
+6 4,5 syl        $p |- ( A. x ph -> ps )
+```
+
+And now `vtonum` is no longer an axiom: given `|- ph`, `ax-gen` gives `|- A. x ph`, and
+`spcv` gives `|- ps`. The `$d x ps $. $d x t $.` that we had to discover by breaking things in 5.0.3
+are exactly the conditions `ax-5` and `ax-6` need in the proof. That's quite nice! We didn't put
+them in by hand this time; they fell out.
+
+Now we can write down induction. Every $\varphi(\cdot)$ in the textbook formula becomes
+`A. x ( x = _ -> ph )`:
+
+```mm
+${
+  $d x y $. $d y ph $.
+  ax-peano $a |- ( ( A. x ( x = 0 -> ph )
+      /\ A. y ( A. x ( x = y -> ph ) -> A. x ( x = S y -> ph ) ) ) -> A. x ph ) $.
+$}
+```
+
+Compare to `ax-ind` from 5.0.3: it had five wff metavariables and six hypotheses, while `ax-peano`
+has one metavariable and no hypotheses. It's one statement, and it's the statement from the book.
+
+How does `set.mm` do it? ZFC has no induction axiom. Instead the natural numbers are built as
+a set, $\omega,$ and [`peano5`](https://us.metamath.org/mpeuni/peano5.html) proves that
+a set containing $\emptyset$ and closed under successor contains all of $\omega.$
+It has the same shape as `ax-peano`, but it's a theorem, because set theory can talk about
+"the smallest set closed under successor." Our arithmetic has no sets, so that shape is
+something we have to assume. That's Peano's choice: induction is the one axiom we add.
+
+#### 5.0.4a Applying the quantifier-ful induction
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+We could prove `addrid` straight from `ax-peano`, but there's a better way. We prove the rule from
+5.0.3, same hypotheses, same names, as the theorem `ind`:
+
+```
+MM> show proof ind /lemmon /renumber
+ 1 ind.base      $e |- ps
+ 2 ind.at-zero   $e |- ( x = 0 -> ( ph <-> ps ) )
+ 3 2 biimprd     $p |- ( x = 0 -> ( ps -> ph ) )
+ 4 1,3 mpi       $p |- ( x = 0 -> ph )
+ 5 4 ax-gen      $a |- A. x ( x = 0 -> ph )
+ 6 eq-refl       $a |- y = y
+ 7 eqeq1         $p |- ( x = y -> ( x = y <-> y = y ) )
+ 8 ind.at-var    $e |- ( x = y -> ( ph <-> ch ) )
+ 9 7,8 imbi12d   $p |- ( x = y -> ( ( x = y -> ph ) <-> ( y = y -> ch ) ) )
+10 9 spcv        $p |- ( A. x ( x = y -> ph ) -> ( y = y -> ch ) )
+11 6,10 mpi      $p |- ( A. x ( x = y -> ph ) -> ch )
+12 ind.step      $e |- ( ch -> th )
+13 11,12 syl     $p |- ( A. x ( x = y -> ph ) -> th )
+14 ax-5          $a |- ( th -> A. x th )
+15 ind.at-succvar  $e |- ( x = S y -> ( ph <-> th ) )
+16 15 biimprd    $p |- ( x = S y -> ( th -> ph ) )
+17 16 com12      $p |- ( th -> ( x = S y -> ph ) )
+18 17 alimi      $p |- ( A. x th -> A. x ( x = S y -> ph ) )
+19 14,18 syl     $p |- ( th -> A. x ( x = S y -> ph ) )
+20 13,19 syl     $p |- ( A. x ( x = y -> ph ) -> A. x ( x = S y -> ph ) )
+21 20 ax-gen     $a |- A. y ( A. x ( x = y -> ph ) -> A. x ( x = S y -> ph ) )
+22 ax-peano      $a |- ( ( A. x ( x = 0 -> ph ) /\ A. y ( A. x ( x = y -> ph )
+                                     -> A. x ( x = S y -> ph ) ) ) -> A. x ph )
+23 5,21,22 mp2an  $p |- A. x ph
+24 ind.at-num    $e |- ( x = t -> ( ph <-> ta ) )
+25 24 spcv       $p |- ( A. x ph -> ta )
+26 23,25 ax-mp   $a |- ta
+```
+
+Each hypothesis of the old rule has a job now:
+
+- Steps 1–5: `at-zero` and `base` give $\varphi(0)$, i.e. `A. x ( x = 0 -> ph )`. This is getting in.
+- Steps 6–11: `at-var` turns $\varphi(y)$ back into `ch`. This is getting out, with `spcv` at `t := y`.
+- Steps 12–21: `step` takes `ch` to `th`, `at-succvar` turns `th` into $\varphi(Sy)$ (getting in again),
+and `ax-gen` quantifies over `y`.
+- Steps 22–23: `ax-peano` gives `A. x ph`.
+- Steps 24–26: `at-num` gets out at `t`.
+
+The `$d` conditions of `ind` are the ones we listed by hand for `ax-ind` in 5.0.3, and
+Metamath checks every one of them against the axioms used. So the rule we wrote down in 5.0.3,
+which we could only defend by pointing at counterexamples to weaker versions, is now a theorem.
+
+`set.mm` does the same thing. [`nn0ind`](https://us.metamath.org/mpeuni/nn0ind.html)
+has our six hypotheses (with `y e. NN0 ->` on the step, since there not everything is a number),
+and it is proved from a `peano5`-like fact, not assumed.
+
+The proof of `addrid` is then the proof from 5.0.3a with `ind` in place of `ax-ind`. We copy
+`addrid-at` and `addrid-step` into `arith-fo.mm`, since it doesn't include `arith-qf.mm`.
+
+```
+MM> show proof addrid /lemmon /renumber
+1 addrid-at      $p |- ( x = 0 -> ( ( x + 0 ) = x <-> ( 0 + 0 ) = 0 ) )
+2 addrid-at      $p |- ( x = y -> ( ( x + 0 ) = x <-> ( y + 0 ) = y ) )
+3 addrid-at      $p |- ( x = S y -> ( ( x + 0 ) = x <-> ( S y + 0 ) = S y ) )
+4 addrid-at      $p |- ( x = t -> ( ( x + 0 ) = x <-> ( t + 0 ) = t ) )
+5 00id           $p |- ( 0 + 0 ) = 0
+6 addrid-step    $p |- ( ( y + 0 ) = y -> ( S y + 0 ) = S y )
+7 1,2,3,4,5,6 ind  $p |- ( t + 0 ) = t
+```
+
+The only change is that step 7 is `$p`, not `$a`.
+
+@src(code-05/arith-fo.mm, noexecute, collapsed)

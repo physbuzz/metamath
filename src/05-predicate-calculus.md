@@ -18,14 +18,19 @@ Links: [Chapter html](book/index.html#3.2.2-predicate-calculus), [pdf on metamat
 
 ## Introduction.
 
+(I should emphasize to logicians reading
+this section that we're coming at the issue from the perspective of Metamath tinkerers
+with total disregard for mathematics, we just want to express fun concepts and we don't
+care how we twist Metamath to get there. So I hope that explains some of the weird perspective
+from time to time. I do try to bend over backwards to cite stuff and follow conventions of
+the literature though.)
+
 Before getting to predicate calculus, we should spend a bit of time
 seeing how far we can get "without quantifiers." This question and related
 ones such as "why do we need quantifiers?" takes us quite deep into metamathematics
-and the debates of the early 1900's. I should emphasize to logicians reading
-this section that we're coming at the issue from the perspective of Metamath tinkerers
-with total disregard for mathematics, we just want to express fun concepts and we don't
-care how we twist Metamath to get there. From this perspective, many concepts
-of mathematical logic look quite strange and difficult to formulate.
+and the debates of the early 1900's. I wasn't even trying to get there, I was just
+confused, and certain I'd turn the corner and be hit with "aha! So *that's* why we need
+quantifiers."
 
 We run into a problem immediately: what do we even mean, concretely, by "with quantifiers" or
 "without quantifiers"?
@@ -206,6 +211,8 @@ $$
 $$
 
 Okay... let's walk through a proof of `|- ( 1 + 0 ) = 1`. This isn't given to us for free, we only have the axiom `|- ( 0 + t ) = t`.
+
+TODO: replace this, probably with a proof of the successor lemma.
 
 ```
 MM-PA> show new_proof/lemmon
@@ -413,9 +420,6 @@ And there we have it, our axiom of induction!
 
 #### 5.0.3a Applying the quantifier-free induction
 
-> [!WARNING]
-> This section is AI-generated and has not been reviewed.
-
 To prove `addrid` we take `ph := ( x + 0 ) = x`. Evaluating it at $0,$ $y,$ $Sy$ and $t$
 gives the other four wffs:
 
@@ -477,24 +481,164 @@ MM> show proof addrid /lemmon /renumber
 7 1,2,3,4,5,6 ax-ind  $a |- ( t + 0 ) = t
 ```
 
+This proof is in `arith-qf.mm`:
+
+@src(code-05/arith-qf.mm, noexecute, collapsed)
+
 Okay, a fun way to spend a weekend or two might be to go extend proofs like this to all of Skolem's 1923 paper. 
+We have built most of the conceptual groundwork, and "primitive-recursive functions" I don't think require
+heavy machinery, they just tell us what kinds of functions we're going to define (introducing heavy machinery
+to lint or build PRFs is up to you, but strictly speaking there's no need).
 But for us, we're done, we've seen how we can apply induction.
 
 ### 5.0.4 Induction with quantifiers
 
-Introducing quantifiers, we'll experiment with these more in 5.1
+Okay, now how do we introduce quantifiers? There's a few different
+ways to do this which I'll put in an appendix 5.0.4b.
+One difficulty of the system we introduced in 5.0.3 is described in 
+Jean van Heijenoort's preface to a translation of Skolem's 1923 paper, where
+it's mentioned that our version of PRA cannot easily phrase things like the twin prime
+conjecture, because the "existence" of a pair is difficult to phrase. It's 
+technically possible to state in our language without proving, but would
+require substantial partial results related to the conjecture.
+But in first-order logic it's easy to state.
 
-setvar discussion
+We're going to get all of our quantifier practice done in sections 
+5.1 and 5.2. So this section is going to be a bit brief, I'm just going to
+show you what works and assert that it works, without getting too in detail.
 
-Example of how to write vtonum
 
-induction axiom
+For our induction axiom, we're going to use a single formula:
 
-#### 5.0.4a Applying the quantifier-ful induction
+$$\frac{}{\vdash (\varphi(0)\land\forall y\,(\varphi(y)\to\varphi(Sy)))\to\forall x\,\varphi(x)}$$
 
-TODO: proof that `|- ( t + 0 ) = t`
+This is basically the [`induction`](https://github.com/metamath/set.mm/blob/develop/peano.mm#L798) axiom of [peano.mm](https://github.com/metamath/set.mm/blob/develop/peano.mm).
+Our goal is to start from `arith-common.mm` and see what axioms we need to introduce.
+We'll definitely keep the same `var x` machinery. We introduce 
+A. for $\forall$ and E. for $\exists$. E. is defined in terms of A., so its 
+properties will be mostly elaborated on in lemmas and theorems.
 
-TODO probably a statement that there's nothing new if we repeated the "more interesting proof" down here.
+```mm
+$c A. E. $.
+wal $a wff A. x ph $.
+wex $a wff E. x ph $.
+df-ex $a |- ( E. x ph <-> -. A. x -. ph ) $.
+```
+
+The symbols, as discussed in Megill, are given meaning through Tarski's axioms:
+
+$$\frac{\vdash\varphi}{\vdash\forall x\varphi}\quad\href{https://us.metamath.org/mpeuni/ax-gen.html}{\texttt{ax-gen}}\qquad
+\frac{}{\vdash\forall x(\varphi\to\psi)\to(\forall x\varphi\to\forall x\psi)}\quad\href{https://us.metamath.org/mpeuni/ax-4.html}{\texttt{ax-4}}$$
+
+$$
+\frac{}{\vdash\varphi\to\forall x\varphi} \;(x\text{ not in }\varphi)\quad\href{https://us.metamath.org/mpeuni/ax-5.html}{\texttt{ax-5}}\qquad
+\frac{}{\vdash\exists x\,(x=t)}\;(x\text{ not in }t)\quad\href{https://us.metamath.org/mpeuni/ax6ev.html}{\texttt{ax-6}}
+$$
+
+```mm
+${
+  ax-gen.1 $e |- ph $.
+  ax-gen $a |- A. x ph $.
+$}
+ax-4 $a |- ( A. x ( ph -> ps ) -> ( A. x ph -> A. x ps ) ) $.
+${
+  $d x ph $.
+  ax-5 $a |- ( ph -> A. x ph ) $.
+$}
+${
+  $d x t $.
+  ax-6 $a |- E. x x = t $.
+$}
+```
+
+And our induction axioms copy peano.mm's axioms, but with a syntax more like `set.mm`. There
+are a whole bunch of ways we could write this btw.
+
+```mm
+${
+  $d x y $. $d y ph $.
+  ax-peano $a |- ( ( A. x ( x = 0 -> ph )
+      /\ A. y ( A. x ( x = y -> ph ) -> A. x ( x = S y -> ph ) ) ) -> A. x ph ) $.
+$}
+```
+
+And actually, that's enough!! We can define induction as before, but as a theorem now:
+
+```mm
+
+${
+  $d x ps $. $d x ch $. $d x th $. 
+  $d x ta $. $d x t $.
+  $d x y $. $d y ph $.
+  ind.at-zero $e |- ( x = 0 -> ( ph <-> ps ) ) $.
+  ind.at-var $e |- ( x = y -> ( ph <-> ch ) ) $.
+  ind.at-succvar $e |- ( x = S y -> ( ph <-> th ) ) $.
+  ind.at-num $e |- ( x = t -> ( ph <-> ta ) ) $.
+  ind.base $e |- ps $.
+  ind.step $e |- ( ch -> th ) $.
+  ind $p |- ta $= ? $.
+$}
+```
+
+The proof is the longest we encountered yet.
+
+```
+MM> show proof ind /lemmon /renumber
+ 1 ind.base      $e |- ps
+ 2 ind.at-zero   $e |- ( x = 0 -> ( ph <-> ps ) )
+ 3 2 biimprd     $p |- ( x = 0 -> ( ps -> ph ) )
+ 4 1,3 mpi       $p |- ( x = 0 -> ph )
+ 5 4 ax-gen      $a |- A. x ( x = 0 -> ph )
+ 6 eq-refl       $a |- y = y
+ 7 eqeq1         $p |- ( x = y -> ( x = y <-> y = y ) )
+ 8 ind.at-var    $e |- ( x = y -> ( ph <-> ch ) )
+ 9 7,8 imbi12d   $p |- ( x = y -> ( ( x = y -> ph ) <-> ( y = y -> ch ) ) )
+10 9 spcv        $p |- ( A. x ( x = y -> ph ) -> ( y = y -> ch ) )
+11 6,10 mpi      $p |- ( A. x ( x = y -> ph ) -> ch )
+12 ind.step      $e |- ( ch -> th )
+13 11,12 syl     $p |- ( A. x ( x = y -> ph ) -> th )
+14 ax-5          $a |- ( th -> A. x th )
+15 ind.at-succvar  $e |- ( x = S y -> ( ph <-> th ) )
+16 15 biimprd    $p |- ( x = S y -> ( th -> ph ) )
+17 16 com12      $p |- ( th -> ( x = S y -> ph ) )
+18 17 alimi      $p |- ( A. x th -> A. x ( x = S y -> ph ) )
+19 14,18 syl     $p |- ( th -> A. x ( x = S y -> ph ) )
+20 13,19 syl     $p |- ( A. x ( x = y -> ph ) -> A. x ( x = S y -> ph ) )
+21 20 ax-gen     $a |- A. y ( A. x ( x = y -> ph ) -> A. x ( x = S y -> ph ) )
+22 ax-peano      $a |- ( ( A. x ( x = 0 -> ph ) /\ A. y ( A. x ( x = y -> ph )
+                                     -> A. x ( x = S y -> ph ) ) ) -> A. x ph )
+23 5,21,22 mp2an  $p |- A. x ph
+24 ind.at-num    $e |- ( x = t -> ( ph <-> ta ) )
+25 24 spcv       $p |- ( A. x ph -> ta )
+26 23,25 ax-mp   $a |- ta
+```
+
+The key command here is to use `mp2an`, which allows us to get `|- ch` from `|- ( ( ph /\ ps ) -> ch )`
+when the antecedents hold. Compare it to `set.mm`'s proof of 
+[`nn0ind`](https://us.metamath.org/mpeuni/nn0ind.html).
+
+Okay, the whole source file is here:
+
+@src(code-05/arith-fo.mm, noexecute, collapsed)
+
+#### 5.0.4.1 Alternate considerations to writing the induction scheme
+
+There were a few issues in figuring out what axioms to use for section 5.0.4. 
+We really want something that leads us to a beautiful illustration of how
+quantifiers fit together in a beautifully engineered system.
+
+Option 1 was to try to follow `set.mm`. Right, this is the approach, 
+"well we can do induction from inside MPE, let's just copy that!" 
+But actually, induction here, [`peano5`](https://us.metamath.org/mpeuni/peano5.html) depends 
+on the construction of the 
+natural numbers in terms of sets, and the ZFC axioms Extensionality, Separation,
+Empty Set, Pairing, Union.
+
+Option 2 would be to have as an axiom something that demonstrates the ability for
+quantifiers to be inside a formula, such as a deductive form of induction:
+
+$$\frac{\vdash(\psi\to \phi(0))\quad\vdash(\psi\to\forall(\phi(y)\to\phi(S y)))}{\vdash(\psi\to\forall\phi(x))}$$
+
 
 ### 5.0.5 Reading Skolem 1923
 
@@ -528,8 +672,6 @@ Skolem's development:
 
 ... I started reading this paper way too thoroughly, I'm going to read it while working on 
 arith.mm
-
-
 
 
 ## 5.1 Building Predicate Calculus Ourselves
