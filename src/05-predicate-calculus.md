@@ -40,7 +40,7 @@ machinery to take its place).
 From what I can gather, at this point in a truly obstinate Metamath-first approach, 
 we don't have the tools or terminology to motivate quantifiers for any other reason than
 "we \[mathematicians\] often phrase proofs in them" or "the ZFC axioms have quantifiers in them."
-If we're given a obfuscated Metamath database with the variables all renamed, we can't easily
+If we're given an obfuscated Metamath database with the variables all renamed, we can't easily
 determine whether it "uses quantifiers" or not, unless we do archaeological work or 
 match the axioms directly to a publication. I really dislike this kind of
 history-first, human-sociology-first statement, but I think it's the best we've got.
@@ -57,7 +57,7 @@ be satisfied by any one `wff P` and `|- P`.)
 
 Essentially, we have a notion of $\forall$ at the top level of a statement, 
 but we can't do anything where we have to bring $\forall$ inside the statement. 
-TODO: I'm still reading Frege's Begriffschrift, I believe this is the motivation given in there.
+TODO: I'm still reading Frege's Begriffsschrift, I believe this is the motivation given in there.
 
 Finer points of quantifiers, appeal to Platonic ideals which we don't yet have the tools
 to prove/discuss:
@@ -94,7 +94,7 @@ And I really mean we have all of propositional logic. In the file
 [`code-04/prop.mm`](code-04/prop.mm), which 
 is lines 1 through 12192 of `set.mm`, we have 1542 proofs of propositional logic. Basically, we can use 
 $\rightarrow,$ $\leftrightarrow,$ $\land,$ $\lor,$ and $\neg$ to our heart's content.
-Though I don't use them, it also contains and, xor, and probably other stuff, I wasn't picky.
+Though I don't use them, it also contains nand, xor, and probably other stuff, I wasn't picky.
 
 ### 5.0.1 Common arithmetic axioms
 
@@ -148,7 +148,7 @@ The names of these axioms correspond to the names in
 @src(code-05/arith-common.mm, noexecute, collapsed)
 
 Define "System $A$" to be propositional logic plus all of our arithmetic axioms except axiom 
-$\texttt{zos}$ (which is read as "every integer is Zero Or a Successor", as opposed to $\texttt{zns}$ which 
+$\texttt{zos}$ (which is read as "every number is Zero Or a Successor", as opposed to $\texttt{zns}$ which 
 is "Zero is Not a Successor"). 
 Then my understanding is: 
 
@@ -208,7 +208,7 @@ $$
 Okay... let's walk through a proof of `|- ( 1 + 0 ) = 1`. This isn't given to us for free, we only have the axiom `|- ( 0 + t ) = t`.
 
 ```
-MM-PA> show n/lemmon
+MM-PA> show new_proof/lemmon
 24 df-1          $a |- 1 = S 0
 25 24 addeq1i    $p |- ( 1 + 0 ) = ( S 0 + 0 )
 28 add-sl        $a |- ( S 0 + 0 ) = S ( 0 + 0 )
@@ -221,7 +221,7 @@ MM-PA> show n/lemmon
 
 This is a bit difficult to parse. Working from the goal backwards, clearly the first thing to do is get rid of `1`. This is 
 accomplished at step 35. `( 0 + 0 ) = 0` is an axiom, and `3eqtri` chains three equalities, which are built at 
-steps 25, 38, 35.
+steps 25, 28, 35.
 
 $$(1+0)=(S0+0)=S(0+0)=S0.$$
 
@@ -233,24 +233,24 @@ Ok, it's a bit weird how this doesn't follow immediately from the axiom though. 
 can figure out there's a common method to all these proofs. We define:
 
 $$
-\frac{\vdash t=Su\quad \vdash (u+0)=u}{\vdash(t+0)=t} \quad \texttt{suc}
+\frac{\vdash t=Su\quad \vdash (u+0)=u}{\vdash(t+0)=t} \quad \texttt{successor-lemma}
 $$
 
 ```mm
-${                                                                                
-  successor-lemma.1 $e |- t = S u $.                                                     
-  successor-lemma.2 $e |- ( u + 0 ) = u $.                                               
-  successor-lemma $p |- ( t + 0 ) = t $=                                                          
-    nt n0 nadd nu nS nt nt n0 nadd nu nS n0 nadd nu n0 nadd nS nu nS nt nu nS n0           
-    successor-lemma.1 addeq1i nu n0 add-sl nu n0 nadd nu successor-lemma.2 suceqi 3eqtri                 
-    successor-lemma.1 eqtr4i $.                                                          
-$}                                                                                
-1p0e1 $p |- ( 1 + 0 ) = 1 $=                                                      
-  n1 n0 df-1 00id successor-lemma $.                                                              
-2p0e2 $p |- ( 2 + 0 ) = 2 $=                                                      
-  n2 n1 df-2 1p0e1 successor-lemma $.                                                             
-3p0e3 $p |- ( 3 + 0 ) = 3 $=                                                      
-  n3 n2 df-3 2p0e2 successor-lemma $. 
+${
+  successor-lemma.1 $e |- t = S u $.
+  successor-lemma.2 $e |- ( u + 0 ) = u $.
+  successor-lemma $p |- ( t + 0 ) = t $=
+    nt n0 nadd nu nS nt nt n0 nadd nu nS n0 nadd nu n0 nadd nS nu nS nt nu nS n0
+    successor-lemma.1 addeq1i nu n0 add-sl nu n0 nadd nu successor-lemma.2 suceqi 3eqtri
+    successor-lemma.1 eqtr4i $.
+$}
+1p0e1 $p |- ( 1 + 0 ) = 1 $=
+  n1 n0 df-1 00id successor-lemma $.
+2p0e2 $p |- ( 2 + 0 ) = 2 $=
+  n2 n1 df-2 1p0e1 successor-lemma $.
+3p0e3 $p |- ( 3 + 0 ) = 3 $=
+  n3 n2 df-3 2p0e2 successor-lemma $.
 ```
 
 So now how do we write a theorem $(t+0)=t$? This is called [`addrid`](https://us.metamath.org/mpeuni/addrid.html) rather than `tp0et`.
@@ -265,9 +265,10 @@ which we haven't built the skills for yet, but some comments from my novice pers
 
 Suppose we introduce some constant `num e`, 
 such that the axiom or theorem `|- -. ( e + 0 ) = e` is satisfied. Of course, `|- ( 0 + e ) = e` also
-holds, because that's an axiom of system $A$. If we can prove or argue that this system is consistent, and that
-the system $A$ is also consistent, then it can only be the case that `|- ( t + 0 ) = t` cannot be 
-proved by system $A.$ 
+holds, because that's an axiom of system $A$. If we can prove or argue that this system is consistent, 
+then it can only be the case that `|- ( t + 0 ) = t` cannot be proved by system $A.$ Of course, $e$
+isn't a natural number in any definition that mathematicians actually use, we've created a weird system
+consistent with our axioms.
 
 My impression is that proofs like this are not really out of place in the first few weeks of a good introduction
 to logic course at the advanced undergraduate level. We're shelving it because at present, it is a "human brain
@@ -280,7 +281,7 @@ What we're missing is induction.
 
 Here we're surely forced to use quantifiers, right? Nope!
 
-Mathematical induction is usually phrased as the rule[^6][^7]
+Mathematical induction is usually phrased as the rule[^4][^5]
 
 [^4]: I omit the use of turnstiles
 because I'm not yet talking about a Metamath essential hypothesis with typecode `|-`.
@@ -294,12 +295,12 @@ Both formulations assume that $A$ is quantifier-free.
 
 $$\frac{\varphi(0)\quad \varphi(x)\to \varphi(Sx)}{\varphi(t)},$$
 
-where somehow we have to treat $\varphi(x)$ as well-formed formula which is a function of $x.$ 
+where somehow we have to treat $\varphi(x)$ as a well-formed formula which is a function of $x.$ 
 This issue of treating $\varphi$ as a `wff` depending on a variable is the first place
 that I encountered the need for disjoint variables.
 
-Say our well-formed formula is $\varphi,$ which takes the value `r + 0 = r`.
-If we try to "replace $r$ with zero" in the usual Metamath sense, we'll just unify the
+Say our well-formed formula is $\varphi,$ which takes the value `t + 0 = t`.
+If we try to "replace $t$ with zero" in the usual Metamath sense, we'll just unify the
 whole expression for phi as `phi := 0 + 0 = 0`. Its status as a formula is lost, 
 and it will no longer be able to be unified with other expressions like our induction hypothesis,
 `( x + 0 ) = x -> ( S x + 0 ) = S x`. 
@@ -309,9 +310,9 @@ the formula holds:
 
 ```mm
 $c var $.
-$v x $.
-vx $f var x $.
-nx $a num x $.
+$v x y $.
+vx $f var x $. vy $f var y $.
+nx $a num x $. ny $a num y $.
 xzero $p |- ( x = 0 -> ( x + 0 ) = x ) $=
   vx nx n0 weq vx nx n0 nadd n0 vx nx vx nx n0 weq vx nx n0 nadd n0 n0 nadd n0
   vx nx n0 n0 addeq1 n0 n0 nadd n0 weq vx nx n0 weq n0 add-0l a1i eqtrd
@@ -412,9 +413,72 @@ And there we have it, our axiom of induction!
 
 #### 5.0.3a Applying the quantifier-free induction
 
-TODO: proof that `|- ( t + 0 ) = t`
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
 
-Maybe a more interesting proof?
+To prove `addrid` we take `ph := ( x + 0 ) = x`. Evaluating it at $0,$ $y,$ $Sy$ and $t$
+gives the other four wffs:
+
+```
+ps := ( 0 + 0 ) = 0
+ch := ( y + 0 ) = y
+th := ( S y + 0 ) = S y
+ta := ( t + 0 ) = t
+```
+
+The six hypotheses we need to fill are:
+
+```
+|- ( x = 0 -> ( ( x + 0 ) = x <-> ( 0 + 0 ) = 0 ) )
+|- ( x = y -> ( ( x + 0 ) = x <-> ( y + 0 ) = y ) )
+|- ( x = S y -> ( ( x + 0 ) = x <-> ( S y + 0 ) = S y ) )
+|- ( x = t -> ( ( x + 0 ) = x <-> ( t + 0 ) = t ) )
+|- ( 0 + 0 ) = 0
+|- ( ( y + 0 ) = y -> ( S y + 0 ) = S y )
+```
+
+The first four are of the same form, so it suffices to show a lemma:
+
+```mm
+addrid-at $p |- ( t = u -> ( ( t + 0 ) = t <-> ( u + 0 ) = u ) ) $=
+  nt nu weq nt n0 nadd nu n0 nadd nt nu nt nu n0 addeq1 nt nu weq id eqeq12d $.
+```
+
+The base case is `00id`, which we used in the proof of `( 1 + 0 ) = 0` so that's easy.
+
+Finally, the inductive step is essentially the same as `successor-lemma` above.
+Combining all the steps give us our additive right identity, `addrid`:
+
+```mm
+addrid-step $p |- ( ( y + 0 ) = y -> ( S y + 0 ) = S y ) $=
+  vy ny n0 nadd vy ny weq vy ny nS n0 nadd vy ny n0 nadd nS vy ny nS
+  vy ny nS n0 nadd vy ny n0 nadd nS weq vy ny n0 nadd vy ny weq vy ny n0 add-sl a1i
+  vy ny n0 nadd vy ny weq vy ny n0 nadd vy ny vy ny n0 nadd vy ny weq id suceqd
+  eqtrd $.
+
+${
+  $d x t $. $d x y $.
+  addrid $p |- ( t + 0 ) = t $=
+    vx nx n0 nadd vx nx weq n0 n0 nadd n0 weq vy ny n0 nadd vy ny weq
+    vy ny nS n0 nadd vy ny nS weq nt n0 nadd nt weq nt vx vy
+    vx nx n0 addrid-at vx nx vy ny addrid-at vx nx vy ny nS addrid-at
+    vx nx nt addrid-at 00id vy addrid-step ax-ind $.
+$}
+```
+
+```
+MM> show proof addrid /lemmon /renumber
+1 addrid-at      $p |- ( x = 0 -> ( ( x + 0 ) = x <-> ( 0 + 0 ) = 0 ) )
+2 addrid-at      $p |- ( x = y -> ( ( x + 0 ) = x <-> ( y + 0 ) = y ) )
+3 addrid-at      $p |- ( x = S y -> ( ( x + 0 ) = x <-> ( S y + 0 ) = S y ) )
+4 addrid-at      $p |- ( x = t -> ( ( x + 0 ) = x <-> ( t + 0 ) = t ) )
+5 00id           $p |- ( 0 + 0 ) = 0
+6 addrid-step    $p |- ( ( y + 0 ) = y -> ( S y + 0 ) = S y )
+7 1,2,3,4,5,6 ax-ind  $a |- ( t + 0 ) = t
+```
+
+Okay, a fun way to spend a weekend or two might be to go extend proofs like this to all of Skolem's 1923 paper. 
+But for us, we're done, we've seen how we can apply induction.
 
 ### 5.0.4 Induction with quantifiers
 
