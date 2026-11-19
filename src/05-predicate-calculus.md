@@ -142,98 +142,170 @@ $$
 \end{array}
 $$
 
-Define "System $B$" to be propositional logic, plus all of the above axioms except axiom 
+The names of these axioms correspond to the names in 
+`arith-common.mm`, embedded below:
+
+@src(code-05/arith-common.mm, noexecute, collapsed)
+
+Define "System $A$" to be propositional logic plus all of our arithmetic axioms except axiom 
 $\texttt{zos}$ (which is read as "every integer is Zero Or a Successor", as opposed to $\texttt{zns}$ which 
 is "Zero is Not a Successor"). 
 Then my understanding is: 
 
-- Robinson arithmetic is system $B$ plus predicate calculus plus $\texttt{zos}$.
-- Peano arithmetic is system $B$ plus predicate calculus plus induction.
-- Primitive Recursive Arithmetic (PRA) is system $B$ plus primitive recursive functions plus a 
-predicate-free induction axiom.
+- Robinson arithmetic is system $A$ plus predicate calculus plus $\texttt{zos}$.
+- Peano arithmetic is system $A$ plus predicate calculus plus induction.
+- Primitive-Recursive Arithmetic (PRA)[^2] is system $A$ plus a predicate-free induction axiom, 
+plus primitive-recursive functions[^3].
 
-(TODO cite Feferman, also Avigad, here)
+[^2]: There are two different "Primitive Recursive Arithmetics" people talk about in modern terminology.
+Number one is "System $A$ + primitive-recursive functions + predicate-free induction." This can be 
+denoted $\text{PRA}_{\text{qf}}$
+and it's discussed in Feferman 1993 "What Rests on What? The Proof-Theoretic Analysis of Mathematics," pp. 7-8. 
+Many authors (most authors?) use PRA to refer to a system
+with predicate calculus (first order logic), but with induction restricted to quantifier-free formulas. This is 
+$\text{PRA}_{\text{fo}},$ "System $A$ + primitive-recursive functions + predicates + induction
+restricted to quantifier-free formulas." Both these systems are defined and compared in 
+Avigad 2002, "Ordinal Analysis Without Proofs."
 
-Something I'd like to emphasize here is that we can "prove", or rather construct the term,
-`wff 1 = 0` (ie. `wff S 0 = 0`). This isn't a problem. What is a problem is `|- 1 = 0`,
-constructing that is a big problem.
+[^3]: There's not some big "set of primitive-recursive function axioms" to add to our database. 
+We just are only allowed to define functions satisfying (TODO insert specification). This could 
+be done with some machinery and a PRF-builder notation, or it could be enforced with a linter
+like `set.mm`, but if we use any we'll just define functions ourselves and be extra careful
+to follow the rules :)
+
+PRA has a long and storied history with lots of tantalizing stuff;
+Gödel and metamathematics and things. But our motivation is much more innocent: we have 
+some axioms for arithmetic, now let's see what we can and can't prove.
+
+Elementary note: In the last chapter, 
+we could construct terms like `wff ph -> -. ph` without issue. It's an
+issue if we construct the term `|- ph -> -. ph`. Similarly here, we'll construct terms like
+`num 0` and then `wff 1 = 0`, or rather `wff S 0 = 0`, but this is no issue for the same reason,
+whereas `|- 1 = 0` is a big, big issue! I only 
+bring it up because "oh no, I'm not constructing a contradiction am I?" goes through my head
+every time I type `$a`.
 
 ### 5.0.2 Common arithmetic theorems
 
-After this, we don't really need much ado. We can imagine having a whole host of helper theorems like in 
-propositional logic. A decade ago we might have hemmed and hawed at how long this will take, but in 2026
-we know we can knock it using any number of sledgehammers.
+We can imagine having a whole host of helper theorems like we built in  
+propositional logic, and that's exactly what we have in `arith-common.mm`.
 
-```mm
-${
-  eq-tri.1 $e |- t = u $.
-  eq-tri.2 $e |- u = v $.
-  eq-tri $p |- t = v $=
-    nt nu weq nu nv weq nt nv weq eq-tri.1 eq-tri.2 nt nu nv eq-tr mp2 $.
-$}
-${
-  eq-trd.1 $e |- ( ph -> t = u ) $.
-  eq-trd.2 $e |- ( ph -> u = v ) $.
-  eq-trd $p |- ( ph -> t = v ) $= 
-    wph nu nv weq nt nv weq eq-trd.2 wph nt nu weq nu nv weq nt nv weq wi
-    eq-trd.1 nt nu nv eq-tr syl mpd $.
-$}
+Let's walk through a few of the theorems. First, since we just introduced
+equality, we can work with a bunch of theorems involving that. In `set.mm`
+we care about equality of `class`es, but here we care about equality of `num`s.
+Here's `eqcomi`, `eqtri`, and `eqtr4i`. The links go to the analogous
+theorems in set.mm, of course, I'm just stealing the naming convention.
+
+
+$$
+\frac{\vdash t=u}{\vdash u=t}\quad\href{https://us.metamath.org/mpeuni/eqcomi.html}{\texttt{eqcomi}};\qquad
+\frac{\vdash t=u\quad \vdash u=v}{\vdash t=v}\quad\href{https://us.metamath.org/mpeuni/eqtri.html}{\texttt{eqtri}}
+$$
+$$
+\frac{\vdash t=u\quad\vdash v=u}{\vdash t=v}\quad\href{https://us.metamath.org/mpeuni/eqtr4i.html}{\texttt{eqtr4i}}
+$$
+
+Okay... let's walk through a proof of `|- ( 1 + 0 ) = 1`. This isn't given to us for free, we only have the axiom `|- ( 0 + t ) = t`.
+
+```
+MM-PA> show n/lemmon
+24 df-1          $a |- 1 = S 0
+25 24 addeq1i    $p |- ( 1 + 0 ) = ( S 0 + 0 )
+28 add-sl        $a |- ( S 0 + 0 ) = S ( 0 + 0 )
+34 add-0l        $a |- ( 0 + 0 ) = 0
+35 34 suceqi     $p |- S ( 0 + 0 ) = S 0
+36 25,28,35 3eqtri  $p |- ( 1 + 0 ) = S 0
+37 df-1          $a |- 1 = S 0
+38 36,37 eqtr4i  $p |- ( 1 + 0 ) = 1
 ```
 
-Well, and so on and so forth. But there's one glaring omission that we can't seem to prove...
-commutativity of addition. Or more pointedly, given the axiom scheme `add-0l` which says
-$0 + t = t,$ we'd expect to be able to prove the theorem scheme:
+This is a bit difficult to parse. Working from the goal backwards, clearly the first thing to do is get rid of `1`. This is 
+accomplished at step 35. `( 0 + 0 ) = 0` is an axiom, and `3eqtri` chains three equalities, which are built at 
+steps 25, 38, 35.
+
+$$(1+0)=(S0+0)=S(0+0)=S0.$$
+
+And the only reason we don't add `S0=1` at the end of that chain is that we haven't defined a `4eqtri`.
+So the proof strategy for this is to first write out the chain of equalities you want to make, and then puzzle out
+how to build each one from the axioms.
+
+Ok, it's a bit weird how this doesn't follow immediately from the axiom though. What about $(2+0)=2$ and $(3+0)=3$? Well, we
+can figure out there's a common method to all these proofs. We define:
+
+$$
+\frac{\vdash t=Su\quad \vdash (u+0)=u}{\vdash(t+0)=t} \quad \texttt{suc}
+$$
 
 ```mm
-add-0r $p |- ( t + 0 ) = t $= ? $.
+${                                                                                
+  successor-lemma.1 $e |- t = S u $.                                                     
+  successor-lemma.2 $e |- ( u + 0 ) = u $.                                               
+  successor-lemma $p |- ( t + 0 ) = t $=                                                          
+    nt n0 nadd nu nS nt nt n0 nadd nu nS n0 nadd nu n0 nadd nS nu nS nt nu nS n0           
+    successor-lemma.1 addeq1i nu n0 add-sl nu n0 nadd nu successor-lemma.2 suceqi 3eqtri                 
+    successor-lemma.1 eqtr4i $.                                                          
+$}                                                                                
+1p0e1 $p |- ( 1 + 0 ) = 1 $=                                                      
+  n1 n0 df-1 00id successor-lemma $.                                                              
+2p0e2 $p |- ( 2 + 0 ) = 2 $=                                                      
+  n2 n1 df-2 1p0e1 successor-lemma $.                                                             
+3p0e3 $p |- ( 3 + 0 ) = 3 $=                                                      
+  n3 n2 df-3 2p0e2 successor-lemma $. 
 ```
 
-In fact, we can't prove this! To say "we can't prove it" requires some justification, though.
-Number one, this is a metatheorem the likes of which I keep trying and failing to dodge. 
-My concrete, novice perspective is the following: Suppose we introduce some constant `num e`, 
+So now how do we write a theorem $(t+0)=t$? This is called [`addrid`](https://us.metamath.org/mpeuni/addrid.html) rather than `tp0et`.
+We just need to apply our successor-lemma t times, but try as we might, we can't seem to do it.
+
+```mm
+addrid $p |- ( t + 0 ) = t $= ? $.
+```
+
+Soon we convince ourselves, we can't prove it at all! Saying "we can't prove it" is a metatheorem,
+which we haven't built the skills for yet, but some comments from my novice perspective:
+
+Suppose we introduce some constant `num e`, 
 such that the axiom or theorem `|- -. ( e + 0 ) = e` is satisfied. Of course, `|- ( 0 + e ) = e` also
-holds, because that's an axiom of system $B$. If we can prove or argue that this system is consistent, and that
-the system $B$ is also consistent, then it can only be the case that `|- ( t + 0 ) = t` cannot be 
-proved by system $B.$ Okay, but we can't really broach proofs like that without doing a lot more work
-or a lot of a different kind of work, so we shelve that. The fact remains
-that we don't seem to be able to prove `add-0r`.
+holds, because that's an axiom of system $A$. If we can prove or argue that this system is consistent, and that
+the system $A$ is also consistent, then it can only be the case that `|- ( t + 0 ) = t` cannot be 
+proved by system $A.$ 
 
-But there is indeed an induction argument! 
-
-If $(S^n 0+0)=S^n 0$, then $S(S^n+0)=S^{n+1}0$ by axiom `eq-s`. So $(S^{n+1}+0)=S^{n+1}0$ 
-by `add-sl` (and probably `eq-sym` and `eq-tr`). Also, it is certainly true that $0+0=0$ by `add-0l`.
-So mathematical induction could prove this handily! 
+My impression is that proofs like this are not really out of place in the first few weeks of a good introduction
+to logic course at the advanced undergraduate level. We're shelving it because at present, it is a "human brain
+as a proof checker" topic, which we want to avoid.
+The fact remains that we cannot prove `addrid`, 
+yet for any finite $t$ we can construct a proof that $(t+0)=t.$ 
+What we're missing is induction.
 
 ### 5.0.3 Induction without quantifiers
 
 Here we're surely forced to use quantifiers, right? Nope!
 
-Mathematical induction is usually phrased as the following rule[^2]:
+Mathematical induction is usually phrased as the rule[^6][^7]
 
-[^2]: I omit the use of turnstiles
-because I'm not talking about a Metamath essential hypothesis with typecode `|-`.
+[^4]: I omit the use of turnstiles
+because I'm not yet talking about a Metamath essential hypothesis with typecode `|-`.
 
-$$\frac{P(0)\quad P(t)\to P(t+1)}{P(u)}$$
+[^5]: Troelstra and van Dalen's 1988 *Constructivism in Mathematics: An Introduction*, p. 120, writes
+$A(0),\quad A(x)\to A(Sx)\quad\Rightarrow\quad A(t),$
+while Troelstra and Schwichtenberg's 2000 *Basic Proof Theory*, p. 128 writes
+$$\frac{\Gamma\vdash A(0)\qquad \Gamma\vdash A(x)\to A(Sx)}{\Gamma\vdash A(t)},
+\qquad x\notin\operatorname{FV}(\Gamma). $$
+Both formulations assume that $A$ is quantifier-free.
 
-(TODO: check and cite. I know I read good occurrences of induction as used in other books)
+$$\frac{\varphi(0)\quad \varphi(x)\to \varphi(Sx)}{\varphi(t)},$$
 
-For us this is a bit awkward because we haven't built the machinery to define functions.
-Really what we want to do is something like the following: 
+where somehow we have to treat $\varphi(x)$ as well-formed formula which is a function of $x.$ 
+This issue of treating $\varphi$ as a `wff` depending on a variable is the first place
+that I encountered the need for disjoint variables.
 
-Say our well-formed formula is $\varphi,$ which takes the value `r + 0 = r`, and which 
-we want to "act like a function" in some way. One example is that we need to evaluate
-this at $r=0.$ But... Metamath is just going to replace $\varphi$ with a fixed expression,
-and it has to be that same expression at every occurrence in our formula! We can't say 
-"at this point, unify $\varphi$ with `|- 0 + 0 = 0`, but then later on try to unify it
-with `|- S t + 0 = S t`." 
+Say our well-formed formula is $\varphi,$ which takes the value `r + 0 = r`.
+If we try to "replace $r$ with zero" in the usual Metamath sense, we'll just unify the
+whole expression for phi as `phi := 0 + 0 = 0`. Its status as a formula is lost, 
+and it will no longer be able to be unified with other expressions like our induction hypothesis,
+`( x + 0 ) = x -> ( S x + 0 ) = S x`. 
 
-How do we solve this? First off, we realize that $\varphi$ can only be unified with one
-thing, so in the example case we've been using we say that phi is the wff `x + 0 = x`. 
-How do we ensure that this doesn't get unified with `0 + 0 = 0` once, ruining our ability
-to substitute other values of $x$? The answer is that `x` cannot be of typecode `num`.
-
-We instead do a very clever trick. At least I think it's very clever. We make the following
-definitions:
+How do we solve this? Let's start with a theorem that "substitutes in" zero for x and shows
+the formula holds:
 
 ```mm
 $c var $.
@@ -242,55 +314,49 @@ vx $f var x $.
 nx $a num x $.
 xzero $p |- ( x = 0 -> ( x + 0 ) = x ) $=
   vx nx n0 weq vx nx n0 nadd n0 vx nx vx nx n0 weq vx nx n0 nadd n0 n0 nadd n0
-  vx nx n0 n0 eq-add-left n0 n0 nadd n0 weq vx nx n0 weq n0 add-0l a1i eq-trd
-  vx nx n0 eq-sym eq-trd $.
+  vx nx n0 n0 addeq1 n0 n0 nadd n0 weq vx nx n0 weq n0 add-0l a1i eqtrd
+  vx nx n0 eq-sym eqtrd $.
 ```
 
-We put $x=0$ in our antecedent, and then use the axioms of our arithmetic to 
-"perform the substitution". The axioms of our arithmetic are usable because 
-we're always allowed to convert `var x` to `num x` via `nx`. Yet we can never
-unify, say, `S 0` in place of `x` because we would need `var S 0`, which 
-we can never build.
+Two notes:
 
-I absolutely love this, because it's very instructive for us on two counts: 
-It gives us a Metamath programming trick which we can use, which is
-essentially the same notion as an object variable in logic. 
-And it gives us a method to construct our axiom systems (our axiom systems
-must be sufficiently powerful that we can apply the operations above which
-should be interpreted as "substituting the variable for zero"). I think that's
-a very general lesson about theory building.
+- It's not of much consequence yet, but the trick with defining `x` as a `var` makes it so that
+we can't substitute numbers. I'm purposefully restricting `xzero` so that it doesn't prove `1 = 0 -> ( 1 + 0 ) = 1`.
+- If we had developed our axioms from scratch, here is where
+we might find we missed a few axioms! For this to work, our axioms had to be powerful enough to allow for 
+interactions like this where we "substitute" the value just by applying axioms.
 
-(TODO: improve the above paragraph. Also cite the "object variable" thing.)
+In general, if we want to "substitute in" the `num t` for the `var x`, we should do the following:
 
-Introducing a `var` leads us to one other piece of machinery, whose construction
-requires the use of disjoint variables.
+$$x=t\to (\varphi\leftrightarrow\psi)$$
 
-Suppose we introduce vars and we manage to prove the
-theorem `|- x + 0 = x`. We wouldn't actually be able to use this to prove `|- t + 0 = t`,
-because t is a num. We can't allow `t` to be converted into a `var` either, as this would 
-lead us straight back to the problem that we just fixed. 
-No issue, we just apply our trick of "evaluating at a variable" again. We introduced 
-the axiom `$a num x $.` to deal with `var`s, what's one more axiom?
-
-Let $\varphi$ be our `wff` which we think of as a function of `x`. And $\psi$ is the value
-of x as the `num t` that we want to plug in. Then we just create an axiom saying we can plug
-in that value:
+We could implement it in Metamath as follows (compare to [`vtocl`](https://us.metamath.org/mpeuni/vtocl.html)):
 
 ```mm
-${ 
+${ $( don't use this code, it's intentionally broken :) $)
   vtonum.1 $e |- ( x = t -> ( ph <-> ps ) ) $.
   vtonum.2 $e |- ph $.
   vtonum $a |- ps $.
 $}
 ```
 
-It looks good, but in fact we can now prove `|- 1 = 0`. Why? Take `ph := x = x`, `t := 0`, `ps := x = 0`.
+This looks good, but we can now prove `|- 1 = 0`. Why? Take `ph := x = x`, `t := 0`, `ps := x = 0`.
 We conclude `|- x = 0`. A second application of `vtonum` with `ph := x = 0`, `t := 1`, and `ps := 1 = 0` 
-concludes `|- 1 = 0`.
+concludes `|- 1 = 0`. Oops. This is a failure caused by $\psi$ still containing the variable $x$ after 
+we substituted for $x.$
 
-What went wrong? In our first application of `vtonum`, an $x$ was leftover in our formula even though
-we were supposed to be substituting for $x$! The problem is that we allowed the variable $x$ to occur
-anywhere in $\psi$. This is exactly what the disjoint variable restriction, `$d ... $.` prevents:
+We can prove $1=0$ a different way. Put `ph := 0 = 0`, `t := x + 1`, and `ps := 1 = 0`.
+We conclude `|- 1 = 0`.
+This is a failure caused by trying to assign `x` a value that depends on `x`.[^8]
+
+[^8]: Technically this requires us to prove `-. x = x + 1`, which in our axioms and 
+[even in Robinson arithmetic](https://math.stackexchange.com/a/1066378) can't be done. 
+So this is unsound provided we want to work in an arithmetic where `-. x = x + 1`.
+
+One way to view these failures is that we're thinking of `vtonum` wrong. Rather than "substituting into a function",
+we really should think of it as *eliminating* a variable from a formula. All of our woes are solved by 
+requiring that $\psi$ and $t$ contain no instances of $x.$
+This is accomplished by using the `$d ... $.` statement.
 
 ```mm
 ${ 
@@ -301,18 +367,14 @@ ${
 $}
 ```
 
-TODO: comment on the reason for the t variable restriction.
-
-Compare this to a similar theorem inside set.mm, [`vtocl`](https://us.metamath.org/mpeuni/vtocl.html).
-
 *Now*, we can begin to construct our induction axiom.
-Well, we have a formula $\varphi$ which is our $P(x)$. We have a base case,
-$P(0)$ which I will call $\psi$. The conclusion of our rule, $P(t)$ which can 
+We have a formula $\varphi$ which we think of as a function of `var x`. We have a base case,
+$\varphi(0)$ which I will call $\psi$. The conclusion of our rule, $\varphi(t)$ which can 
 be evaluated at any `num t`, I'll call $\tau.$ The naming and ordering of the 
 essential hypotheses is something we inherit from `set.mm` by the way, don't blame me 
-for it![^3]
+for it![^9]
 
-[^3]: An example of this is [nnind](https://us.metamath.org/mpeuni/nnind.html).
+[^9]: An example of this is [nnind](https://us.metamath.org/mpeuni/nnind.html).
 
 ```mm
 ${
@@ -326,9 +388,9 @@ ${
 $}
 ```
 
-Okay, and of course we also don't want our expression for $P(t)\to P(t+1)$ to unify
-with some specific `num t`, so that has to be a var as well. 
-So we evaluate at y (call the wff $\chi$), evaluate at y+1 (call the wff $\theta$), 
+Next our induction hypothesis. We don't want $\varphi(y)\to \varphi(y+1)$ to unify
+with some specific `num y`, so `y` has to be a var as well. 
+We evaluate at y (call the wff $\chi$), evaluate at y+1 (call the wff $\theta$), 
 and have our inductive hypothesis $(\chi\to\theta)$.
 
 ```mm
@@ -380,15 +442,13 @@ TODO probably a statement that there's nothing new if we repeated the "more inte
 mean that it can be stated.
 
 - There are two different "Primitive Recursive Arithmetics" people talk about in modern terminology.
-Number one is "System $B$ + primitive-recursive functions + quantifier-free induction." This can be 
+Number one is "System $A$ + primitive-recursive functions + quantifier-free induction." This can be 
 denoted $\text{PRA}_{\text{qf}}.$ This is the system in which stating the twin prime conjecture 
-cannot be easily done, and it's discussed in Feferman 1993[^4]. On the other hand, many authors (most authors?) use PRA to refer to a system
+cannot be easily done, and it's discussed in Feferman 1993[^6]. On the other hand, many authors (most authors?) use PRA to refer to a system
 with predicate calculus, but with induction restricted to quantifier-free formulas. This is 
-$\text{PRA}_{\text{fo}},$ "System $B$ + primitive-recursive functions + predicates + induction
-restricted to quantifier-free formulas." Both these systems are defined and compared in Avigad 2002[^5].
+$\text{PRA}_{\text{fo}},$ "System $A$ + primitive-recursive functions + predicates + induction
+restricted to quantifier-free formulas." Both these systems are defined and compared in Avigad 2002[^7].
 
-[^4]: Solomon Feferman (1993), What Rests on What? The Proof-Theoretic Analysis of Mathematics, pp. 7-8
-[^5]: Jeremy Avigad (2002), Ordinal Analysis Without Proofs, 
 
 - In comparing to Metamath definitions, I wonder if Skolem would take issue with the metavariables
 of our system being able to range over an infinite domain. I think not. I think there's something

@@ -8,15 +8,8 @@ package-lock.json
 # Metamath rotating source backups.
 *.mm~[1-9]
 
-/ai
-!/ai/predicate-calculus/
-
-/src/book/frege/
-/html/book/frege/
-/src/book/hirst/
-/html/book/hirst/
-/src/book/dontshare/
-/html/book/dontshare/
+ai
+dontshare
 
 AGENTS.md
 
