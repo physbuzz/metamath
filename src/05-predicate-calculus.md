@@ -688,55 +688,40 @@ work there.
 In section 5.2, we'll switch to `set.mm` for good; I expect we'll stay there for the rest of these 
 notes.
 
-> [!WARNING]
-> This section is AI-generated and has not been reviewed.
+Note: in Megill's book, "3.3.2 Axioms of Predicate Calculus with Equality—Tarski’s S2" there is a 
+major typo with axiom 4!!! Axiom 4 should be:
 
-Plan of the problem sets. The 5.1 file adds only the formation rule `wal`, the rule `ax-gen`, and
-`ax-4`. Reading `A. x` as "necessarily," these are exactly the axioms of the modal logic K.
-That system is weak, but it is already enough for the first two of Aristotle's syllogisms,
-which close 5.1.
+$$\overline{\vdash \forall x(\varphi\to\psi)\to(\forall x\varphi\to\forall x \psi)}$$
 
-Section 5.2 opens `set.mm`. The first three problems handle the existential quantifier and end
-with the drinker paradox. The last two use `e.` and train searching the library.
-Russell's paradox turns out to be a theorem of pure logic, and the axiom of extensionality supplies
-the half of Leibniz's law that logic does not give.
-
-Hints read the proof backwards, as the proof assistant builds it: `assign last thm` replaces the
-goal with the hypotheses of `thm`. A hint like "`ja` splits the goal into two cases" names the
-theorem to assign and the goals it leaves. Some general tactics:
-
-- Find the theorem whose conclusion has the goal's shape with `search * "( A. x ph -> ps )"`.
-  The results include inference rules, whose hypotheses become the new goals.
-- After `assign`, a hypothesis may contain an unknown formula `$n`. Assign the hypothesis that
-  pins it down first, or set it with `let variable $n = "..."`.
-- `improve all` closes goals that are exact instances of existing theorems, and `match step n`
-  lists the candidates for step `n`.
-- Most inferences here are a closed theorem plus a rule: `mpg` turns a closed `( A. x ... -> ... )`
-  into an inference, and `mpbir` rewrites a goal with a biconditional.
+I didn't find it necessary to use Yamma or mmj2 for this section, but I think I will for 5.2.
+I definitely found it necessary to rely on `let` and `search` much more, and `improve all` to 
+match things once I get down to something that should be an already-proved tautology.
 
 ### 5.1.1 Lift an implication
 
-> [!WARNING]
-> This section is AI-generated and has not been reviewed.
-
-Work in [pred-5-1.mm](code-05/pred-5-1.mm) with [prop.mm](code-05/prop.mm) beside it. Prove [`mpg`](https://us.metamath.org/mpeuni/mpg.html) and [`alimi`](https://us.metamath.org/mpeuni/alimi.html). The first combines generalization with modus ponens. The second lets you take an implication you already proved in chapter 4 and put `A. x` on both sides. Prove [`al2im`](https://us.metamath.org/mpeuni/al2im.html) and [`al2imi`](https://us.metamath.org/mpeuni/al2imi.html) for an implication with two antecedents. That version comes up in the very next proof.
+Prove [`mpg`](https://us.metamath.org/mpeuni/mpg.html), [`alimi`](https://us.metamath.org/mpeuni/alimi.html),
+[`al2im`](https://us.metamath.org/mpeuni/al2im.html), and [`al2imi`](https://us.metamath.org/mpeuni/al2imi.html).
 
 ```metamath
 ${
   mpg.1 $e |- ( A. x ph -> ps ) $.
   mpg.2 $e |- ph $.
+  $( Modus ponens with generalization $)
   mpg $p |- ps $= ? $.
 $}
 
 ${
   alimi.1 $e |- ( ph -> ps ) $.
+  $( Inference quantifying both antecedent and consequent. $)
   alimi $p |- ( A. x ph -> A. x ps ) $= ? $.
 $}
 
+$( Distribute a quantifier over 3 terms instead of just 2 $)
 al2im $p |- ( A. x ( ph -> ( ps -> ch ) ) -> ( A. x ph -> ( A. x ps -> A. x ch ) ) ) $= ? $.
 
 ${
   al2imi.1 $e |- ( ph -> ( ps -> ch ) ) $.
+  $( Inference form of al2im $)
   al2imi $p |- ( A. x ph -> ( A. x ps -> A. x ch ) ) $= ? $.
 $}
 ```
@@ -795,7 +780,26 @@ ${
 $}
 
 albiim $p |- ( A. x ( ph <-> ps ) <-> ( A. x ( ph -> ps ) /\ A. x ( ps -> ph ) ) ) $= ? $.
+
 ```
+
+dfbi $p |- ( ( ( ph <-> ps ) -> ( ( ph -> ps ) /\ ( ps -> ph ) ) )
+      /\ ( ( ( ph -> ps ) /\ ( ps -> ph ) ) -> ( ph <-> ps ) ) ) $=
+   ( ( ( ph -> ps ) /\ ( ps -> ph ) ) -> ( ph <-> ps ) ) )
+|- ( ( ( ph -> ps ) /\ ( ps -> ph ) ) -> ( ph <-> ps ) )
+|- ( ( ( ph -> ps ) /\ ( ps -> ph ) ) -> ( ph <-> ps ) )
+
+I got this to |- ( ( ( ph -> ps ) /\ ( ps -> ph ) ) -> ( ph <-> ps ) )
+
+I want a theorem that says
+
+If
+( R -> P )
+( P -> Q )
+then
+( R -> Q )
+
+
 
 #### Hints
 
@@ -826,6 +830,10 @@ the 5.1 axiom set. Nine of them (`darapti` and others) carry an extra hypothesis
 nonempty terms is an old debate. `set.mm` documents it before `barbara`.
 
 These are the last holes in `pred-5-1.mm`:
+
+NOTE what I find odd about this is it's a key point where we notice there seems to be no 
+specialization axiom? There's an axiom of generalization, but removing a quantifier seems
+harder. If we could, this would be trivial... is it trivial anyways?
 
 ```metamath
 ${

@@ -1307,52 +1307,34 @@ I will not, however, assume that we are working inside set.mm though you may pre
 work there.</p>
 <p>In section 5.2, we'll switch to <code>set.mm</code> for good; I expect we'll stay there for the rest of these 
 notes.</p>
-<div class="markdown-alert markdown-alert-warning">
-<p class="markdown-alert-title">Warning</p>
-<p>This section is AI-generated and has not been reviewed.</p>
-</div>
-<p>Plan of the problem sets. The 5.1 file adds only the formation rule <code>wal</code>, the rule <code>ax-gen</code>, and
-<code>ax-4</code>. Reading <code>A. x</code> as "necessarily," these are exactly the axioms of the modal logic K.
-That system is weak, but it is already enough for the first two of Aristotle's syllogisms,
-which close 5.1.</p>
-<p>Section 5.2 opens <code>set.mm</code>. The first three problems handle the existential quantifier and end
-with the drinker paradox. The last two use <code>e.</code> and train searching the library.
-Russell's paradox turns out to be a theorem of pure logic, and the axiom of extensionality supplies
-the half of Leibniz's law that logic does not give.</p>
-<p>Hints read the proof backwards, as the proof assistant builds it: <code>assign last thm</code> replaces the
-goal with the hypotheses of <code>thm</code>. A hint like "<code>ja</code> splits the goal into two cases" names the
-theorem to assign and the goals it leaves. Some general tactics:</p>
-<ul>
-<li>Find the theorem whose conclusion has the goal's shape with <code>search * "( A. x ph -&gt; ps )"</code>.
-  The results include inference rules, whose hypotheses become the new goals.</li>
-<li>After <code>assign</code>, a hypothesis may contain an unknown formula <code>$n</code>. Assign the hypothesis that
-  pins it down first, or set it with <code>let variable $n = "..."</code>.</li>
-<li><code>improve all</code> closes goals that are exact instances of existing theorems, and <code>match step n</code>
-  lists the candidates for step <code>n</code>.</li>
-<li>Most inferences here are a closed theorem plus a rule: <code>mpg</code> turns a closed <code>( A. x ... -&gt; ... )</code>
-  into an inference, and <code>mpbir</code> rewrites a goal with a biconditional.</li>
-</ul>
+<p>Note: in Megill's book, "3.3.2 Axioms of Predicate Calculus with Equality—Tarski’s S2" there is a 
+major typo with axiom 4!!! Axiom 4 should be:</p>
+<div class="math display-math math-mathjax-chtml tex2jax_ignore mathjax_ignore"><span class="math-copy-source">$$\overline{\vdash \forall x(\varphi\to\psi)\to(\forall x\varphi\to\forall x \psi)}$$</span><mjx-container class="math-rendered MathJax" jax="CHTML" overflow="overflow" style="font-size: 119.5%;" display="true" aria-hidden="true"><mjx-math display="true" class="TEX-N"><mjx-mover><mjx-over style="padding-bottom: 0.18em; margin-bottom: -0.248em;"><mjx-mo><mjx-stretchy-h style="width: 13.105em;" class="mjx-c2013"><mjx-ext><mjx-spacer>––––––––––––––––––––––––––––––––</mjx-spacer></mjx-ext></mjx-stretchy-h></mjx-mo></mjx-over><mjx-base><mjx-mrow><mjx-mo><mjx-c class="mjx-c22A2">⊢</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c1D711">𝜑</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c1D713">𝜓</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mo space="4"><mjx-c class="mjx-c28">(</mjx-c></mjx-mo><mjx-mi><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D711">𝜑</mjx-c></mjx-mi><mjx-mo space="4"><mjx-c class="mjx-c2192">→</mjx-c></mjx-mo><mjx-mi space="4"><mjx-c class="mjx-c2200">∀</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D465">𝑥</mjx-c></mjx-mi><mjx-mi><mjx-c class="mjx-c1D713">𝜓</mjx-c></mjx-mi><mjx-mo><mjx-c class="mjx-c29">)</mjx-c></mjx-mo></mjx-mrow></mjx-base></mjx-mover></mjx-math></mjx-container></div>
+<p>I didn't find it necessary to use Yamma or mmj2 for this section, but I think I will for 5.2.
+I definitely found it necessary to rely on <code>let</code> and <code>search</code> much more, and <code>improve all</code> to 
+match things once I get down to something that should be an already-proved tautology.</p>
 <h3 id="511-lift-an-implication">5.1.1 Lift an implication</h3>
-<div class="markdown-alert markdown-alert-warning">
-<p class="markdown-alert-title">Warning</p>
-<p>This section is AI-generated and has not been reviewed.</p>
-</div>
-<p>Work in <a href="code-05/pred-5-1.mm">pred-5-1.mm</a> with <a href="code-05/prop.mm">prop.mm</a> beside it. Prove <a href="https://us.metamath.org/mpeuni/mpg.html"><code>mpg</code></a> and <a href="https://us.metamath.org/mpeuni/alimi.html"><code>alimi</code></a>. The first combines generalization with modus ponens. The second lets you take an implication you already proved in chapter 4 and put <code>A. x</code> on both sides. Prove <a href="https://us.metamath.org/mpeuni/al2im.html"><code>al2im</code></a> and <a href="https://us.metamath.org/mpeuni/al2imi.html"><code>al2imi</code></a> for an implication with two antecedents. That version comes up in the very next proof.</p>
+<p>Prove <a href="https://us.metamath.org/mpeuni/mpg.html"><code>mpg</code></a>, <a href="https://us.metamath.org/mpeuni/alimi.html"><code>alimi</code></a>,
+<a href="https://us.metamath.org/mpeuni/al2im.html"><code>al2im</code></a>, and <a href="https://us.metamath.org/mpeuni/al2imi.html"><code>al2imi</code></a>.</p>
 <div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
 <span class="w">  </span><span class="nl">mpg.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
 <span class="w">  </span><span class="nl">mpg.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="cm">$( Modus ponens with generalization $)</span>
 <span class="w">  </span><span class="nl">mpg</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
 <span class="p">$}</span>
 
 <span class="p">${</span>
 <span class="w">  </span><span class="nl">alimi.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="cm">$( Inference quantifying both antecedent and consequent. $)</span>
 <span class="w">  </span><span class="nl">alimi</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
 <span class="p">$}</span>
 
+<span class="cm">$( Distribute a quantifier over 3 terms instead of just 2 $)</span>
 <span class="nl">al2im</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
 
 <span class="p">${</span>
 <span class="w">  </span><span class="nl">al2imi.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="cm">$( Inference form of al2im $)</span>
 <span class="w">  </span><span class="nl">al2imi</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
 <span class="p">$}</span>
 </code></pre></div>
@@ -1409,6 +1391,18 @@ theorem to assign and the goals it leaves. Some general tactics:</p>
 <span class="nl">albiim</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
 </code></pre></div>
 
+<p>dfbi $p |- ( ( ( ph &lt;-&gt; ps ) -&gt; ( ( ph -&gt; ps ) /\ ( ps -&gt; ph ) ) )
+      /\ ( ( ( ph -&gt; ps ) /\ ( ps -&gt; ph ) ) -&gt; ( ph &lt;-&gt; ps ) ) ) $=
+   ( ( ( ph -&gt; ps ) /\ ( ps -&gt; ph ) ) -&gt; ( ph &lt;-&gt; ps ) ) )
+|- ( ( ( ph -&gt; ps ) /\ ( ps -&gt; ph ) ) -&gt; ( ph &lt;-&gt; ps ) )
+|- ( ( ( ph -&gt; ps ) /\ ( ps -&gt; ph ) ) -&gt; ( ph &lt;-&gt; ps ) )</p>
+<p>I got this to |- ( ( ( ph -&gt; ps ) /\ ( ps -&gt; ph ) ) -&gt; ( ph &lt;-&gt; ps ) )</p>
+<p>I want a theorem that says</p>
+<p>If
+( R -&gt; P )
+( P -&gt; Q )
+then
+( R -&gt; Q )</p>
 <h4 id="hints-3">Hints</h4>
 <ul>
 <li><code>albi</code>: the goal is <code>( A. x ( ph &lt;-&gt; ps ) -&gt; ( ... &lt;-&gt; ... ) )</code>. <code>impbid</code> splits the
@@ -1436,6 +1430,9 @@ the 5.1 axiom set. Nine of them (<code>darapti</code> and others) carry an extra
 <code>E. x ph</code>. These are the moods with "existential import," and whether Aristotle's logic assumes
 nonempty terms is an old debate. <code>set.mm</code> documents it before <code>barbara</code>.</p>
 <p>These are the last holes in <code>pred-5-1.mm</code>:</p>
+<p>NOTE what I find odd about this is it's a key point where we notice there seems to be no 
+specialization axiom? There's an axiom of generalization, but removing a quantifier seems
+harder. If we could, this would be trivial... is it trivial anyways?</p>
 <div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
 <span class="w">  </span><span class="nl">barbara.maj</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
 <span class="w">  </span><span class="nl">barbara.min</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
