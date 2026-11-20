@@ -1634,3 +1634,232 @@ MM> show proof addrid /lemmon /renumber
 The only change is that step 7 is `$p`, not `$a`.
 
 @src(code-05/arith-fo.mm, noexecute, collapsed)
+
+## Deferred problem-set ideas for 5.1 and 5.2
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed. Citations marked "(check)" have not
+> been verified against a source.
+
+These ideas were left out of the chapter to keep the edits small. 5.1.4 (`barbara`, `celarent`),
+5.2.4 (`ru0`), and 5.2.5 (`elequ2g`, `axextg`, `axextb`) are already in the chapter. Labels and
+`set.mm` line numbers refer to `code-05/set.mm`.
+
+### Move the K-provable exercises into 5.1
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+`eximi`, `exa1`, `19.29`, `19.35`, and `19.35ri` (now 5.2.1–5.2.2) all hold in modal logic K once
+`df-ex` (`|- ( E. x ph <-> -. A. x -. ph )`) is added. They don't use `set.mm`'s size.
+Moving them puts the split where the logic changes:
+
+- 5.1: one variable, no equality. This is modal logic: K, then S5.
+- 5.2: several variables, `=`, and `e.`. Here `$d`, `F/`, and `[ y / x ]` start to matter,
+  and the library is needed.
+
+`qexmid` is not K-provable (see below), so it would sit after `sp` is added.
+
+### Existential import and the empty domain
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Interpret `A. x ph` as always true, so `E. x ph` is always false. `ax-gen` and `ax-4` stay
+sound, and `|- E. x ...` never holds. This one countermodel shows that none of these follow from
+the 5.1 axioms:
+
+- `sp` (`A. x ph -> ph`, line 19145),
+- `19.2` (`A. x ph -> E. x ph`, line 16697),
+- `darapti` without its hypothesis `E. x ph` (line 24634).
+
+The model is the empty domain. `set.mm` has a short subsection on it (`empty`, `emptyex`,
+`emptyal`, `emptynf`, around line 15926). In modal terms, `19.2` is axiom D (seriality).
+
+Possible exercises:
+
+- Add `df-ex` and prove `darii`, `ferio`, then `darapti` with its existence hypothesis.
+- Prove that `darapti` without that hypothesis is unprovable, using the countermodel above.
+- Note that in `set.mm`, `19.2` comes from `ax-6` (`|- -. A. x -. x = y`). There the nonempty
+  domain is a consequence of equality. Run `show trace_back 19.2 /axioms`.
+
+History:
+
+- The nine subaltern moods (`barbari`, `celaront`, `cesaro`, `camestros`, `felapton`, `darapti`,
+  `calemos`, `fesapo`, `bamalip`) and the square of opposition. Boole and Venn against the
+  traditional logicians. Łukasiewicz, *Aristotle's Syllogistic from the Standpoint of Modern
+  Formal Logic* (1951). The `set.mm` comment before `barbara` (around line 24250) quotes Groarke on
+  why Aristotle excluded empty terms.
+- Russell, *Introduction to Mathematical Philosophy* (1919), ch. 18: the primitive propositions
+  of *Principia* allow the inference that at least one individual exists, which he called "a
+  defect in logical purity" (check wording and page).
+- Free logic (sound in empty domains): see the comment at `ax6ev`/`ax-6` around line 21090.
+
+### Capstone: one-variable predicate logic is S5
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Add to `pred-5-1.mm`:
+
+```metamath
+sp $a |- ( A. x ph -> ph ) $.                       $( modal T $)
+ax-10 $a |- ( -. A. x ph -> A. x -. A. x ph ) $.    $( modal 5 $)
+```
+
+`set.mm` derives `sp` as a theorem, using `ax-12` (line 19145; formerly axiom `ax-c5`). The
+5.1 file would take it as an axiom.
+
+Prove:
+
+- `hba1` `|- ( A. x ph -> A. x A. x ph )` (modal 4, line 20130). The standard route from T and 5
+  goes through B.
+- `modal-b` `|- ( ph -> A. x -. A. x -. ph )` (modal B, line 20336). `set.mm` labels `modal5` and
+  `modal-b` as the S5 analogues.
+- `qexmid`, the drinker. In K it fails at a world that sees nothing, which is the empty tavern.
+  It needs T. Check: is KD enough? (A three-world chain `w -> v -> u` with `ph` true only at `v`
+  seems to refute it in KD.)
+
+Solver exercise (Z3 or CP-SAT, `/opt/venv/bin/python`): search for small Kripke models that
+separate K, KT, S4, and S5 on these formulas. For example, find an S4 model that refutes `ax-10`.
+
+History:
+
+- Lewis and Langford, *Symbolic Logic* (1932), for S1–S5.
+- Wajsberg (1933) for the correspondence between one-variable or monadic predicate logic and
+  S5 (check).
+
+### Which axioms each theorem uses
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+A short warm-up for 5.2 that teaches how `set.mm` is put together. Predict, then run:
+
+```
+MM> show trace_back sp /axioms
+MM> show trace_back 19.2 /axioms
+MM> show trace_back qexmid /axioms
+MM> show trace_back 19.12 /axioms
+MM> show trace_back sbequ12 /axioms
+```
+
+Notes:
+
+- `sp`'s comment (line 19130) says it seems not to follow from Tarski's schemes without `ax-12`.
+  The best known is `spw` (Kalish–Montague, Lemma 9).
+- Comments such as `$( $j usage 'exnelv' avoids 'ax-12' 'ax-13'; $)` show that minimizing
+  axiom use is ongoing work.
+
+Library skill: prove `qexmid` the long way, then run `minimize_with *` and compare with the
+`set.mm` proof.
+
+### The Hilbert–Ackermann toolkit and completeness
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Hilbert and Ackermann, *Grundzüge der theoretischen Logik* (1928), give two quantifier axioms and
+two rules. They pose completeness as an open problem, and Gödel's 1929 dissertation solves it.
+The `set.mm` counterparts:
+
+| Hilbert–Ackermann | `set.mm` |
+|---|---|
+| `(x)F(x) -> F(y)` | `stdpc4` (line 17768), `sp`, `spvv` |
+| `F(y) -> (Ex)F(x)` | `19.8a` (line 19113) |
+| from `B -> A(x)` infer `B -> (x)A(x)`, `x` not free in `B` | `alrimiv` (line 16123), `19.21v` |
+| from `A(x) -> B` infer `(Ex)A(x) -> B`, `x` not free in `B` | `exlimiv` (line 16177), `19.23v` |
+
+Exercise: clear and reprove these, then a few routine theorems that use them (`exlimdv`,
+`19.21v`, `19.23v`). Do each in a `$d` (`v`-suffix) version and in a `F/`-hypothesis version.
+The lesson is when to use each.
+
+History: the paper behind Löwenheim–Skolem, Skolem's "Einige Bemerkungen zur axiomatischen
+Begründung der Mengenlehre" (1922 talk, published 1923; usually cited as 1923a), is a different
+paper from the primitive recursive arithmetic paper discussed in 5.0.5. In a 1967 letter to Hao Wang,
+Gödel wrote that completeness is an almost trivial consequence of Skolem 1923a, and that nobody,
+Skolem included, drew the conclusion. He called this a "blindness (or prejudice, or whatever you
+may call it) of logicians" (check quote; printed in Wang, *From Mathematics to Philosophy*, 1974).
+
+### Quantifier shift
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Prove `19.12` `|- ( E. x A. y ph -> A. y E. x ph )` (line 20402) and `excomim` (line 18906). Then
+refute the converse with a two-element model, by hand or with Z3. "Everyone has a mother" does not
+give "someone is everyone's mother."
+
+History:
+
+- Cauchy's sum theorem (*Cours d'analyse*, 1821) says a convergent series of continuous
+  functions is continuous. Abel gave a counterexample in 1826. The repair, uniform convergence,
+  moves an `E.` across an `A.`. Lakatos discusses it in *Proofs and Refutations* (appendix 1).
+- Aristotle, *Nicomachean Ethics* I.1–2: "every action aims at some good" read as "some good is
+  aimed at by every action." The phrase "quantifier shift fallacy" is often attributed to Geach
+  (check).
+- `ax-11` (`|- ( A. x A. y ph -> A. y A. x ph )`, line 18868) is the Barcan formula when
+  `A. y` is read as "necessarily." The Barcan formula is at the center of the 1960s Marcus–Quine
+  dispute over quantified modal logic.
+
+### Substitution as a schema
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Prove `sb6` `|- ( [ t / x ] ph <-> A. x ( x = t -> ph ) )` (line 17922). The right side is the
+pattern used in 5.0.4: `A. x ( x = 0 -> ph )` in `ax-peano` already meant `[ 0 / x ] ph`. Then
+prove `sbequ12` (line 19764) and `equsal` (line 21529).
+
+Point: textbooks prove the substitution of equals as a metatheorem, by induction on the structure
+of formulas. Metamath cannot induct on formulas, so `ax-12` and `ax-13` are shaped so that it is a
+single schema.
+
+References:
+
+- Tarski, "A simplified formalization of predicate logic with identity" (1965).
+- Kalish and Montague, "On Tarski's formalization of predicate logic with identity" (1965).
+- Megill, "A finitely axiomatized formalization of predicate calculus with equality," *Notre Dame
+  J. Formal Logic* 36 (1995).
+- See also the `set.mm` section "Logical redundancy of ax-10, ax-11, ax-12, ax-13" (around line
+  18440).
+
+### Capstone: cylindric algebras
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Translate Tarski's cylindric algebra axioms C1–C7 into `set.mm` statements, with `c_x` as `E. x`
+and `d_xy` as `x = y`. Then *find* or prove the matching theorems. Rough matches (check each):
+
+- C1 `c_x 0 = 0`: `E. x F.` is false.
+- C2 `a <= c_x a`: `19.8a`.
+- C3 `c_x (a · c_x b) = c_x a · c_x b`: `19.41`/`19.42`-style, `x` not free in `E. x ps`.
+- C4 `c_x c_y = c_y c_x`: `excom`, from `ax-11`.
+- C5 `c_x d_xy = 1`: `ax6ev`.
+- C6 `d_xy = c_z (d_xz · d_zy)` for distinct `z`: transitivity of `=` through `ax-7`.
+- C7 `c_x (d_xy · a) · c_x (d_xy · -a) = 0` for `x != y`: substitution is functional
+  (`sb5`/`sb6`).
+
+This is library-search practice: the statements are easy to write and hard to find.
+
+History: Henkin, Monk, and Tarski, *Cylindric Algebras* (1971); Halmos's polyadic algebras (1950s)
+as a rival algebraization. The line runs back through Boole, Peirce, and Schröder.
+
+### Pure Russell, barber form
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Checked with metamath against `code-05/set.mm`. This follows from `ru0` in one step and uses the
+same axioms as `ru0`:
+
+```metamath
+${ $d x y $.
+  rubarber $p |- -. E. y A. x ( x e. y <-> -. x e. x ) $=
+    vx cv vy cv wcel vx cv vx cv wcel wn wb vx wal vy vx vy ru0 nex $.
+$}
+```
+
+Related: `exnelv` (line 50372, revised April 2026) extracts the separation step from `nalset`.
+`bj-ru1` and `bj-ru` (BJ's mathbox, around line 615740) are versions with minimized axiom use.

@@ -688,6 +688,32 @@ work there.
 In section 5.2, we'll switch to `set.mm` for good; I expect we'll stay there for the rest of these 
 notes.
 
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Plan of the problem sets. The 5.1 file adds only the formation rule `wal`, the rule `ax-gen`, and
+`ax-4`. Reading `A. x` as "necessarily," these are exactly the axioms of the modal logic K.
+That system is weak, but it is already enough for the first two of Aristotle's syllogisms,
+which close 5.1.
+
+Section 5.2 opens `set.mm`. The first three problems handle the existential quantifier and end
+with the drinker paradox. The last two use `e.` and train searching the library.
+Russell's paradox turns out to be a theorem of pure logic, and the axiom of extensionality supplies
+the half of Leibniz's law that logic does not give.
+
+Hints read the proof backwards, as the proof assistant builds it: `assign last thm` replaces the
+goal with the hypotheses of `thm`. A hint like "`ja` splits the goal into two cases" names the
+theorem to assign and the goals it leaves. Some general tactics:
+
+- Find the theorem whose conclusion has the goal's shape with `search * "( A. x ph -> ps )"`.
+  The results include inference rules, whose hypotheses become the new goals.
+- After `assign`, a hypothesis may contain an unknown formula `$n`. Assign the hypothesis that
+  pins it down first, or set it with `let variable $n = "..."`.
+- `improve all` closes goals that are exact instances of existing theorems, and `match step n`
+  lists the candidates for step `n`.
+- Most inferences here are a closed theorem plus a rule: `mpg` turns a closed `( A. x ... -> ... )`
+  into an inference, and `mpbir` rewrites a goal with a biconditional.
+
 ### 5.1.1 Lift an implication
 
 > [!WARNING]
@@ -715,6 +741,18 @@ ${
 $}
 ```
 
+#### Hints
+
+- `mpg`: `ax-mp` splits the goal `ps` into `A. x ph` and `( A. x ph -> ps )`. The second is a
+  hypothesis. The first is `ax-gen` applied to the other hypothesis.
+- `alimi`: `mpg` reduces the goal to the hypothesis plus the closed statement
+  `( A. x ( ph -> ps ) -> ( A. x ph -> A. x ps ) )`, which is `ax-4`. "Closed theorem, then
+  `mpg`" is how `al2imi` and `albii` are proved too.
+- `al2im`: the goal has the form `( P -> ( Q -> R ) )` where `R` is `( A. x ps -> A. x ch )`.
+  `syl6` replaces `R` by a formula it implies, leaving two goals. Both are instances of `ax-4`.
+  Assign `ax-4` to the second hypothesis first; this fixes the middle formula.
+- `al2imi`: `mpg` with `al2im`, as in `alimi`.
+
 ### 5.1.2 Collect the conjuncts
 
 > [!WARNING]
@@ -730,6 +768,16 @@ $}
 
 19.26 $p |- ( A. x ( ph /\ ps ) <-> ( A. x ph /\ A. x ps ) ) $= ? $.
 ```
+
+#### Hints
+
+- `alanimi`: quantifiers pass through nested implications, not conjunctions. `imp` turns the
+  goal into `( A. x ph -> ( A. x ps -> A. x ch ) )`. `al2imi` strips the quantifiers, and `ex`
+  turns what's left back into the hypothesis.
+- `19.26`: `impbii` splits the biconditional into two directions. In the forward direction, `jca`
+  splits the conjunction on the right, and each half is `alimi` of a chapter 4 projection
+  (`simpl`, `simpr`). In the reverse direction, `alanimi` leaves
+  `( ( ph /\ ps ) -> ( ph /\ ps ) )`.
 
 ### 5.1.3 Split a quantified biconditional
 
@@ -747,6 +795,73 @@ ${
 $}
 
 albiim $p |- ( A. x ( ph <-> ps ) <-> ( A. x ( ph -> ps ) /\ A. x ( ps -> ph ) ) ) $= ? $.
+```
+
+#### Hints
+
+- `albi`: the goal is `( A. x ( ph <-> ps ) -> ( ... <-> ... ) )`. `impbid` splits the
+  biconditional under the shared antecedent into two implications. `al2imi` reduces each to a
+  chapter 4 theorem that uses one direction of a biconditional (`biimp`, `biimpr`).
+- `albii`: `mpg` with `albi`.
+- `albiim`: `bitri` goes through the middle formula `A. x ( ( ph -> ps ) /\ ( ps -> ph ) )`.
+  Assign `19.26` to the second hypothesis first, which fixes the middle. Then the first hypothesis
+  is `albii` of chapter 4's `dfbi2`.
+
+### 5.1.4 Two syllogisms
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Prove [`barbara`](https://us.metamath.org/mpeuni/barbara.html) and
+[`celarent`](https://us.metamath.org/mpeuni/celarent.html), the first two syllogisms of
+Aristotle's *Prior Analytics* in their medieval names. The vowels encode the statement types:
+`A` is "all S is P" and `E` is "no S is P." So Barbara is AAA, two universal premises and a
+universal conclusion, and Celarent is EAE. The classic example of Barbara is "all men are mortal,
+all Greeks are men, therefore all Greeks are mortal."
+
+`set.mm` proves all 24 classical syllogisms, from `barbara` to `bamalip`. The comment before them
+notes that every one follows from `ax-mp`, `ax-1`–`ax-3`, `ax-gen`, and `ax-4`, which is exactly
+the 5.1 axiom set. Nine of them (`darapti` and others) carry an extra hypothesis such as
+`E. x ph`. These are the moods with "existential import," and whether Aristotle's logic assumes
+nonempty terms is an old debate. `set.mm` documents it before `barbara`.
+
+These are the last holes in `pred-5-1.mm`:
+
+```metamath
+${
+  barbara.maj $e |- A. x ( ph -> ps ) $.
+  barbara.min $e |- A. x ( ch -> ph ) $.
+  barbara $p |- A. x ( ch -> ps ) $= ? $.
+$}
+
+${
+  celarent.maj $e |- A. x ( ph -> -. ps ) $.
+  celarent.min $e |- A. x ( ch -> ph ) $.
+  celarent $p |- A. x ( ch -> -. ps ) $= ? $.
+$}
+```
+
+#### Hints and answers
+
+- `barbara`: `mp2` reduces the goal to the two premises and the closed statement
+  `( A. x ( ph -> ps ) -> ( A. x ( ch -> ph ) -> A. x ( ch -> ps ) ) )`. Assign the premises
+  first to fix the unknowns. `al2imi` strips the quantifiers and leaves the closed form of
+  chapter 4's `syl` (`imim2`). *Principia Mathematica* says as much: "the syllogism in Barbara is
+  derived from" `syl` (after ∗2.06).
+- `celarent` is one step: it is `barbara` with `-. ps` in place of `ps`. "No S is P" is "all S is
+  not-P."
+
+```
+MM> show proof barbara /lemmon /renumber
+1 barbara.maj    $e |- A. x ( ph -> ps )
+2 barbara.min    $e |- A. x ( ch -> ph )
+3 imim2          $p |- ( ( ph -> ps ) -> ( ( ch -> ph ) -> ( ch -> ps ) ) )
+4 3 al2imi       $p |- ( A. x ( ph -> ps ) -> ( A. x ( ch -> ph ) -> A. x ( ch -> ps ) ) )
+5 1,2,4 mp2      $p |- A. x ( ch -> ps )
+MM> show proof celarent /lemmon /renumber
+1 celarent.maj   $e |- A. x ( ph -> -. ps )
+2 celarent.min   $e |- A. x ( ch -> ph )
+3 1,2 barbara    $p |- A. x ( ch -> -. ps )
 ```
 
 ## 5.2 Working inside `set.mm`
@@ -774,6 +889,15 @@ exa1 $p |- ( E. x ph -> E. x ( ps -> ph ) ) $= ? $.
 19.29 $p |- ( ( A. x ph /\ E. x ps ) -> E. x ( ph /\ ps ) ) $= ? $.
 ```
 
+#### Hints
+
+- `eximi`: as with `alimi`, `mpg` reduces the goal to the hypothesis plus a closed statement.
+  Find that statement with `search * "( A. x ( ph -> ps ) -> ( E. x ph -> E. x ps ) )"`.
+- `exa1`: `eximi` leaves an axiom from chapter 4.
+- `19.29`: `imp` curries the goal to `( A. x ph -> ( E. x ps -> E. x ( ph /\ ps ) ) )`. Search
+  for that shape: a mixed rule (`aleximi`) lets the universal premise act on the witness. It
+  leaves `( ph -> ( ps -> ( ph /\ ps ) ) )`, which is `pm3.2`.
+
 ### 5.2.2 Move implication under the quantifier
 
 > [!WARNING]
@@ -790,6 +914,17 @@ ${
 $}
 ```
 
+#### Hints
+
+- `19.35`: `impbii` gives two directions.
+  - Forward: `aleximi` needs the universal antecedent first, so `com12` swaps the antecedents
+    before it. What remains is `( ph -> ( ( ph -> ps ) -> ps ) )`, which is `pm2.27`.
+  - Reverse: the goal has the form `( ( P -> Q ) -> R )`. `ja` splits it into two cases, `-. P`
+    and `Q`. The case `E. x ps` is `exa1`. In the case `-. A. x ph`, `sylbir` with `exnal`
+    rewrites the antecedent to `E. x -. ph`. Then `eximi` leaves the chapter 4 explosion law
+    `pm2.21`.
+- `19.35ri`: `mpbir` with `19.35` rewrites the goal into the hypothesis.
+
 ### 5.2.3 The drinker paradox
 
 > [!WARNING]
@@ -799,4 +934,132 @@ Prove [`qexmid`](https://us.metamath.org/mpeuni/qexmid.html), the drinker parado
 
 ```metamath
 qexmid $p |- E. x ( ph -> A. x ph ) $= ? $.
+```
+
+#### Hints
+
+- Assign `19.35ri`. Unification takes `ps` to be `A. x ph`, and the new goal is
+  `( A. x ph -> E. x A. x ph )`. This is an instance of `( ph -> E. x ph )`. Run
+  `search * "( ph -> E. x ph )"`, which finds four theorems. `19.8v` is ruled out by its `$d`
+  condition, since `A. x ph` contains `x`. `19.8w` and `19.8aw` leave extra hypotheses. `19.8a`
+  closes the goal.
+- Read it as a proof by cases: if everyone drinks, anyone works. Otherwise, the witness to
+  `-. A. x ph` is the person who doesn't drink.
+
+### 5.2.4 Russell's paradox in pure logic
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Prove [`ru0`](https://us.metamath.org/mpeuni/ru0.html): no `y` has exactly the non-self-membered
+sets as its members. The barber is the same theorem, with "x is shaved by y" in place of
+`x e. y`.
+
+```metamath
+${
+  $d x y $.
+  ru0 $p |- -. A. x ( x e. y <-> -. x e. x ) $= ? $.
+$}
+```
+
+Russell found the paradox in 1901 and wrote to Frege on 16 June 1902. Frege replied that
+"arithmetic totters" and added an appendix to volume II of the *Grundgesetze* (1903). Zermelo
+had found the same argument independently a little earlier.
+
+The formal statement shows where the problem lies. `ru0` needs no set theory: run
+`show trace_back ru0 /axioms` and check that it uses only propositional logic, the predicate
+calculus axioms, and `ax-8`/`ax-9` for substituting equals in `e.`. Logic alone proves that there
+is no Russell set. Frege's Basic Law V gives unrestricted comprehension,
+`E. y A. x ( x e. y <-> ph )` for every `ph`, and the instance `ph := -. x e. x` contradicts `ru0`.
+Compare [`nalset`](https://us.metamath.org/mpeuni/nalset.html) ("no set contains all sets"), which
+also needs the separation axiom `ax-sep`, and [`ru`](https://us.metamath.org/mpeuni/ru.html), the
+version stated with classes.
+
+#### Hints and answers
+
+- `mto` turns the goal `-. A` into `( A -> B )` and `-. B`, with `B` unknown. The idea is to
+  specialize `x` to `y`, so `B` is `( y e. y <-> -. y e. y )`. Assign chapter 4's `pm5.19` to
+  `-. B` first; it says no formula is equivalent to its own negation, and assigning it fixes `B`.
+- `spvv` reduces `( A. x ( ... ) -> ( y e. y <-> -. y e. y ) )` to an implicit substitution
+  `( x = y -> ( ( x e. y <-> -. x e. x ) <-> ( y e. y <-> -. y e. y ) ) )`. `bibi12d` splits
+  that into its two sides. `elequ1` handles `x e. y`. For `-. x e. x`, `notbid` strips the
+  negation, and the change in both arguments is `elequ12` with the two equalities the same
+  (`anidms`).
+- Optional: add `-. E. y A. x ( x e. y <-> -. x e. x )` (with `$d x y`) after `ru0` in your
+  copy. It is one step from `ru0` with `nex`.
+
+```
+MM> show proof ru0 /lemmon /renumber
+1 pm5.19         $p |- -. ( y e. y <-> -. y e. y )
+2 elequ1         $p |- ( x = y -> ( x e. y <-> y e. y ) )
+3 elequ12        $p |- ( ( x = y /\ x = y ) -> ( x e. x <-> y e. y ) )
+4 3 anidms       $p |- ( x = y -> ( x e. x <-> y e. y ) )
+5 4 notbid       $p |- ( x = y -> ( -. x e. x <-> -. y e. y ) )
+6 2,5 bibi12d    $p |- ( x = y -> ( ( x e. y <-> -. x e. x ) <-> ( y e. y <-> -. y e. y ) ) )
+7 6 spvv         $p |- ( A. x ( x e. y <-> -. x e. x ) -> ( y e. y <-> -. y e. y ) )
+8 1,7 mto        $p |- -. A. x ( x e. y <-> -. x e. x )
+```
+
+### 5.2.5 Extensionality and Leibniz's law
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Leibniz's law has two halves. The *indiscernibility of identicals* says that equal things have the
+same properties. The *identity of indiscernibles* says that things with the same properties are
+equal. Max Black's "The Identity of Indiscernibles" (*Mind*, 1952) argues against the second half
+with a universe holding two exactly similar spheres.
+
+In `set.mm` the only non-logical predicate is `e.`, so "same properties" comes down to "same
+members." Prove [`elequ2g`](https://us.metamath.org/mpeuni/elequ2g.html) (the first half, from the
+equality axiom `ax-9`), then [`axextg`](https://us.metamath.org/mpeuni/axextg.html) and
+[`axextb`](https://us.metamath.org/mpeuni/axextb.html) (the second half, from the axiom of
+extensionality). The comment on `axextb` says it "looks like a definition of equality," but it
+requires `ax-ext`.
+
+```metamath
+${
+  $d x z $.  $d y z $.
+  elequ2g $p |- ( x = y -> A. z ( z e. x <-> z e. y ) ) $= ? $.
+$}
+
+${
+  $d z x w $.  $d z y w $.
+  axextg $p |- ( A. z ( z e. x <-> z e. y ) -> x = y ) $= ? $.
+
+  $d z x $.  $d z y $.
+  axextb $p |- ( x = y <-> A. z ( z e. x <-> z e. y ) ) $= ? $.
+$}
+```
+
+#### Hints and answers
+
+- `elequ2g`: `alrimiv` strips `A. z` from the consequent. It may, because `z` does not occur in
+  `x = y` (that is the `$d`). What remains is `elequ2`.
+- `axextg`: `ax-ext` requires `$d x y z`, but `axextg` allows `x` and `y` to be the same
+  variable. Go through the dummy variable `w`. `chvarvv` reduces the goal to `ax-ext` with `w`
+  in place of `x`, plus an implicit substitution `( w = x -> ( ... <-> ... ) )`. Assign `ax-ext`
+  first, or use `let`, to fix the `w` version. Then `imbi12d` splits the substitution into the
+  antecedent and the consequent. The consequent is `equequ1`. In the antecedent, `albidv` passes
+  through `A. z`, `bibi1d` through the biconditional, and `elequ2` finishes.
+- `axextb`: `impbii` splits it into the two previous theorems.
+- Compare `show trace_back elequ2g /axioms` with `show trace_back axextg /axioms`.
+
+```
+MM> show proof elequ2g /lemmon /renumber
+1 elequ2         $p |- ( x = y -> ( z e. x <-> z e. y ) )
+2 1 alrimiv      $p |- ( x = y -> A. z ( z e. x <-> z e. y ) )
+MM> show proof axextg /lemmon /renumber
+1 elequ2         $p |- ( w = x -> ( z e. w <-> z e. x ) )
+2 1 bibi1d       $p |- ( w = x -> ( ( z e. w <-> z e. y ) <-> ( z e. x <-> z e. y ) ) )
+3 2 albidv       $p |- ( w = x -> ( A. z ( z e. w <-> z e. y ) <-> A. z ( z e. x <-> z e. y ) ) )
+4 equequ1        $p |- ( w = x -> ( w = y <-> x = y ) )
+5 3,4 imbi12d    $p |- ( w = x -> ( ( A. z ( z e. w <-> z e. y ) -> w = y ) <->
+                                    ( A. z ( z e. x <-> z e. y ) -> x = y ) ) )
+6 ax-ext         $a |- ( A. z ( z e. w <-> z e. y ) -> w = y )
+7 5,6 chvarvv    $p |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+MM> show proof axextb /lemmon /renumber
+1 elequ2g        $p |- ( x = y -> A. z ( z e. x <-> z e. y ) )
+2 axextg         $p |- ( A. z ( z e. x <-> z e. y ) -> x = y )
+3 1,2 impbii     $p |- ( x = y <-> A. z ( z e. x <-> z e. y ) )
 ```

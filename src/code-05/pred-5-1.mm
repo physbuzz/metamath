@@ -44,3 +44,16 @@ ${
 $}
 
 albiim $p |- ( A. x ( ph <-> ps ) <-> ( A. x ( ph -> ps ) /\ A. x ( ps -> ph ) ) ) $= ? $.
+
+$( Two syllogisms $)
+${
+  barbara.maj $e |- A. x ( ph -> ps ) $.
+  barbara.min $e |- A. x ( ch -> ph ) $.
+  barbara $p |- A. x ( ch -> ps ) $= ? $.
+$}
+
+${
+  celarent.maj $e |- A. x ( ph -> -. ps ) $.
+  celarent.min $e |- A. x ( ch -> ph ) $.
+  celarent $p |- A. x ( ch -> -. ps ) $= ? $.
+$}
