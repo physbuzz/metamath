@@ -688,421 +688,115 @@ work there.
 In section 5.2, we'll switch to `set.mm` for good; I expect we'll stay there for the rest of these 
 notes.
 
-### 5.1.1 Our starting tools
+### 5.1.1 Lift an implication
 
 > [!WARNING]
 > This section is AI-generated and has not been reviewed.
 
-Continue with the implication and negation exercises from 4.1.1–4.1.5.
-Nothing from the supplied-connective section is needed. The standalone
-`ai/predicate-calculus/small-exercises.mm` includes checked solutions to those
-earlier exercises and leaves just the eight new targets below blank.
-`small-reference.mm` contains their completed solutions. The original
-`src/code-04/myset.mm` remains your working file.
-
-We start with these additions to the language and axioms. `setvar` is a
-syntactic type name; it introduces no set-theoretic axioms. `weq` constructs
-variable-equality formulas. Until 5.1.4 there are no laws of equality, so
-`x = y` is just a formula that happens to contain two variables.
-
-```metamath
-$c setvar A. = $.
-$v x y z $.
-vx $f setvar x $. vy $f setvar y $. vz $f setvar z $.
-wal $a wff A. x ph $.
-weq $a wff x = y $.
-${ ax-gen.1 $e |- ph $. ax-gen $a |- A. x ph $. $}
-ax-4 $a |- ( A. x ( ph -> ps ) -> ( A. x ph -> A. x ps ) ) $.
-${ $d x ph $. ax-5 $a |- ( ph -> A. x ph ) $. $}
-```
-
-`ax-gen` quantifies an established assertion. `ax-4` distributes a universal
-quantifier over implication. `ax-5` introduces a quantifier on a formula
-which does not contain its variable. Its distinctness condition is essential:
-generalization alone does not give the unrestricted formula `ph -> A. x ph`.
-
-### 5.1.2 Five constructions
-> [!WARNING]
-> This section is AI-generated and has not been reviewed.
-
-Prove these in order. The last combines implication lifting with distribution;
-there is no additional supplied predicate library.
+Work in [pred-5-1.mm](code-05/pred-5-1.mm) with [prop.mm](code-05/prop.mm) beside it. Prove [`mpg`](https://us.metamath.org/mpeuni/mpg.html) and [`alimi`](https://us.metamath.org/mpeuni/alimi.html). The first combines generalization with modus ponens. The second lets you take an implication you already proved in chapter 4 and put `A. x` on both sides. Prove [`al2im`](https://us.metamath.org/mpeuni/al2im.html) and [`al2imi`](https://us.metamath.org/mpeuni/al2imi.html) for an implication with two antecedents. That version comes up in the very next proof.
 
 ```metamath
 ${
-  $d x z $.
-  $d y z $.
-  ax5-example $p |- ( x = y -> A. z x = y ) $= ? $.
+  mpg.1 $e |- ( A. x ph -> ps ) $.
+  mpg.2 $e |- ph $.
+  mpg $p |- ps $= ? $.
 $}
 
 ${
-  gen2.h1 $e |- ph $.
-  gen2 $p |- A. x A. y ph $= ? $.
-$}
-
-${
-  alimi.h1 $e |- ( ph -> ps ) $.
+  alimi.1 $e |- ( ph -> ps ) $.
   alimi $p |- ( A. x ph -> A. x ps ) $= ? $.
 $}
 
-${
-  $d ph x $.
-  alrimiv.h1 $e |- ( ph -> ps ) $.
-  alrimiv $p |- ( ph -> A. x ps ) $= ? $.
-$}
+al2im $p |- ( A. x ( ph -> ( ps -> ch ) ) -> ( A. x ph -> ( A. x ps -> A. x ch ) ) ) $= ? $.
 
 ${
-  al2imi.h1 $e |- ( ph -> ( ps -> ch ) ) $.
+  al2imi.1 $e |- ( ph -> ( ps -> ch ) ) $.
   al2imi $p |- ( A. x ph -> ( A. x ps -> A. x ch ) ) $= ? $.
 $}
 ```
 
+### 5.1.2 Collect the conjuncts
 
-#### Hints
-
-- `ax5-example`: substitute `x = y` for `ph` and `z` for the bound variable in `ax-5`. Use `weq` for syntax. Its two inherited pairs are `x,z` and `y,z`; `x,y` is unnecessary.
-- `gen2`: apply `ax-gen` over `y`, then over `x`. No distinctness condition is required.
-- `alimi`: apply `ax-gen` to the given implication, then detach `ax-4` using `ax-mp`.
-- `alrimiv`: use `syl` through `A. x ph`. `ax-5` supplies the first implication and `alimi` supplies the second. Only the first needs `$d x ph $.`.
-- `al2imi`: lift the hypothesis using `alimi`, treating `( ps -> ch )` as one formula. Compose with `ax-4` using `syl`.
-
-### 5.1.3 Checking substitutions
 > [!WARNING]
 > This section is AI-generated and has not been reviewed.
 
-From the repository root:
+Prove [`alanimi`](https://us.metamath.org/mpeuni/alanimi.html) and [`19.26`](https://us.metamath.org/mpeuni/19.26.html). The first lets you reuse a chapter 4 theorem that takes a conjunction as its hypothesis. The second is theorem ∗10.22 of *Principia Mathematica*. Saying that everyone satisfies both conditions is equivalent to saying that everyone satisfies each condition separately. One direction uses `alimi` twice. The other is what `alanimi` is for.
 
-```sh
-metamath 'read "ai/predicate-calculus/small-exercises.mm"'
-make -C ai/predicate-calculus check
+```metamath
+${
+  alanimi.1 $e |- ( ( ph /\ ps ) -> ch ) $.
+  alanimi $p |- ( ( A. x ph /\ A. x ps ) -> A. x ch ) $= ? $.
+$}
+
+19.26 $p |- ( A. x ( ph /\ ps ) <-> ( A. x ph /\ A. x ps ) ) $= ? $.
 ```
 
-In the proof assistant, start with `prove ax5-example`. To check distinctness,
-the `invalid` target makes two independent copies of the reference file:
+### 5.1.3 Split a quantified biconditional
 
-1. In the block for `ax5-example`, delete `$d x z $.` and leave the proof unchanged.
-2. In that block, change the conclusion to `|- ( x = y -> A. x x = y )` and the proof to `vx vy weq vx ax-5`, retaining both original distinctness declarations.
-
-```sh
-make -C ai/predicate-calculus invalid
-metamath 'read "ai/predicate-calculus/invalid/missing-pair.mm"' 'verify proof ax5-example' exit
-metamath 'read "ai/predicate-calculus/invalid/shared-variable.mm"' 'verify proof ax5-example' exit
-```
-
-The first lacks an inherited pair. The second substitutes expressions with a
-variable in common for arguments required to be disjoint. Both must report a
-**disjoint variable (`$d`) violation**. Metamath can exit successfully despite
-reporting proof errors, so inspect the diagnostic.
-
-### 5.1.4 Equality: two more axioms, three more constructions
 > [!WARNING]
 > This section is AI-generated and has not been reviewed.
 
-So far the quantifier only moves implications around. Tarski's system has two
-more axioms for a language whose only predicate is equality:
+Prove [`albi`](https://us.metamath.org/mpeuni/albi.html) and its inference form [`albii`](https://us.metamath.org/mpeuni/albii.html). The payoff is being able to rewrite inside `A. x` whenever you have proved the old and new formulas equivalent. Finish with [`albiim`](https://us.metamath.org/mpeuni/albiim.html), where the chapter 4 equivalence you want to use sits inside the quantifier and the distribution law you just proved does the rest.
 
 ```metamath
-${
-  $d x y $.
-  ax6v $a |- -. A. x -. x = y $.
-$}
+albi $p |- ( A. x ( ph <-> ps ) -> ( A. x ph <-> A. x ps ) ) $= ? $.
 
-ax-7 $a |- ( x = y -> ( x = z -> y = z ) ) $.
-```
-
-
-`ax6v` says that something equals `y`: it is not the case that every `x`
-differs from it. `ax-7` says that two things equal to the same thing are equal
-to each other. Together with `ax-gen`, `ax-4`, and `ax-5` these are all of
-Tarski's predicate axioms for this language; `set.mm` adds `ax-8` and `ax-9`
-for membership. Our `ax6v` is Axiom B7 of Tarski, which requires `x` and `y`
-to be distinct. In `set.mm` the axiom `ax-6` has no such condition and `ax6v`
-is a theorem that weakens it.
-
-Prove these in order. They need nothing beyond chapter 04 and 5.1.2.
-
-```metamath
-${
-  $d x y $.
-  equid $p |- x = x $= ? $.
-$}
-
-equcomi $p |- ( x = y -> y = x ) $= ? $.
-
-${
-  $d ph x $.
-  $d x y $.
-  spvw $p |- ( A. x ph -> ph ) $= ? $.
-$}
-```
-
-
-`equid` has a distinctness condition on a variable that does not occur in
-its statement: `y` is a dummy variable used inside the proof. After proving
-it, compare
-
-```text
-show statement equid /full
-show statement spvw /full
-```
-
-Metamath lists `<x,y>` as an *optional* pair in both. A mandatory pair
-constrains everyone who applies the theorem; an optional pair only constrains
-the proof. `equcomi` applies `equid` and needs no `$d` at all.
-
-`spvw` removes a quantifier that binds nothing. Even this needs `ax6v`: in an
-empty domain `A. x ph` would hold for every `ph`. Its converse is `ax-5`, so
-the two implications of `19.3v` are now both available. We have no `<->` here
-to state them as one equivalence.
-
-#### Hints
-
-- `equid`: this one is longer than the others. Specialize `ax-7` to `( y = x -> ( y = x -> x = x ) )` and contract with `pm2.43i`. Contrapose with `con3i` and lift over `y` with `alimi`. `ax-5` on `-. x = x` gives the missing first link for `syl`; this is the step using `$d x y $.`. Contrapose with `con1i` and detach `ax6v`.
-- `equcomi`: this one should be quick. Specialize `ax-7` with `z := x`, swap the antecedents with `com12`, and detach `equid`.
-- `spvw`: aim for `( A. x ph -> ( -. ph -> A. x -. x = y ) )` using `pm2.21`, `al2imi`, `ax-5` on `-. ph`, `syl`, and `com12`. `ax6v` refutes the inner consequent, so `pm2.21i` and `imim2i` change it to `ph`. Finish with `pm2.18`.
-
-For a third rejection experiment, delete `$d x y $.` from the completed
-`equid`. `make -C ai/predicate-calculus invalid` writes that variant too:
-
-```sh
-metamath 'read "ai/predicate-calculus/invalid/missing-dummy-pair.mm"' 'verify proof equid' exit
-```
-
-This is where we stop building. Bound-variable change, the existential
-quantifier, and anything stated with `<->`, `/\`, or `\/` need a lot more
-groundwork, and `set.mm` has already done it. We continue there.
-
-
-## 5.2 Working Inside `set.mm`
-
-### 5.2.1 A brief guide to the connectives
-> [!WARNING]
-> This section is AI-generated and has not been reviewed.
-
-Here we use the full local `src/code/set.mm`. We can inspect the supporting
-proofs without reconstructing their entire dependency chain first. The
-following survey is a map of useful interfaces, not another sequence of
-elementary connective exercises.
-
-The syntax rules construct equivalence, conjunction, disjunction, and
-existential formulas. The `df-` assertions define their relationships to
-older connectives. Definitions are `$a` assertions: Metamath checks their
-consequences, not their soundness as definitions. See the Proof Explorer's
-[discussion of definitions](https://us.metamath.org/mpeuni/mmset.html#definitions).
-
-```metamath
-wb $a wff ( ph <-> ps ) $.
-
-wa $a wff ( ph /\ ps ) $.
-
-wo $a wff ( ph \/ ps ) $.
-
-df-bi $a |- -. ( ( ( ph <-> ps ) -> -. ( ( ph -> ps ) -> -. ( ps -> ph ) ) ) -> -. ( -. ( ( ph -> ps
-  ) -> -. ( ps -> ph ) ) -> ( ph <-> ps ) ) ) $.
-
-df-an $a |- ( ( ph /\ ps ) <-> -. ( ph -> -. ps ) ) $.
-
-df-or $a |- ( ( ph \/ ps ) <-> ( -. ph -> ps ) ) $.
-
-wex $a wff E. x ph $.
-
-df-ex $a |- ( E. x ph <-> -. A. x -. ph ) $.
-
-${
-  biimpi.1 $e |- ( ph <-> ps ) $.
-  biimpi $p |- ( ph -> ps ) $= ... $.
-$}
-
-${
-  biimpri.1 $e |- ( ph <-> ps ) $.
-  biimpri $p |- ( ps -> ph ) $= ... $.
-$}
-```
-
-
-The long primitive definition of equivalence is normally accessed through
-its introduction and elimination rules. Conjunction lets us package two
-claims; disjunction supports introduction and reasoning by cases. Familiar
-identities such as commutativity have proofs in the library; we will use
-these interfaces without assigning those elementary proofs here.
-
-### 5.2.2 Useful interfaces and the machinery we are passing over
-> [!WARNING]
-> This section is AI-generated and has not been reviewed.
-
-In these supplied interfaces, `...` abbreviates the existing proof. Syntax
-hypotheses use the declarations already present in `set.mm`; essential
-hypotheses and distinctness conditions are written out.
-
-```metamath
-${
-  impbii.1 $e |- ( ph -> ps ) $.
-  impbii.2 $e |- ( ps -> ph ) $.
-  impbii $p |- ( ph <-> ps ) $= ... $.
-$}
-
-simpl $p |- ( ( ph /\ ps ) -> ph ) $= ... $.
-
-simpr $p |- ( ( ph /\ ps ) -> ps ) $= ... $.
-
-${
-  jca.1 $e |- ( ph -> ps ) $.
-  jca.2 $e |- ( ph -> ch ) $.
-  jca $p |- ( ph -> ( ps /\ ch ) ) $= ... $.
-$}
-
-orc $p |- ( ph -> ( ph \/ ps ) ) $= ... $.
-
-olc $p |- ( ph -> ( ps \/ ph ) ) $= ... $.
-
-${
-  jaoi.1 $e |- ( ph -> ps ) $.
-  jaoi.2 $e |- ( ch -> ps ) $.
-  jaoi $p |- ( ( ph \/ ch ) -> ps ) $= ... $.
-$}
-
-${
-  syl.1 $e |- ( ph -> ps ) $.
-  syl.2 $e |- ( ps -> ch ) $.
-  syl $p |- ( ph -> ch ) $= ... $.
-$}
-
-${
-  con3i.a $e |- ( ph -> ps ) $.
-  con3i $p |- ( -. ps -> -. ph ) $= ... $.
-$}
-
-sp $p |- ( A. x ph -> ph ) $= ... $.
-
-${
-  $d ph x $.
-  alrimiv.1 $e |- ( ph -> ps ) $.
-  alrimiv $p |- ( ph -> A. x ps ) $= ... $.
-$}
-```
-
-
-`biimpi` and `biimpri` extract the two implications from an equivalence;
-`impbii` joins them. `simpl` and `simpr` extract conjuncts; `jca` combines two
-consequences of one antecedent. `orc` and `olc` introduce disjunction, while
-`jaoi` combines its two cases. For example, applying `alimi` to `simpl`
-transports conjunction elimination through a universal quantifier.
-
-We are passing over many inference, deduction, and closed variants, along
-with specialized rearrangements. A deduction rule retains a common antecedent
-in its premises and conclusion; an inference rule consumes established
-assertions. `syl` and `con3i` are familiar examples of reusable inference tools.
-
-Specialization `sp` is a derived theorem. Its construction, and the equality
-machinery supporting substitution, are available to inspect. Nonfreeness can
-also be expressed by explicit hypotheses rather than the stronger syntactic
-nonoccurrence condition `$d x ph $.`. The bound-variable rules below expose
-both kinds of interface. No set-theoretic reasoning is needed for our targets.
-
-### 5.2.3 Reconstructing existing proofs
-> [!WARNING]
-> This section is AI-generated and has not been reviewed.
-
-Start at the repository root:
-
-```text
-read "src/code/set.mm"
-show statement albii /full
-show proof albii /lemmon
-prove albii
-delete all
-show new_proof /lemmon
-```
-
-`prove` enters the proof assistant with the existing proof; `delete all`
-clears that current proof so it can be reconstructed. Use `assign`, `match`,
-and `improve` as in chapter 04. Earlier assertions in the database are
-available. The intended routes below avoid detaching an earlier equivalent
-version that would bypass the mechanism being practiced; they are not an
-exhaustive whitelist of permitted tools.
-
-For saving experiments, first copy the source to
-`ai/predicate-calculus/.build/set-work.mm` (create `.build` if needed), read
-that copy, and use `save new_proof` followed by `write source` to that same
-copy. Do not overwrite the original database.
-
-```metamath
 ${
   albii.1 $e |- ( ph <-> ps ) $.
   albii $p |- ( A. x ph <-> A. x ps ) $= ? $.
 $}
 
-${
-  $d ph x $.
-  19.3v $p |- ( A. x ph <-> ph ) $= ? $.
-$}
+albiim $p |- ( A. x ( ph <-> ps ) <-> ( A. x ( ph -> ps ) /\ A. x ( ps -> ph ) ) ) $= ? $.
+```
 
-${
-  $d ph x $.
-  19.9v $p |- ( E. x ph <-> ph ) $= ? $.
-$}
+## 5.2 Working inside `set.mm`
 
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Open the [working copy of set.mm](code-05/set.mm). For each exercise, find the label, clear its proof, and write your own using the theorems available at that point in the file.
+
+### 5.2.1 Carry an existential witness
+
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Prove [`eximi`](https://us.metamath.org/mpeuni/eximi.html), the existential counterpart of `alimi`, and try it on chapter 4’s `ax-1` to get [`exa1`](https://us.metamath.org/mpeuni/exa1.html). Then prove [`19.29`](https://us.metamath.org/mpeuni/19.29.html). The interesting choice here is whether two facts can be combined into a fact about the same person. Knowing that someone satisfies each condition separately would leave that open. Here one condition holds for everyone.
+
+```metamath
 ${
   eximi.1 $e |- ( ph -> ps ) $.
   eximi $p |- ( E. x ph -> E. x ps ) $= ? $.
 $}
 
-19.26 $p |- ( A. x ( ph /\ ps ) <-> ( A. x ph /\ A. x ps ) ) $= ? $.
+exa1 $p |- ( E. x ph -> E. x ( ps -> ph ) ) $= ? $.
 
-${
-  $d ph x $.
-  19.21v $p |- ( A. x ( ph -> ps ) <-> ( ph -> A. x ps ) ) $= ? $.
-$}
-
-${
-  $d ph y $.
-  $d ps x $.
-  $d x y $.
-  cbvalvw.1 $e |- ( x = y -> ( ph <-> ps ) ) $.
-  cbvalvw $p |- ( A. x ph <-> A. y ps ) $= ? $.
-$}
+19.29 $p |- ( ( A. x ph /\ E. x ps ) -> E. x ( ph /\ ps ) ) $= ? $.
 ```
 
+### 5.2.2 Move implication under the quantifier
 
-#### Hints
-
-- `albii`: extract both implications with `biimpi` and `biimpri`, use `alimi` twice, and assemble with `impbii`. Avoid the closed lifting theorem `albi` for this exercise.
-- `19.3v`: combine restricted specialization `spvw` and `ax-5` with `impbii`. We proved `spvw` from the axioms in 5.1.4; the library's route goes through `spnfw`.
-- `19.9v`: apply `19.3v` to `-. ph`, lift through negation with `notbii`, and compose with `df-ex` and double negation using `bitri`. Use `impbii` with `notnotr` and `notnot` to orient double negation as needed.
-- `eximi`: contrapose the premise with `con3i`, apply `alimi`, and contrapose again. Extract the two appropriately directed implications from `df-ex` and compose with `syl`. Avoid the closed theorem `exim` as a shortcut.
-- `19.26`: derive the forward direction by applying `alimi` to `simpl` and `simpr`, then `jca`. For the converse use `alanimi` with `id`. Finish with `impbii`.
-- `19.21v`: `stdpc5v` gives the forward direction. For the reverse, use `imim1i` on `ax5e` to reach `( E. x ph -> A. x ps )`, then apply `19.38` and compose with `syl`. Assemble with `impbii`.
-- `cbvalvw`: inspect `cbvalw` and its four explicit nonfreeness premises. Supply them using `ax-5` on `A. x ph` over `y`, `-. ps` over `x`, `A. y ps` over `x`, and `-. ph` over `y`. Keep the given equality-conditioned equivalence as the last premise.
-
-The reference solutions in `library-solutions.json` are checked by replacing
-these proofs at their original positions in a disposable full-database copy.
-This ensures they use earlier assertions and cannot invoke the target itself.
-
-### 5.2.4 A concrete bound-variable change
 > [!WARNING]
 > This section is AI-generated and has not been reviewed.
 
-`rename-equality` is our own label, not an existing theorem to look up in
-`set.mm`. The generated extension loads the whole library and adds this target:
+Prove [`19.35`](https://us.metamath.org/mpeuni/19.35.html). This is the hard problem in 5.2. Compare it with `19.26`. Distributing a universal quantifier over a conjunction gave two universal quantifiers. Moving an existential quantifier across an implication gives a universal on the left and an existential on the right. Proving both directions explains why that switch works. Then turn the reverse direction into [`19.35ri`](https://us.metamath.org/mpeuni/19.35ri.html) for the last exercise.
 
 ```metamath
-${ $d x y z $.
-rename-equality $p |- ( A. x x = z <-> A. y y = z ) $= ? $. $}
+19.35 $p |- ( E. x ( ph -> ps ) <-> ( A. x ph -> E. x ps ) ) $= ? $.
+
+${
+  19.35ri.1 $e |- ( A. x ph -> E. x ps ) $.
+  19.35ri $p |- E. x ( ph -> ps ) $= ? $.
+$}
 ```
 
+### 5.2.3 The drinker paradox
 
-```sh
-cd ai/predicate-calculus
-metamath 'read library-extension-exercises.mm'
+> [!WARNING]
+> This section is AI-generated and has not been reviewed.
+
+Prove [`qexmid`](https://us.metamath.org/mpeuni/qexmid.html), the drinker paradox. In any nonempty tavern there is someone such that, if that person drinks, everyone drinks. Try picking that person by hand first, both in a tavern where everyone drinks and in one where someone abstains. The formal proof is short once you recognize which instance of `19.35ri` says what you need.
+
+```metamath
+qexmid $p |- E. x ( ph -> A. x ph ) $= ? $.
 ```
-
-Then use `prove rename-equality`. Its reference proof is in the matching
-extension reference file. This is a particular checked equivalence; a theorem
-about a general renaming algorithm would require a representation of syntax.
-
-#### Hints
-
-Use `cbvalvw` with `ph := x = z` and `ps := y = z`. The earlier equality
-congruence theorem `equequ1` supplies its premise. The inherited conditions
-are exactly the three pairs `x,y`, `x,z`, and `y,z`, protecting the unchanged
-variable `z` from capture.
