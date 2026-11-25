@@ -5,7 +5,7 @@ title: "5. Variables, Binding, and Predicate Calculus"
 <nav class="nav">
     <span class="activenav"><a href="04-propmm.html">← Previous</a></span>
     <span class="activenav"><a href="index.html">↑ Up</a></span>
-    <span class="inactivenav" aria-disabled="true">Next →</span>
+    <span class="activenav"><a href="06-setmm.html">Next →</a></span>
 </nav>
 
 <h1 id="05-predicate-calculus" style="border-bottom: none;">5. Variables, Binding, and Predicate Calculus</h1>
@@ -879,12 +879,14 @@ MM> show proof celarent /lemmon /renumber
 
 Open the [working copy of set.mm](code-05/set.mm). For each exercise, find the label, clear its proof, and write your own using the theorems available at that point in the file.
 
-### 5.2.1 Carry an existential witness
+### 5.2.1 Use an existential hypothesis
 
 > [!WARNING]
 > This section is AI-generated and has not been reviewed.
 
-Prove [`eximi`](https://us.metamath.org/mpeuni/eximi.html), the existential counterpart of `alimi`, and try it on chapter 4’s `ax-1` to get [`exa1`](https://us.metamath.org/mpeuni/exa1.html). Then prove [`19.29`](https://us.metamath.org/mpeuni/19.29.html). The interesting choice here is whether two facts can be combined into a fact about the same person. Knowing that someone satisfies each condition separately would leave that open. Here one condition holds for everyone.
+From `( ph -> ps )`, `eximi` gives `( E. x ph -> E. x ps )`. If someone satisfies `ph`, that same person satisfies `ps`. Prove `eximi`, apply it to chapter 4’s `ax-1` to get `exa1`, then prove `19.29`. In `19.29`, the person who satisfies `ps` also satisfies `ph` because everyone does.
+
+When the conclusion `ps` is independent of the chosen person, `exlimiv` takes the same premise and gives `( E. x ph -> ps )`. Its condition `$d x ps $.` keeps `x` out of the conclusion. Without it, applying the rule to `( ph -> ph )` would give `( E. x ph -> ph )` even when `ph` says that `x` drinks coffee. Someone in the room drinking coffee would then suffice to conclude that any given person in the room drinks coffee. For the last proof, apply `exlimiv` once to prove `exlimiiv`. [Existential elimination in set.mm](https://us.metamath.org/mpeuni/exlimiv.html)
 
 ```metamath
 ${
@@ -895,6 +897,13 @@ $}
 exa1 $p |- ( E. x ph -> E. x ( ps -> ph ) ) $= ? $.
 
 19.29 $p |- ( ( A. x ph /\ E. x ps ) -> E. x ( ph /\ ps ) ) $= ? $.
+
+${
+  $d x ps $.
+  exlimiv.1 $e |- ( ph -> ps ) $.
+  exlimiiv.2 $e |- E. x ph $.
+  exlimiiv $p |- ps $= ? $.
+$}
 ```
 
 #### Hints
@@ -905,6 +914,7 @@ exa1 $p |- ( E. x ph -> E. x ( ps -> ph ) ) $= ? $.
 - `19.29`: `imp` curries the goal to `( A. x ph -> ( E. x ps -> E. x ( ph /\ ps ) ) )`. Search
   for that shape: a mixed rule (`aleximi`) lets the universal premise act on the witness. It
   leaves `( ph -> ( ps -> ( ph /\ ps ) ) )`, which is `pm3.2`.
+- `exlimiiv`: use `ax-mp` with `E. x ph` as its antecedent. The second hypothesis supplies the existential statement, and `exlimiv` applied to the first supplies the implication.
 
 ### 5.2.2 Move implication under the quantifier
 
@@ -938,7 +948,7 @@ $}
 > [!WARNING]
 > This section is AI-generated and has not been reviewed.
 
-Prove [`qexmid`](https://us.metamath.org/mpeuni/qexmid.html), the drinker paradox. In any nonempty tavern there is someone such that, if that person drinks, everyone drinks. Try picking that person by hand first, both in a tavern where everyone drinks and in one where someone abstains. The formal proof is short once you recognize which instance of `19.35ri` says what you need.
+Prove [`qexmid`](https://us.metamath.org/mpeuni/qexmid.html), the drinker paradox. In any nonempty tavern there is someone such that, if that person drinks, everyone drinks. If everyone drinks, any person will do. If someone abstains, the implication holds for that person. The formal proof is short once you recognize which instance of `19.35ri` says what you need.
 
 ```metamath
 qexmid $p |- E. x ( ph -> A. x ph ) $= ? $.
@@ -1018,12 +1028,9 @@ same properties. The *identity of indiscernibles* says that things with the same
 equal. Max Black's "The Identity of Indiscernibles" (*Mind*, 1952) argues against the second half
 with a universe holding two exactly similar spheres.
 
-In `set.mm` the only non-logical predicate is `e.`, so "same properties" comes down to "same
-members." Prove [`elequ2g`](https://us.metamath.org/mpeuni/elequ2g.html) (the first half, from the
-equality axiom `ax-9`), then [`axextg`](https://us.metamath.org/mpeuni/axextg.html) and
-[`axextb`](https://us.metamath.org/mpeuni/axextb.html) (the second half, from the axiom of
-extensionality). The comment on `axextb` says it "looks like a definition of equality," but it
-requires `ax-ext`.
+For sets, extensionality says that agreement on members suffices for equality. Prove `elequ2g` for the forward direction of the biconditional. Equal sets have the same members by substitution of equals. For the reverse direction, `axextg` uses the axiom of extensionality. Combine the two in `axextb`. [The extensionality biconditional](https://us.metamath.org/mpeuni/axextb.html)
+
+The useful trick in `axextg` is to use a fresh variable **inside the proof**. The axiom `ax-ext` requires `x`, `y`, and `z` to be pairwise distinct. Apply it with a fresh `w` in place of `x`, then use `chvarvv` to transfer that result back to `x`. The finished theorem requires `z` to be distinct from each of `x` and `y`. A later proof can therefore use the same variable for `x` and `y`. [Generalized extensionality](https://us.metamath.org/mpeuni/axextg.html)
 
 ```metamath
 ${
@@ -1044,9 +1051,8 @@ $}
 
 - `elequ2g`: `alrimiv` strips `A. z` from the consequent. It may, because `z` does not occur in
   `x = y` (that is the `$d`). What remains is `elequ2`.
-- `axextg`: `ax-ext` requires `$d x y z`, but `axextg` allows `x` and `y` to be the same
-  variable. Go through the dummy variable `w`. `chvarvv` reduces the goal to `ax-ext` with `w`
-  in place of `x`, plus an implicit substitution `( w = x -> ( ... <-> ... ) )`. Assign `ax-ext`
+- `axextg`: working backwards, `chvarvv` leaves the axiom instance at `w` and an implicit
+  substitution `( w = x -> ( ... <-> ... ) )`. Assign `ax-ext`
   first, or use `let`, to fix the `w` version. Then `imbi12d` splits the substitution into the
   antecedent and the consequent. The consequent is `equequ1`. In the antecedent, `albidv` passes
   through `A. z`, `bibi1d` through the biconditional, and `elequ2` finishes.

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>6. Proving theorems in set.mm</title>
+  <script>
+(function () {
+  var groups = ["theme", "width", "type", "text"];
+  var defaults = { theme: "system", width: "normal", type: "sans", text: "normal" };
+  var allowed = {
+    theme: { system: true, light: true, dark: true },
+    width: { normal: true, wide: true, compact: true },
+    type: { sans: true, serif: true },
+    text: { small: true, normal: true, large: true }
+  };
+  var namePrefix = "md2html-reader:";
+
+  function readWindowState() {
+    if (!window.name || window.name.indexOf(namePrefix) !== 0) return {};
+    try {
+      return JSON.parse(window.name.slice(namePrefix.length)) || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function readSetting(name) {
+    var value = null;
+    try {
+      value = localStorage.getItem("md2html-reader-" + name);
+    } catch (error) {}
+    if (!value) value = readWindowState()[name];
+    return allowed[name][value] ? value : null;
+  }
+
+  groups.forEach(function (name) {
+    var saved = readSetting(name);
+    if (saved && saved !== defaults[name]) {
+      document.documentElement.dataset[name] = saved;
+    }
+  });
+})();
+  </script>
+  
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/code.css">
+  <link rel="stylesheet" href="assets/toc.css">
+  <link rel="stylesheet" href="assets/alert.css">
+  <link rel="stylesheet" href="assets/highlight.css">
+  
+  <style>
+
+  </style>
+  
+  <style>
+
+  </style>
+  
+  
+  
+</head>
+<body>
+  <main class="container">
+    <header class="page-header">
+      <div class="page-title">06-setmm.md</div>
+      <details class="reader-widget">
+        <summary aria-label="reader controls" title="Reader controls">Aa</summary>
+        <form aria-label="reader controls">
+          <fieldset>
+            <legend>Theme</legend>
+            <label><input id="theme-system" name="theme" value="system" type="radio" checked> system</label>
+            <label><input id="theme-light" name="theme" value="light" type="radio"> light</label>
+            <label><input id="theme-dark" name="theme" value="dark" type="radio"> dark</label>
+          </fieldset>
+          <fieldset>
+            <legend>Measure</legend>
+            <label><input id="width-normal" name="width" value="normal" type="radio" checked> normal</label>
+            <label><input id="width-wide" name="width" value="wide" type="radio"> wide</label>
+            <label><input id="width-compact" name="width" value="compact" type="radio"> compact</label>
+          </fieldset>
+          <fieldset>
+            <legend>Type</legend>
+            <label><input id="type-sans" name="type" value="sans" type="radio" checked> sans</label>
+            <label><input id="type-serif" name="type" value="serif" type="radio"> serif</label>
+          </fieldset>
+          <fieldset>
+            <legend>Text</legend>
+            <label><input id="text-small" name="text" value="small" type="radio"> small</label>
+            <label><input id="text-normal" name="text" value="normal" type="radio" checked> normal</label>
+            <label><input id="text-large" name="text" value="large" type="radio"> large</label>
+          </fieldset>
+        </form>
+      </details>
+    </header>
+    <article class="page-content">
+<nav class="nav">
+    <span class="activenav"><a href="05-predicate-calculus.html">← Previous</a></span>
+    <span class="activenav"><a href="index.html">↑ Up</a></span>
+    <span class="inactivenav" aria-disabled="true">Next →</span>
+</nav>
+
+<h1 id="06-setmm" style="border-bottom: none;">6. Proving theorems in set.mm</h1>
+
+<p>Links: <a href="book/index.html#3.4.3-definitions-for-set-theory">Chapter html, 3.4.3 Definitions for Set Theory</a>,
+<a href="book/index.html#3.5-tricks-of-the-trade">3.5 Tricks of the Trade</a>,
+<a href="book/index.html#3.6-a-theorem-sampler">3.6 A Theorem Sampler</a>.</p>
+<div class="table-of-contents"><h2>Directory</h2><ul class="toc-list"><li><a href="#introduction">Introduction</a></li><li><a href="#60-what-a-class-is">6.0 What a class is</a></li><li><a href="#61-class-abstraction">6.1 Class abstraction</a></li><li><a href="#62-union-intersection-and-subclass">6.2 Union, intersection, and subclass</a></li><li><a href="#63-sets-and-proper-classes">6.3 Sets and proper classes</a></li><li><a href="#64-restricted-builders-and-moving-from-set-variables-to-classes">6.4 Restricted builders and moving from set variables to classes</a><ul class="toc-list"><li><a href="#641-if-and-the-weak-deduction-theorem">6.4.1 <code>if</code> and the weak deduction theorem</a></li></ul></li><li><a href="#65-unions-and-intersections-of-families">6.5 Unions and intersections of families</a></li><li><a href="#66-ordered-pairs-and-relations">6.6 Ordered pairs and relations</a></li><li><a href="#67-functions">6.7 Functions</a><ul class="toc-list"><li><a href="#671-optional-reading-a-word-as-a-function">6.7.1 Optional reading: a word as a function</a></li></ul></li><li><a href="#68-structures-groups">6.8 Structures: groups</a></li></ul></div>
+<h2 id="introduction">Introduction</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>Chapter 5 ended with <code>axextb</code>: two sets are equal exactly when they have the same members. This
+chapter extends that idea from sets to <strong>classes</strong>, and classes are what make <code>set.mm</code> readable as
+mathematics. <code>axextb</code> proves the membership criterion for equality of sets. <code>df-cleq</code> uses the same
+criterion to <em>define</em> equality between class expressions. A class is
+either a set variable or a <em>class abstraction</em> <code>{ x | ph }</code>, "the class of sets <code>x</code> such that
+<code>ph</code>". Union, intersection, ordered pairs, relations, function values, and groups are all class
+expressions built on top of abstractions. Once you can take one apart, you can read the rest of the
+database.</p>
+<p>The order follows section 3.4.3 of the Metamath book: class abstraction first, then the Boolean
+operations, unions and intersections of families, then relations and functions. Along the way we pick up the conventions catalogued in
+3.5 (implicit substitution hypotheses, <code>A e. _V</code> hypotheses, not-free hypotheses), and two
+theorems from the 3.6 sampler, <code>ru</code> and <code>canth</code>.</p>
+<p>Work in a copy of the <a href="code-05/set.mm">chapter 5 set.mm</a>, say <code>myset.mm</code>. For each exercise:</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>MM&gt; read myset.mm
+MM&gt; prove inss1
+MM-PA&gt; delete all
+MM-PA&gt; assign last ssriv
+...
+MM-PA&gt; save new_proof /compressed
+MM-PA&gt; exit
+MM&gt; verify proof inss1
+MM&gt; write source myset.mm
+</code></pre></div>
+
+<p><code>save new_proof</code> only stores the proof in memory. Until <code>write source</code>, your work is lost when you
+quit. (<code>write source</code> keeps the previous file as a numbered backup unless you pass
+<code>/no_versioning</code>.) If you change a <em>statement</em> rather than a proof, <code>verify proof *</code> re-checks
+everything downstream of it. <code>verify markup *</code> checks the comments, for example a <code>~ label</code>
+reference to a label that doesn't exist. That only matters once you write your own theorems. The
+checks a contribution to upstream <code>set.mm</code> must pass are listed in its
+<a href="https://github.com/metamath/set.mm/blob/develop/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
+<p>The proof assistant only lets you use statements that appear <em>earlier</em> in the file, so you can't
+accidentally cite the theorem you're proving or anything built on it. <code>verify proof</code> is not
+optional here: MM-PA does not check <code>$d</code> conditions, and in this chapter they start to matter
+(see <code>elabg</code>). A few labels have proof modification discouraged. For those, <code>prove</code> refuses and
+you need <code>prove LABEL /override</code>.</p>
+<p>As in chapter 5, hints assume you work from the goal backwards. "Assign <code>syl</code>" means <code>assign last
+syl</code> (or the equivalent in Yamma/mmj2), which splits the goal into the hypotheses of <code>syl</code>. With
+classes it is often worth writing down an intermediate line first, because the unifier can't guess
+which dummy set variable or which middle class you want. In MM-PA that's <code>let step</code> or
+<code>let variable</code>. In Yamma or mmj2 you just type the line.</p>
+<h2 id="60-what-a-class-is">6.0 What a class is</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>There are three grammatical categories now: <code>setvar</code> (<code>x</code>, <code>y</code>, ...), <code>class</code> (<code>A</code>, <code>B</code>,
+<code>{ x | ph }</code>, <code>( A i^i B )</code>, ...), and <code>wff</code>. The syntax axiom <code>cv</code> (<code>class x</code>) lets a set
+variable appear anywhere a class can. The reverse is not allowed: you can't put a class
+expression in a slot that wants a <code>setvar</code>. That single asymmetry is behind most of the
+machinery in 6.4.</p>
+<p>Three axiomatic statements give classes their meaning:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">df-clab</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">[</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">/</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">]</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="nl">df-cleq</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="nl">df-clel</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">E.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+</code></pre></div>
+
+<p>(<code>df-cleq</code> and <code>df-clel</code> carry justification hypotheses in the current database, and <code>$d</code>
+conditions on the dummy variables. Look at them with <code>show statement df-cleq /full</code>.)</p>
+<p><code>df-clab</code> says what it means for a <em>set</em> to be a member of an abstraction. <code>df-cleq</code> says classes
+are equal when they have the same members. <code>df-clel</code> reduces membership <em>of</em> a class to
+membership of some set equal to it. Between them, every class expression can be eliminated in
+favour of plain <code>e.</code> and quantifiers. The book calls this an <em>eliminable and conservative
+extension</em>: classes add convenience but no new theorems about sets. Levy's appendix (pp. 357–366)
+has the proof. Quine's <em>Set Theory and Its Logic</em> (pp. 15–21) calls them "virtual classes" and is
+the readable version.</p>
+<p>The gold mines here are the comments on these three definitions, and the page they all point to:</p>
+<ul>
+<li><a href="https://us.metamath.org/mpeuni/df-clab.html"><code>df-clab</code></a>: six numbered remarks. They cover why
+  <code>df-clab</code> doesn't have the form of a definition, why <code>x</code> and <code>y</code> need not be distinct, how
+  <code>vtoclg</code> moves a theorem from a set variable to a class, and whether these are definitions or
+  axioms.</li>
+<li><a href="https://us.metamath.org/mpeuni/df-cleq.html"><code>df-cleq</code></a> and
+  <a href="https://us.metamath.org/mpeuni/df-clel.html"><code>df-clel</code></a>: what their hypotheses are for, and
+  why the definition checker can't verify them.</li>
+<li><a href="https://us.metamath.org/mpeuni/eqabb.html"><code>eqabb</code></a>: a short recipe for converting between
+  theorems with wff variables and theorems with class variables. Its worked example is
+  <code>sepgi</code> → <code>inex1</code>, which you will prove in 6.3.</li>
+<li><a href="https://us.metamath.org/mpeuni/mmset.html#class">The theory of classes</a> on the Metamath Proof
+  Explorer home page.</li>
+</ul>
+<p><strong>Proper substitution.</strong> <code>df-clab</code> is stated with <code>[ x / y ] ph</code>, which chapter 5 didn't need.
+Read it as "<code>ph</code> with <code>x</code> properly substituted for <code>y</code>". The notation is Curry's (1977). The
+comment on <a href="https://us.metamath.org/mpeuni/df-sb.html"><code>df-sb</code></a> explains why <code>set.mm</code> defines it
+with a single formula, not the usual recursive definition over free and bound occurrences. You won't
+unfold <code>df-sb</code> in this chapter. You will use a handful of theorems about it: <code>sbid</code>
+(<code>[ x / x ] ph &lt;-&gt; ph</code>), <code>elsb1</code>, <code>spsbbi</code>, and <code>sbievw</code> (substitution computed from an implicit
+substitution hypothesis).</p>
+<h2 id="61-class-abstraction">6.1 Class abstraction</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>Prove <a href="https://us.metamath.org/mpeuni/abid.html"><code>abid</code></a>, <a href="https://us.metamath.org/mpeuni/abbi.html"><code>abbi</code></a>,
+and <a href="https://us.metamath.org/mpeuni/cvjust.html"><code>cvjust</code></a>.</p>
+<p><code>abid</code> is the abstraction principle in its simplest form: <code>x</code> belongs to the class of <code>x</code> such
+that <code>ph</code> exactly when <code>ph</code>. <code>abbi</code> says equivalent formulas give equal classes. It's the first time
+you prove two classes equal, and the method (prove they agree at an arbitrary element) is the one
+you'll use all chapter. <code>cvjust</code> motivates the syntax axiom <code>cv</code> by showing that a set variable
+equals the class of its members, so writing <code>x</code> where a class is expected is harmless. It's a
+motivation, not a justification. Its own comment points out that the proof already uses <code>cv</code>.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">abid</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+
+<span class="cm">$( Equivalent formulas define equal classes. $)</span>
+<span class="nl">abbi</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="cm">$( A set variable is the class of its own members. $)</span>
+<span class="w">  </span><span class="nl">cvjust</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<h4 id="hints">Hints</h4>
+<ul>
+<li><code>abid</code>: <code>bitri</code> through <code>[ x / x ] ph</code>. One half is <code>df-clab</code> with both variables <code>x</code>. Search
+  for the other half.</li>
+<li><code>abbi</code>: assign <code>eqrdv</code>. It turns class equality under an antecedent into equal membership at a
+  fresh <code>y</code>, keeping the antecedent. Use <code>let</code> to pick <code>y</code> if your tool doesn't ask. The goal is now
+  <code>( A. x ( ph &lt;-&gt; ps ) -&gt; ( y e. { x | ph } &lt;-&gt; y e. { x | ps } ) )</code>. Assign <code>3bitr4g</code>. Its two
+  side premises are <code>df-clab</code>. The middle one says substitution respects equivalence:
+  <code>( A. x ( ph &lt;-&gt; ps ) -&gt; ( [ y / x ] ph &lt;-&gt; [ y / x ] ps ) )</code>, which is <code>spsbbi</code>. The inference
+  form <code>abbii</code>, which you'll cite far more often, is <code>mpg</code> applied to <code>abbi</code>. That's the "closed
+  theorem, then <code>mpg</code>" pattern from 5.1.1.</li>
+<li><code>cvjust</code>: <code>df-cleq</code> is an axiom with hypotheses. The theorem <code>dfcleq</code> is the same statement
+  without them, and that's the one to use. Assign <code>mpgbir</code> with <code>dfcleq</code> as its first premise.
+  What's left is <code>( z e. x &lt;-&gt; z e. { y | y e. x } )</code> at a fresh <code>z</code>. <code>df-clab</code> turns the right side
+  into <code>[ z / y ] y e. x</code>, and <code>elsb1</code> evaluates that substitution. Notice the orientation:
+  <code>bitr2i</code>.</li>
+</ul>
+<h2 id="62-union-intersection-and-subclass">6.2 Union, intersection, and subclass</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>Prove <a href="https://us.metamath.org/mpeuni/elin.html"><code>elin</code></a>, <a href="https://us.metamath.org/mpeuni/inss1.html"><code>inss1</code></a>,
+<a href="https://us.metamath.org/mpeuni/ssun1.html"><code>ssun1</code></a>, <a href="https://us.metamath.org/mpeuni/inidm.html"><code>inidm</code></a>,
+and <a href="https://us.metamath.org/mpeuni/ssin.html"><code>ssin</code></a>.</p>
+<p>These are book 3.4.3's next definitions:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">df-ss</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">C_</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="nl">df-un</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">u.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">\/</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="k">$.</span>
+<span class="nl">df-in</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">i^i</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="k">$.</span>
+</code></pre></div>
+
+<p><code>elin</code> is worth doing carefully, because the pattern in it is how <code>set.mm</code> computes membership in
+<em>any</em> abstraction when the candidate is a class <code>A</code> rather than a set variable. If <code>A</code> is a set,
+<code>elab2g</code> calculates the membership. If <code>A</code> is a proper class, it belongs to nothing, so both sides
+of the biconditional are false. <code>pm5.21nii</code> glues the two cases together. <code>elun</code>, <code>elrab</code>, <code>elpw</code>,
+and dozens of other "membership in a constructor" theorems are proved the same way. Have a look at
+the proof of <code>elrab</code> after you're done.</p>
+<p>The rest are textbook facts once <code>elin</code> and <code>elun</code> are available. <code>ssriv</code> and <code>eqriv</code> turn inclusion
+and equality goals into goals about an arbitrary element <code>x</code>. The hard one is <code>ssin</code>. One
+direction is a payoff for <code>inss1</code>, and the whole thing can also be done as a chapter 5 quantifier
+calculation. The library proves <code>inss1</code> in one step from a lemma <code>elinel1</code>. Do it from <code>elin</code>
+instead.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">elin</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">i^i</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+
+<span class="nl">inss1</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">i^i</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">C_</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+
+<span class="nl">ssun1</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">C_</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">u.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+
+<span class="nl">inidm</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">i^i</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+
+<span class="cm">$( A class is included in an intersection iff it is included in both. $)</span>
+<span class="nl">ssin</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">C_</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">C_</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">C_</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">i^i</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+</code></pre></div>
+
+<h4 id="hints-2">Hints</h4>
+<ul>
+<li><code>elin</code>: assign <code>pm5.21nii</code>. Look at its three hypotheses before going further:
+  <code>( ph -&gt; ps )</code>, <code>( ch -&gt; ps )</code>, and <code>( ps -&gt; ( ph &lt;-&gt; ch ) )</code>. Here <code>ps</code> is <code>A e. _V</code>.</li>
+<li>The first two say each side forces <code>A</code> to be a set. <code>elex</code> does the left side. For the right,
+    <code>elex</code> on <code>A e. C</code> plus <code>adantl</code>.</li>
+<li>The third is <code>elab2g</code>. Give it <code>df-in</code> as the hypothesis naming the class, and the implicit
+    substitution <code>( x = A -&gt; ( ( x e. B /\ x e. C ) &lt;-&gt; ( A e. B /\ A e. C ) ) )</code>, which is
+    <code>anbi12d</code> of two <code>eleq1</code>s.</li>
+<li><code>inss1</code>: assign <code>ssriv</code>, then <code>simplbi</code> with <code>elin</code>.</li>
+<li><code>ssun1</code>: assign <code>ssriv</code>. Now you need <code>( x e. A -&gt; x e. ( A u. B ) )</code>. <code>elun</code> says what the right
+  side means. Assign <code>sylibr</code> and supply <code>elun</code> and a disjunction introduction (<code>orc</code>).</li>
+<li><code>inidm</code>: assign <code>eqriv</code>, then <code>bitri</code> with <code>elin</code>. The other half is chapter 4's conjunction
+  idempotence, <code>anidm</code>.</li>
+<li><code>ssin</code>: assign <code>impbii</code> and take the directions separately.</li>
+<li>Forward: take an element. <code>ssrdv</code> is the deduction form of <code>ssriv</code> and keeps the antecedent
+    <code>( A C_ B /\ A C_ C )</code>. Each inclusion turns <code>x e. A</code> into a membership (<code>ssel</code>). Combine the
+    two memberships with <code>jcad</code>, and recognize the result with <code>elin</code>. The label that rewrites the
+    consequent of a nested implication is <code>imbitrrdi</code> (older material calls it <code>syl6ibr</code>).</li>
+<li>Reverse: if <code>A</code> is inside <code>( B i^i C )</code>, and <code>( B i^i C )</code> is inside <code>B</code> by <code>inss1</code>, then <code>A</code>
+    is inside <code>B</code> (<code>sstr</code>, via <code>mpan2</code>). Do the same with <code>inss2</code>, then <code>jca</code>.</li>
+<li><code>ssin</code>, second route: unfold all three <code>C_</code> with <code>df-ss</code> (<code>3bitr4i</code>, with <code>anbi12i</code> on the left). You now need
+  <code>( ( A. x ( x e. A -&gt; x e. B ) /\ A. x ( x e. A -&gt; x e. C ) ) &lt;-&gt; A. x ( x e. A -&gt; x e. ( B i^i C ) ) )</code>.
+  Work from the right-hand side: <code>elin</code> inside the implication (<code>imbi2i</code>, then <code>albii</code>), then
+  <code>jcab</code> to split <code>( x e. A -&gt; ( _ /\ _ ) )</code> into two implications (<code>albii</code> again), and finally
+  5.1.2's <code>19.26</code>. <code>3bitrri</code> chains three equivalences in the direction you need.</li>
+</ul>
+<h2 id="63-sets-and-proper-classes">6.3 Sets and proper classes</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>Prove <a href="https://us.metamath.org/mpeuni/eqabbw.html"><code>eqabbw</code></a>, <a href="https://us.metamath.org/mpeuni/ru.html"><code>ru</code></a>,
+<a href="https://us.metamath.org/mpeuni/vneqv.html"><code>vneqv</code></a>, and <a href="https://us.metamath.org/mpeuni/inex1.html"><code>inex1</code></a>.</p>
+<p>A class is a <em>set</em> if some set variable equals it. <code>set.mm</code> writes this <code>A e. _V</code>, and
+<a href="https://us.metamath.org/mpeuni/isset.html"><code>isset</code></a> is the bridge:
+<code>( A e. _V &lt;-&gt; E. x x = A )</code>. Book 3.5 lists <code>|- A e. _V</code> as a standard hypothesis ("<code>A</code> is a set").
+You'll meet it again as <code>canth.1</code> and in the sethood hypotheses of <code>brco</code> and <code>brcnv</code>.</p>
+<p>For <code>ru</code> and <code>inex1</code>, use <code>isset</code> to turn sethood into <code>E. z z = A</code>. Then <code>eqabbw</code> or <code>dfcleq</code>
+turns <code>z = A</code> into a statement about the members of <code>z</code>. In <code>ru</code>, chapter 5’s <code>ru0</code> rules out
+such a set. In <code>inex1</code>, separation supplies one. The comment on <code>eqabb</code> uses this second proof
+(<code>sepgi</code> to <code>inex1</code>) as its example of turning a wff theorem into a class theorem.
+For <code>vneqv</code>, use <code>exlimiiv</code>, the last exercise in 5.2.1, to show that no set equals the universe.</p>
+<p>There is a shorter route when you already have a set containing all the elements of your class.
+In 6.4, <code>ssrab2</code> gives <code>{ x e. A | ph } C_ A</code>. Once you know <code>A</code> is a set, <code>ssexg</code> gives
+sethood of the restricted abstraction.</p>
+<p><code>ru</code> has proof modification discouraged, so start it with <code>prove ru /override</code>.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="k">$.</span><span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">$.</span><span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="k">$.</span><span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="nl">eqabbw.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="cm">$( Equality of a class with an abstraction, at a fresh variable y. $)</span>
+<span class="w">  </span><span class="nl">eqabbw</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+<span class="p">$}</span>
+
+<span class="cm">$( Russell's paradox with classes. $)</span>
+<span class="nl">ru</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e/</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="n">e/</span><span class="w"> </span><span class="n">_V</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+
+<span class="nl">vneqv</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">_V</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">inex1.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">_V</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="nl">inex1</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">i^i</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">_V</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<h4 id="hints-and-answers">Hints and answers</h4>
+<ul>
+<li><code>eqabbw</code>: <code>bitri</code> with <code>dfcleq</code> first. That leaves rewriting <code>y e. { x | ph }</code> to <code>ps</code> inside
+  <code>A. y ( y e. A &lt;-&gt; _ )</code>. <code>albii</code> and <code>bibi2i</code> get you inside. <code>df-clab</code> and <code>sbievw</code> (fed the
+  hypothesis) do the rewrite.</li>
+<li><code>ru</code>: <code>e/</code> is defined by <code>df-nel</code>, and <code>nelir</code> strips it from the goal. Then:</li>
+<li><code>mtbir</code> with <code>isset</code> turns <code>-. { x | x e/ x } e. _V</code> into <code>-. E. z z = { x | x e/ x }</code>.</li>
+<li><code>nex</code> removes the existential.</li>
+<li><code>mtbir</code> with <code>eqabbw</code> turns <code>z = { x | x e/ x }</code> into the <code>A. y</code> statement of <code>ru0</code>.</li>
+<li><code>eqabbw</code> needs the implicit substitution <code>( x = y -&gt; ( x e/ x &lt;-&gt; -. y e. y ) )</code>. Get
+    <code>( x e/ x &lt;-&gt; y e/ y )</code> from <code>neleq12d</code> (both premises <code>id</code>), then <code>bitrdi</code> with <code>df-nel</code>.</li>
+<li><code>vneqv</code>: assign <code>exlimiiv</code>. For its existential premise, search for "there is a set not in <code>x</code>"
+  (<code>exnelv</code>). The implication premise is <code>( -. y e. x -&gt; -. x = _V )</code>. Take the contrapositive
+  (<code>con3i</code>) and prove <code>( x = _V -&gt; y e. x )</code> from <code>vex</code> and <code>eleq2</code>.</li>
+<li><code>inex1</code>: assign <code>issetri</code>, so the goal is <code>E. x x = ( A i^i B )</code>. Separation, in the form <code>sepgi</code>,
+  gives <code>E. x A. y ( y e. x &lt;-&gt; ( y e. A /\ y e. B ) )</code>. <code>mpbir</code> connects them if you prove
+  <code>( E. x x = ( A i^i B ) &lt;-&gt; E. x A. y ( y e. x &lt;-&gt; ( y e. A /\ y e. B ) ) )</code>: <code>exbii</code>, then
+  <code>dfcleq</code>, then <code>elin</code> inside <code>A. y ( _ &lt;-&gt; _ )</code>.</li>
+</ul>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>MM&gt; show proof ru /lemmon /renumber
+ 1 ru0           $p |- -. A. y ( y e. z &lt;-&gt; -. y e. y )
+ 2 id            $p |- ( x = y -&gt; x = y )
+ 3 id            $p |- ( x = y -&gt; x = y )
+ 4 2,3 neleq12d  $p |- ( x = y -&gt; ( x e/ x &lt;-&gt; y e/ y ) )
+ 5 df-nel        $a |- ( y e/ y &lt;-&gt; -. y e. y )
+ 6 4,5 bitrdi    $p |- ( x = y -&gt; ( x e/ x &lt;-&gt; -. y e. y ) )
+ 7 6 eqabbw      $p |- ( z = { x | x e/ x } &lt;-&gt; A. y ( y e. z &lt;-&gt; -. y e. y ) )
+ 8 1,7 mtbir     $p |- -. z = { x | x e/ x }
+ 9 8 nex         $p |- -. E. z z = { x | x e/ x }
+10 isset         $p |- ( { x | x e/ x } e. _V &lt;-&gt; E. z z = { x | x e/ x } )
+11 9,10 mtbir    $p |- -. { x | x e/ x } e. _V
+12 11 nelir      $p |- { x | x e/ x } e/ _V
+</code></pre></div>
+
+<p>Run <code>show trace_back ru /axioms</code> and compare with <code>ru0</code>. The class version still uses no set
+theory axioms beyond extensionality. The classes are pure bookkeeping. <code>inex1</code> is different:
+trace it and <code>ax-sep</code> shows up.</p>
+<h2 id="64-restricted-builders-and-moving-from-set-variables-to-classes">6.4 Restricted builders and moving from set variables to classes</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>Prove <a href="https://us.metamath.org/mpeuni/dfin5.html"><code>dfin5</code></a>, <a href="https://us.metamath.org/mpeuni/rabexg.html"><code>rabexg</code></a>,
+<a href="https://us.metamath.org/mpeuni/vtoclga.html"><code>vtoclga</code></a>, and <a href="https://us.metamath.org/mpeuni/elabg.html"><code>elabg</code></a>.</p>
+<p>The restricted abstraction <code>{ x e. A | ph }</code> is defined by <code>df-rab</code> as <code>{ x | ( x e. A /\ ph ) }</code>.
+Its point is sethood. A restricted abstraction over a set is a set (separation again), and
+<code>rabexg</code> is the form you'll cite most. The library proves it from <code>rabelpw</code> in two steps. Prove it
+instead from the subclass fact <code>ssrab2</code> and <code>ssexg</code> ("a subclass of a set is a set").</p>
+<p>The second half of this section is about a problem the grammar creates. A theorem proved about a
+set variable <code>x</code> can't be used at a class <code>A</code> by substitution, because <code>A</code> doesn't fit in a
+<code>setvar</code> slot. The fix is book 3.5's <em>implicit substitution</em> hypothesis
+<code>( x = A -&gt; ( ph &lt;-&gt; ps ) )</code>. It says <code>ps</code> is what <code>ph</code> becomes when <code>x</code> is replaced by <code>A</code>.
+<a href="https://us.metamath.org/mpeuni/vtoclg.html"><code>vtoclg</code></a> then turns a proof of <code>ph</code> into a proof of
+<code>( A e. V -&gt; ps )</code>. The sethood antecedent is the price of moving from sets to classes.</p>
+<p><code>vtoclg</code> carries <code>$d ps x</code>: <code>x</code> must not <em>occur</em> in <code>ps</code>. That's a statement about symbols, not
+about free variables. For <code>elabg</code> it's too strong, because the formula you want to substitute into
+mentions <code>{ x | ph }</code>, where <code>x</code> occurs bound. The remedy is the third convention in book 3.5: a
+<em>not-free</em> hypothesis. <code>vtoclgf</code> replaces the <code>$d</code> conditions with <code>F/_ x A</code> ("<code>x</code> is not free in
+the class <code>A</code>") and <code>F/ x ps</code>. You prove those hypotheses by recursion on the syntax of the
+expression with <code>nfcv</code>, <code>nfv</code>, <code>nfab1</code>, <code>nfel</code>, <code>nfbi</code>, and friends.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">$.</span><span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="nl">dfin5</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">i^i</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+<span class="p">$}</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="nl">rabexg</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">V</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">_V</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+<span class="p">$}</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">$.</span><span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="k">$.</span><span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="nl">vtoclga.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="nl">vtoclga.2</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="cm">$( A theorem about x in B, used at the class A. $)</span>
+<span class="w">  </span><span class="nl">vtoclga</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+<span class="p">$}</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="k">$.</span><span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="nl">elabg.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="nl">elabg</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">V</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="n">&lt;-&gt;</span><span class="w"> </span><span class="n">ps</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<h4 id="hints-and-answers-2">Hints and answers</h4>
+<ul>
+<li><code>dfin5</code>: both sides unfold to the same unrestricted abstraction. Assign <code>eqtr4i</code> and give it
+  <code>df-in</code> and <code>df-rab</code>.</li>
+<li><code>rabexg</code>: assign <code>mpan</code>. Its first premise is <code>ssrab2</code>, its second <code>ssexg</code>.</li>
+<li><code>vtoclga</code>: apply <code>vtoclg</code> to the <em>whole</em> implication <code>( x e. B -&gt; ph )</code>, with <code>B</code> as the class
+  <code>V</code>. The implicit substitution is <code>imbi12d</code> of <code>eleq1</code> and <code>vtoclga.1</code>. That gives
+  <code>( A e. B -&gt; ( A e. B -&gt; ps ) )</code>, and chapter 4's <code>pm2.43i</code> finishes.</li>
+<li><code>elabg</code>: you already have <code>abid</code>, the theorem at <code>x</code>. Try <code>vtoclg</code> first, the same way as in
+  <code>vtoclga</code>: use <code>abid</code> as the theorem and <code>bibi12d</code> of <code>eleq1</code> and <code>elabg.1</code> as the substitution.
+  MM-PA will accept it. <code>verify proof elabg</code> won't:</li>
+</ul>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>There is a disjoint variable ($d) violation at proof step 33.  Assertion "vtoclg" requires
+that variables "ps" and "x" be disjoint.  But "ps" was substituted with
+"( A e. { x | ph } &lt;-&gt; ps )" and "x" was substituted with "x".
+</code></pre></div>
+
+<p>Delete the <code>vtoclg</code> step and assign <code>vtoclgf</code> in its place. The two old premises stay the same.
+  The two new ones are <code>F/_ x A</code> (<code>nfcv</code>) and <code>F/ x ( A e. { x | ph } &lt;-&gt; ps )</code>. Build that one
+  outside-in with <code>nfbi</code>, <code>nfel</code>, <code>nfcv</code>, <code>nfab1</code>, and <code>nfv</code>.</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>MM&gt; show proof elabg /lemmon /renumber
+ 1 nfcv          $p |- F/_ x A
+ 2 nfcv          $p |- F/_ x A
+ 3 nfab1         $p |- F/_ x { x | ph }
+ 4 2,3 nfel      $p |- F/ x A e. { x | ph }
+ 5 nfv           $p |- F/ x ps
+ 6 4,5 nfbi      $p |- F/ x ( A e. { x | ph } &lt;-&gt; ps )
+ 7 eleq1         $p |- ( x = A -&gt; ( x e. { x | ph } &lt;-&gt; A e. { x | ph } ) )
+ 8 elabg.1       $e |- ( x = A -&gt; ( ph &lt;-&gt; ps ) )
+ 9 7,8 bibi12d   $p |- ( x = A -&gt; ( ( x e. { x | ph } &lt;-&gt; ph ) &lt;-&gt; ( A e. { x | ph } &lt;-&gt; ps ) ) )
+10 abid          $p |- ( x e. { x | ph } &lt;-&gt; ph )
+11 1,6,9,10 vtoclgf  $p |- ( A e. V -&gt; ( A e. { x | ph } &lt;-&gt; ps ) )
+</code></pre></div>
+
+<p>(The library's own proof goes through <code>elabgt</code> instead. Either is fine.)</p>
+<h3 id="641-if-and-the-weak-deduction-theorem">6.4.1 <code>if</code> and the weak deduction theorem</h3>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>No exercises here, just the answer to a question from chapter 5: what is the strange
+<code>if ( A e. RR , A , 1 )</code> that shows up in proofs like
+<a href="https://us.metamath.org/mpeuni/renegcl.html"><code>renegcl</code></a>?</p>
+<p>It's an ordinary class abstraction:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">df-if</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">if</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">,</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">\/</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">ph</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="k">$.</span>
+</code></pre></div>
+
+<p><code>iftrue</code> and <code>iffalse</code> evaluate it. Nothing about it is specific to deduction. It's <code>set.mm</code>'s
+piecewise-definition operator, and definitions use it directly: <code>df-exp</code> (<code>if ( y = 0 , 1 , ...</code>),
+<code>df-bc</code>, <code>df-xneg</code>, <code>df-rdg</code>. The weak deduction theorem is one consumer of it. To turn an
+inference "from <code>A e. RR</code> infer <code>ps</code>" into a closed theorem, feed the inference the class
+<code>if ( A e. RR , A , 1 )</code>. That class is real whatever <code>A</code> is, because <code>1re</code> covers the other
+branch. Under the antecedent <code>A e. RR</code> it equals <code>A</code>. Few proofs in the main library cite
+<code>dedth</code> or <code>elimhyp</code> directly. Most modern proofs carry the antecedent from the start
+(deduction style, 4.1.1). The <a href="https://us.metamath.org/mpeuni/mmdeduction.html">weak deduction theorem page</a>
+and <a href="book/index.html#3.9.2-weak-deduction-theorem">book 3.9.2</a> explain the trick. The proof of
+<code>iftrue</code> is a nice small read: <code>dfif2</code> rewrites the definition so that a single tautology,
+<code>dedlem0a</code>, does all the work.</p>
+<h2 id="65-unions-and-intersections-of-families">6.5 Unions and intersections of families</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>Prove <a href="https://us.metamath.org/mpeuni/intss1.html"><code>intss1</code></a> and <a href="https://us.metamath.org/mpeuni/0iin.html"><code>0iin</code></a>.</p>
+<p>The book's list continues with the union and intersection of a class, and <code>set.mm</code> adds indexed
+versions:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">df-uni</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">U.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">E.</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="k">$.</span>
+<span class="nl">df-int</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">|^|</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="k">$.</span>
+<span class="nl">df-iun</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">U_</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">E.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="k">$.</span>
+<span class="nl">df-iin</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">|^|_</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">A.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="k">$.</span>
+</code></pre></div>
+
+<p><code>U. A</code> and <code>|^| A</code> combine the members of a class <code>A</code>. The indexed forms combine a family: <code>B</code> is a
+class expression that may mention the index <code>x</code>, and <code>x</code> ranges over <code>A</code>. All four are
+abstractions, so membership in them is computed the way you computed <code>elin</code>. The results are
+<code>eluni</code>, <code>elint</code>, <code>eliun</code>, and <code>eliin</code>, and the bound variable in the definition becomes a
+quantifier in the membership condition.</p>
+<p>Chapter 7 uses both intersections right away. Closure in a topology is defined as an intersection
+of a class:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">df-cls</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">cls</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">Top</span><span class="w"> </span><span class="n">|-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">~P</span><span class="w"> </span><span class="n">U.</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="n">|-&gt;</span><span class="w"> </span><span class="n">|^|</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">Clsd</span><span class="w"> </span><span class="n">`</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">C_</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+</code></pre></div>
+
+<p>The closure of <code>x</code> is the intersection of all closed sets containing <code>x</code>. <code>intss1</code> is why that
+intersection is the <em>smallest</em> closed superset: it is contained in every member of the family.
+Finite intersections of open sets use the indexed form, and
+<a href="https://us.metamath.org/mpeuni/iinopn.html"><code>iinopn</code></a> carries the hypothesis <code>A =/= (/)</code> on the
+index. <code>0iin</code> shows why. With an empty index, the membership condition is vacuous, every set
+satisfies it, and the intersection is the universal class <code>_V</code>. That can't be an open set, since
+it isn't even a set (<code>vprc</code>). The same holds for <code>|^| (/) = _V</code> (<code>int0</code>). So topology theorems about
+intersections either assume the family is nonempty, like <code>iinopn</code>, or make sure it is. In <code>df-cls</code>
+the carrier <code>U. j</code> is itself closed and contains <code>x</code>, so the family is never empty.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="cm">$( The intersection of a class is contained in each of its members. $)</span>
+<span class="nl">intss1</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">|^|</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">C_</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+
+<span class="cm">$( An intersection over an empty index is the universe. $)</span>
+<span class="nl">0iin</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">|^|_</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">(/)</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">_V</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+</code></pre></div>
+
+<h4 id="hints-3">Hints</h4>
+<ul>
+<li><code>intss1</code>: assign <code>ssrdv</code>, keeping <code>A e. B</code> as the antecedent, with a fresh element <code>x</code>. The goal
+  is now <code>( A e. B -&gt; ( x e. |^| B -&gt; x e. A ) )</code>. <code>elint</code> (with <code>vex</code>) says <code>x e. |^| B</code> means
+  <code>A. y ( y e. B -&gt; x e. y )</code>. Instantiate <code>y</code> at the class <code>A</code>. <code>spcgv</code> is the version of <code>vtoclg</code>
+  for specializing a universal: from the implicit substitution
+  <code>( y = A -&gt; ( ( y e. B -&gt; x e. y ) &lt;-&gt; ( A e. B -&gt; x e. A ) ) )</code> (<code>imbi12d</code> of <code>eleq1</code> and
+  <code>eleq2</code>) it gives <code>( A e. B -&gt; ( A. y ( y e. B -&gt; x e. y ) -&gt; ( A e. B -&gt; x e. A ) ) )</code>.
+  <code>pm2.43a</code> removes the repeated <code>A e. B</code>, and <code>biimtrid</code> swaps <code>elint</code> into the antecedent.</li>
+<li><code>0iin</code>: assign <code>eqtr4i</code> and unfold the left side with <code>df-iin</code>. The other premise is
+  <code>_V = { y | A. x e. (/) y e. A }</code>. <code>eqabi</code> reduces it to <code>( y e. _V &lt;-&gt; A. x e. (/) y e. A )</code>.
+  Both sides are theorems, <code>vex</code> and <code>ral0</code>. Two theorems are equivalent by <code>2th</code>.</li>
+</ul>
+<h2 id="66-ordered-pairs-and-relations">6.6 Ordered pairs and relations</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>Prove <a href="https://us.metamath.org/mpeuni/imass2.html"><code>imass2</code></a> and <a href="https://us.metamath.org/mpeuni/cnvco.html"><code>cnvco</code></a>.</p>
+<p>A relation is a class of ordered pairs, and <code>A R B</code> abbreviates <code>&lt;. A , B &gt;. e. R</code> (<code>df-br</code>).
+Relations are mostly built with the ordered-pair abstraction <code>{ &lt;. x , y &gt;. | ph }</code>. Converse,
+composition, cross product, and maps-to are all of this form:</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">df-cnv</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">`'</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">&lt;.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">&gt;.</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="k">$.</span>
+<span class="nl">df-co</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">o.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">&lt;.</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">&gt;.</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">E.</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="k">$.</span>
+<span class="nl">df-res</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">|`</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">i^i</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">X.</span><span class="w"> </span><span class="n">_V</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="nl">df-ima</span><span class="w"> </span><span class="k">$a</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">"</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">ran</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">|`</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+</code></pre></div>
+
+<p>Read the comment on <a href="https://us.metamath.org/mpeuni/df-op.html"><code>df-op</code></a>. It's a short history of
+ordered pairs: Wiener's 1914 definition, Kuratowski's 1921 simplification, Hausdorff's, one that
+needs Regularity, and one that works for proper classes, each with the theorem in <code>set.mm</code> that
+justifies it. It also explains why <code>set.mm</code>'s <code>&lt;. A , B &gt;.</code> is empty when <code>A</code> or <code>B</code> is a proper
+class. That choice saves sethood hypotheses all over the library. In practice you never unfold
+<code>df-op</code>. You use <code>opth</code> (pairs are equal iff their components are, given that the first pair's
+components are sets) and <code>brco</code>/<code>brcnv</code>-style lemmas.</p>
+<p><code>cnvco</code> is the undergraduate fact (g∘f)⁻¹ = f⁻¹∘g⁻¹. The proof is the usual one: compare the two
+relations pair by pair. Here "pair by pair" is <code>opabbii</code>, the ordered-pair version of <code>abbii</code>.
+<code>brco</code> and <code>brcnv</code> need their arguments to be sets (book 3.5's <code>A e. _V</code> hypotheses). Since <code>x</code>,
+<code>y</code>, and <code>z</code> are set variables, <code>vex</code> discharges every one.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="cm">$( Image is monotone in its second argument. $)</span>
+<span class="nl">imass2</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">C_</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="n">"</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">C_</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="n">"</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+
+<span class="cm">$( Converse of a composition. $)</span>
+<span class="nl">cnvco</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">`'</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">o.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">`'</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">o.</span><span class="w"> </span><span class="n">`'</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+</code></pre></div>
+
+<h4 id="hints-4">Hints</h4>
+<ul>
+<li><code>imass2</code>: the image is the range of a restriction. Unfold both images with <code>df-ima</code> using
+  <code>3sstr4g</code>, the inclusion version of <code>3bitr4g</code>. What's left is
+  <code>( A C_ B -&gt; ran ( C |` A ) C_ ran ( C |` B ) )</code>. That's <code>syl</code> of two monotonicity lemmas, one
+  for restriction (<code>ssres2</code>) and one for range (<code>rnss</code>).</li>
+<li><code>cnvco</code>: unfold both sides to <code>{ &lt;. y , x &gt;. | ... }</code> with <code>3eqtr4i</code>, <code>df-cnv</code>, and <code>df-co</code>,
+  then <code>opabbii</code>. You need
+  <code>( x ( A o. B ) y &lt;-&gt; E. z ( y `' A z /\ z `' B x ) )</code>.</li>
+<li><code>brco</code> turns the left side into <code>E. z ( x B z /\ z A y )</code>.</li>
+<li><code>brcnv</code> (twice, under <code>anbi12i</code> and <code>exbii</code>) turns the right side into
+    <code>E. z ( z A y /\ x B z )</code>.</li>
+<li>The two differ by the order of the conjuncts, which is <code>exancom</code>. <code>3bitr4i</code> ties the three
+    together.</li>
+</ul>
+<h2 id="67-functions">6.7 Functions</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>Prove <a href="https://us.metamath.org/mpeuni/fvconst.html"><code>fvconst</code></a>, <a href="https://us.metamath.org/mpeuni/uzval.html"><code>uzval</code></a>,
+and <a href="https://us.metamath.org/mpeuni/canth.html"><code>canth</code></a>.</p>
+<p><code>F : A --&gt; B</code> is a statement (<code>F</code> is a function from <code>A</code> into <code>B</code>), built from <code>Fun</code>, <code>Fn</code>, <code>dom</code>,
+and <code>ran</code> (<code>df-fun</code>, <code>df-fn</code>, <code>df-f</code>). <code>( F ` A )</code> is a class expression: the value of <code>F</code> at <code>A</code>.
+It is defined for <em>every</em> <code>F</code> and <code>A</code>. The comment on
+<a href="https://us.metamath.org/mpeuni/df-fv.html"><code>df-fv</code></a> explains that it evaluates to <code>(/)</code> when it
+isn't meaningful, that the apostrophe notation goes back to Peano and <em>Principia</em>, and that the
+current definition goes through the definite-description operator <code>iota</code>. Most functions are
+written in maps-to notation, <code>( x e. A |-&gt; B )</code>, which <code>df-mpt</code> defines as an ordered-pair
+abstraction. <a href="https://us.metamath.org/mpeuni/fvmpt.html"><code>fvmpt</code></a> evaluates such a function. Its
+three hypotheses are the same three ingredients as <code>elab2</code>: an implicit substitution, an equation
+naming the definition being evaluated, and sethood. You used the first two already with <code>elab2g</code>
+in <code>elin</code>.</p>
+<p><code>canth</code> is Cantor's theorem from book 3.6: no function from <code>A</code> onto its power set. The proof is
+<code>ru</code> again, with <code>F</code> doing the indexing. The diagonal class
+<code>{ x e. A | -. x e. ( F ` x ) }</code> is a subset of <code>A</code>, so it should be some <code>( F ` y )</code>. If it were,
+<code>y</code> would belong to it exactly when it didn't. This is the hard problem of the chapter. The hint
+breaks it into the two facts the proof needs.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="nl">fvconst</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">F</span><span class="w"> </span><span class="n">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">--&gt;</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">F</span><span class="w"> </span><span class="n">`</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="k">$d</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="cm">$( The upper integers starting at N, evaluated from the definition df-uz. $)</span>
+<span class="w">  </span><span class="nl">uzval</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">ZZ</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">ZZ&gt;=</span><span class="w"> </span><span class="n">`</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">{</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">ZZ</span><span class="w"> </span><span class="n">|</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="n">&lt;_</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="n">}</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+<span class="p">$}</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">canth.1</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">_V</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="cm">$( Cantor's theorem. $)</span>
+<span class="w">  </span><span class="nl">canth</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">-.</span><span class="w"> </span><span class="n">F</span><span class="w"> </span><span class="n">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">-onto-&gt;</span><span class="w"> </span><span class="n">~P</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<h4 id="hints-5">Hints</h4>
+<ul>
+<li><code>fvconst</code>: the value lies in the codomain <code>{ B }</code> (<code>ffvelcdm</code>), and a member of a singleton is
+  its element (<code>elsni</code>). <code>syl</code>.</li>
+<li><code>uzval</code>: assign <code>fvmpt</code>. Fill the definition premise with <code>df-uz</code> first. That fixes the bound
+  variable <code>j</code> and the body <code>{ k e. ZZ | j &lt;_ k }</code>. The substitution premise is
+  <code>( j = N -&gt; { k e. ZZ | j &lt;_ k } = { k e. ZZ | N &lt;_ k } )</code>: <code>rabbidv</code> to get inside the
+  restricted abstraction, then <code>breq1</code>. Sethood is <code>rabex</code> with <code>zex</code>.</li>
+<li><code>canth</code>: write <code>D</code> for the diagonal class <code>{ x e. A | -. x e. ( F ` x ) }</code>. Assign
+  <code>pm2.65i</code>, so that from <code>F : A -onto-&gt; ~P A</code> you derive both <code>D e. ran F</code> and <code>-. D e. ran F</code>.
+  The first holds because <code>D</code> is a subset of <code>A</code> and <code>F</code> is onto. For the second, the line to aim
+  for is <code>( y e. A -&gt; -. ( F ` y ) = D )</code>. If <code>( F ` y ) = D</code> held for some <code>y e. A</code>, then
+  <code>y e. D</code> would be equivalent to its own negation, the same contradiction as in <code>ru0</code>.</li>
+</ul>
+<h3 id="671-optional-reading-a-word-as-a-function">6.7.1 Optional reading: a word as a function</h3>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>In <code>df-word</code>, a word over an alphabet <code>S</code> is a function from <code>( 0 ..^ l )</code> into <code>S</code> for some
+<code>l e. NN0</code>. A three-letter word has indices 0, 1, and 2. The definition says such an endpoint
+exists. The theorem <code>wrdf</code> gives you the endpoint for a particular word <code>W</code>: its length
+<code>( # ` W )</code>. Starting from <code>W e. Word S</code>, you now have the domain and codomain needed to
+reason about the letter at a given index. <a href="https://us.metamath.org/mpeuni/df-word.html">Definition of a word</a> · <a href="https://us.metamath.org/mpeuni/wrdf.html">A word as a function on its index set</a></p>
+<h2 id="68-structures-groups">6.8 Structures: groups</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>Prove <a href="https://us.metamath.org/mpeuni/grpcl.html"><code>grpcl</code></a> and <a href="https://us.metamath.org/mpeuni/grpinvinv.html"><code>grpinvinv</code></a>.</p>
+<p>A group in <code>set.mm</code> is not a pair (carrier, operation). It's an <em>extensible structure</em>, a function
+from slot indices to components, read with selectors: <code>( Base ` G )</code> is the carrier,
+<code>( +g ` G )</code> the operation, <code>( 0g ` G )</code> the identity, <code>( invg ` G )</code> the inverse. Theorems
+name these with hypotheses like <code>grpcl.b $e |- B = ( Base ` G ) $.</code> so that the statement can talk
+about <code>B</code> and <code>.+</code> like a textbook does. A ring is a group with more slots, which is why group
+theorems apply to rings without restatement. The
+<a href="https://us.metamath.org/mpeuni/mmtheorems174.html#mm17371s">introductory essay on extensible structures</a>
+explains the design.</p>
+<p><code>grpcl</code> is a warm-up in reading those hypotheses. <code>grpinvinv</code>, (x⁻¹)⁻¹ = x, is the textbook
+cancellation argument: x⁻¹ · (x⁻¹)⁻¹ = 0 = x⁻¹ · x, then cancel x⁻¹ on the left with <code>grplcan</code>. The
+mathematics takes one line. Most of the formal proof is closure facts under the antecedent
+<code>( G e. Grp /\ X e. B )</code>, and that ratio is typical of algebra in <code>set.mm</code>.</p>
+<div class="codehilite fenced-code" data-language="metamath"><div class="code-language">metamath</div><pre><code><span class="p">${</span>
+<span class="w">  </span><span class="nl">grpcl.b</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">Base</span><span class="w"> </span><span class="n">`</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="nl">grpcl.p</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">.+</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">+g</span><span class="w"> </span><span class="n">`</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="nl">grpcl</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">Grp</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">Y</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="n">.+</span><span class="w"> </span><span class="n">Y</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+<span class="p">$}</span>
+
+<span class="p">${</span>
+<span class="w">  </span><span class="nl">grpinvinv.b</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">Base</span><span class="w"> </span><span class="n">`</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="nl">grpinvinv.n</span><span class="w"> </span><span class="k">$e</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">invg</span><span class="w"> </span><span class="n">`</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$.</span>
+<span class="w">  </span><span class="cm">$( Double inverse law for groups. $)</span>
+<span class="w">  </span><span class="nl">grpinvinv</span><span class="w"> </span><span class="k">$p</span><span class="w"> </span><span class="n">|-</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">Grp</span><span class="w"> </span><span class="n">/\</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="n">e.</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">-&gt;</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="n">`</span><span class="w"> </span><span class="n">(</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="n">`</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="n">=</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="n">)</span><span class="w"> </span><span class="k">$=</span><span class="w"> </span><span class="nl">?</span><span class="w"> </span><span class="k">$.</span>
+<span class="p">$}</span>
+</code></pre></div>
+
+<h4 id="hints-6">Hints</h4>
+<ul>
+<li><code>grpcl</code>: a group is a monoid (<code>grpmnd</code>), and monoids are closed (<code>mndcl</code>, given the same two
+  naming hypotheses). <code>syl3an1</code> replaces the first conjunct.</li>
+<li><code>grpinvinv</code>: make both products equal the identity, then cancel. Both
+  <code>( ( N ` X ) ( +g ` G ) ( N ` ( N ` X ) ) )</code> and <code>( ( N ` X ) ( +g ` G ) X )</code> are
+  <code>( 0g ` G )</code> (<code>grprinv</code>, <code>grplinv</code>), and <code>grplcan</code> cancels <code>( N ` X )</code> on the left. Most of
+  the work is closure facts (<code>grpinvcl</code>) under the antecedent <code>( G e. Grp /\ X e. B )</code>.</li>
+</ul>
+    </article>
+  </main>
+  <script>
+(function () {
+  var groups = ["theme", "width", "type", "text"];
+  var defaults = { theme: "system", width: "normal", type: "sans", text: "normal" };
+  var allowed = {
+    theme: { system: true, light: true, dark: true },
+    width: { normal: true, wide: true, compact: true },
+    type: { sans: true, serif: true },
+    text: { small: true, normal: true, large: true }
+  };
+  var namePrefix = "md2html-reader:";
+
+  function apply(name, value) {
+    if (value === defaults[name]) {
+      delete document.documentElement.dataset[name];
+      return;
+    }
+    document.documentElement.dataset[name] = value;
+  }
+
+  function readWindowState() {
+    if (!window.name || window.name.indexOf(namePrefix) !== 0) return {};
+    try {
+      return JSON.parse(window.name.slice(namePrefix.length)) || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveWindowState(name, value) {
+    var state = readWindowState();
+    state[name] = value;
+    try {
+      window.name = namePrefix + JSON.stringify(state);
+    } catch (error) {}
+  }
+
+  function readSetting(name) {
+    var value = null;
+    try {
+      value = localStorage.getItem("md2html-reader-" + name);
+    } catch (error) {
+      value = null;
+    }
+    if (!value) value = readWindowState()[name];
+    return allowed[name][value] ? value : null;
+  }
+
+  function saveSetting(name, value) {
+    try {
+      localStorage.setItem("md2html-reader-" + name, value);
+    } catch (error) {}
+    saveWindowState(name, value);
+  }
+
+  groups.forEach(function (name) {
+    var saved = readSetting(name);
+    if (saved) apply(name, saved);
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    groups.forEach(function (name) {
+      var saved = readSetting(name);
+      var inputs = Array.prototype.slice.call(document.querySelectorAll('input[name="' + name + '"]'));
+      inputs.forEach(function (input) {
+        if (saved && input.value === saved) input.checked = true;
+        input.addEventListener("change", function () {
+          if (!input.checked) return;
+          apply(name, input.value);
+          saveSetting(name, input.value);
+          if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise().catch(function () {});
+          }
+        });
+      });
+    });
+  });
+})();
+  </script>
+</body>
+</html>

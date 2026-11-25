@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A1. Setting up Yamma</title>
+  <script>
+(function () {
+  var groups = ["theme", "width", "type", "text"];
+  var defaults = { theme: "system", width: "normal", type: "sans", text: "normal" };
+  var allowed = {
+    theme: { system: true, light: true, dark: true },
+    width: { normal: true, wide: true, compact: true },
+    type: { sans: true, serif: true },
+    text: { small: true, normal: true, large: true }
+  };
+  var namePrefix = "md2html-reader:";
+
+  function readWindowState() {
+    if (!window.name || window.name.indexOf(namePrefix) !== 0) return {};
+    try {
+      return JSON.parse(window.name.slice(namePrefix.length)) || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function readSetting(name) {
+    var value = null;
+    try {
+      value = localStorage.getItem("md2html-reader-" + name);
+    } catch (error) {}
+    if (!value) value = readWindowState()[name];
+    return allowed[name][value] ? value : null;
+  }
+
+  groups.forEach(function (name) {
+    var saved = readSetting(name);
+    if (saved && saved !== defaults[name]) {
+      document.documentElement.dataset[name] = saved;
+    }
+  });
+})();
+  </script>
+  
+  <link rel="stylesheet" href="assets/base.css">
+  <link rel="stylesheet" href="assets/code.css">
+  <link rel="stylesheet" href="assets/toc.css">
+  <link rel="stylesheet" href="assets/alert.css">
+  <link rel="stylesheet" href="assets/highlight.css">
+  
+  <style>
+
+  </style>
+  
+  <style>
+
+  </style>
+  
+  
+  
+</head>
+<body>
+  <main class="container">
+    <header class="page-header">
+      <div class="page-title">a01-yamma.md</div>
+      <details class="reader-widget">
+        <summary aria-label="reader controls" title="Reader controls">Aa</summary>
+        <form aria-label="reader controls">
+          <fieldset>
+            <legend>Theme</legend>
+            <label><input id="theme-system" name="theme" value="system" type="radio" checked> system</label>
+            <label><input id="theme-light" name="theme" value="light" type="radio"> light</label>
+            <label><input id="theme-dark" name="theme" value="dark" type="radio"> dark</label>
+          </fieldset>
+          <fieldset>
+            <legend>Measure</legend>
+            <label><input id="width-normal" name="width" value="normal" type="radio" checked> normal</label>
+            <label><input id="width-wide" name="width" value="wide" type="radio"> wide</label>
+            <label><input id="width-compact" name="width" value="compact" type="radio"> compact</label>
+          </fieldset>
+          <fieldset>
+            <legend>Type</legend>
+            <label><input id="type-sans" name="type" value="sans" type="radio" checked> sans</label>
+            <label><input id="type-serif" name="type" value="serif" type="radio"> serif</label>
+          </fieldset>
+          <fieldset>
+            <legend>Text</legend>
+            <label><input id="text-small" name="text" value="small" type="radio"> small</label>
+            <label><input id="text-normal" name="text" value="normal" type="radio" checked> normal</label>
+            <label><input id="text-large" name="text" value="large" type="radio"> large</label>
+          </fieldset>
+        </form>
+      </details>
+    </header>
+    <article class="page-content">
+<nav class="nav">
+    <span class="inactivenav" aria-disabled="true">← Previous</span>
+    <span class="activenav"><a href="index.html">↑ Up</a></span>
+    <span class="inactivenav" aria-disabled="true">Next →</span>
+</nav>
+
+<h1 id="a01-yamma" style="border-bottom: none;">A1. Setting up Yamma</h1>
+
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This appendix is AI-generated and has not been reviewed. It was written from Yamma's README,
+<code>package.json</code>, and parser source (version 0.0.19, March 2025). It has not been tried in a running
+editor. Where the docs were silent, the text says so.</p>
+</div>
+<div class="table-of-contents"><h2>Directory</h2><ul class="toc-list"><li><a href="#why-bother">Why bother</a></li><li><a href="#install-and-point-it-at-a-database">Install and point it at a database</a></li><li><a href="#the-worksheet-format">The worksheet format</a></li><li><a href="#keys-and-commands">Keys and commands</a></li><li><a href="#worked-example-inss1">Worked example: <code>inss1</code></a></li><li><a href="#worked-example-abbi-writing-the-middle-line-yourself">Worked example: <code>abbi</code>, writing the middle line yourself</a></li><li><a href="#getting-the-proof-back-into-the-database">Getting the proof back into the database</a></li><li><a href="#mmj2-briefly">mmj2, briefly</a></li></ul></div>
+<h2 id="why-bother">Why bother</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>The built-in proof assistant works from the goal backwards, one <code>assign</code> at a time. That's fine for
+chapter 4. In chapter 6 the hints keep saying "write down the intermediate line first": the dummy
+variable in <code>abbi</code>, the middle formula in a <code>3bitr4g</code>, the element in <code>ssrdv</code>. In MM-PA that means
+<code>let step</code> and <code>let variable</code>. In a worksheet you just type the line, and the tool fills in or checks
+everything else as you go.</p>
+<p><a href="https://github.com/glacode/yamma">Yamma</a> is a VS Code extension for exactly this. It reads <code>.mmp</code>
+<em>proof worksheets</em>, a text format inherited from mmj2, and checks them live against a <code>.mm</code> database.
+It unifies steps, suggests labels, searches the database, and generates the finished proof.
+<a href="https://github.com/digama0/mmj2">mmj2</a> is the older Java tool that introduced the worksheet format.
+It's covered briefly at the end.</p>
+<p>You don't need a new file per proof. Keep one <code>scratch.mmp</code>, prove something, copy the result out,
+clear it, and start the next one.</p>
+<h2 id="install-and-point-it-at-a-database">Install and point it at a database</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<ol>
+<li>In VS Code, open Extensions, search for <strong>Yamma</strong> (publisher <code>glacode</code>, ID <code>glacode.yamma</code>), and
+   install it. It needs VS Code 1.69 or later.</li>
+<li>Tell Yamma which database to load. If a file named <code>set.mm</code> is in the same folder as the <code>.mmp</code>
+   you open, Yamma loads it automatically. Otherwise set <code>yamma.mmFileFullPath</code>, either through
+   <em>Extension Settings</em> (gear icon on the extension) or in the workspace's <code>.vscode/settings.json</code>:</li>
+</ol>
+<div class="codehilite fenced-code" data-language="json"><div class="code-language">json</div><pre><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">"yamma.mmFileFullPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"path/to/myset.mm"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>This repository's <code>.vscode/settings.json</code> currently points at chapter 4's <code>src/code-04/myset.mm</code>.
+   For chapter 6, point it at your working copy of the chapter 5 database (the <code>myset.mm</code> the
+   chapter 6 introduction tells you to make).
+3. Open or create a file ending in <code>.mmp</code>. Yamma parses and verifies the whole database when it
+   loads it. For <code>set.mm</code> (about 50 MB) expect that to take a while the first time. If the database
+   has errors, it loads a valid partial theory anyway.</p>
+<p>The other settings can stay at their defaults. The two worth knowing about:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>yamma.disjVarAutomaticGeneration</code></td>
+<td><code>GenerateDummy</code></td>
+<td>Adds <code>$d</code> lines for dummy variables automatically. <code>GenerateAll</code> also adds the mandatory ones. <code>GenerateNone</code> turns it off.</td>
+</tr>
+<tr>
+<td><code>yamma.proofMode</code></td>
+<td><code>normal</code></td>
+<td>Format of the generated proof (<code>normal</code>, <code>packed</code>, <code>compressed</code>). The <code>.mmt</code> export below always uses compressed.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-worksheet-format">The worksheet format</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>A worksheet is a list of statements. Each statement starts in column 0, and an indented line
+continues the previous one. This is a complete worksheet for chapter 4's <code>mp2</code>, taken from Yamma's
+test suite:</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>$theorem testname
+* A double modus ponens inference.
+h50::mp2.1           |- ph
+h51::mp2.2           |- ps
+h52::mp2.3           |- ( ph -&gt; ( ps -&gt; ch ) )
+53:50,52:ax-mp       |- ( ps -&gt; ch )
+qed:51,53:ax-mp      |- ch
+</code></pre></div>
+
+<ul>
+<li><code>$theorem LABEL</code> names the theorem. If <code>LABEL</code> already exists in the database (as every exercise
+  in these notes does), Yamma checks your worksheet against it. The hypothesis labels must match,
+  for example <code>mp2.1</code>.</li>
+<li>A line starting with <code>*</code> is the theorem's comment.</li>
+<li>A proof step is <code>REF:HYPS:LABEL |- formula</code>.</li>
+<li><code>REF</code> is the step's name, usually a number.</li>
+<li><code>HYPS</code> is a comma-separated list of the steps it uses, in the order of <code>LABEL</code>'s hypotheses.</li>
+<li><code>LABEL</code> is the theorem or axiom applied.</li>
+<li>Any of the three parts can be left empty while you work: <code>53::ax-mp</code>, or <code>53:: |- ( ps -&gt; ch )</code>
+    with no label yet.</li>
+<li><code>h</code> in front of the ref marks a hypothesis of the theorem being proved (<code>h50::mp2.1</code>).</li>
+<li>The last step must have ref <code>qed</code>.</li>
+<li><code>$d x y</code> declares two variables distinct (exactly two per line).</li>
+<li>Working variables, the worksheet's version of MM-PA's <code>$1</code>, <code>$2</code>, are written <code>&amp;W1</code> (wff),
+  <code>&amp;S1</code> (setvar), <code>&amp;C1</code> (class). They appear where a label doesn't determine part of a formula. You
+  replace them by typing the expression you want.</li>
+</ul>
+<p>Steps can be written in any order, but a step must appear below the steps it cites, and <code>qed</code> goes
+last. <strong>Unify and Renumber</strong> (below) tidies the order and numbering for you.</p>
+<h2 id="keys-and-commands">Keys and commands</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Command</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ctrl+U</code></td>
+<td>Unify</td>
+<td>Check every step, fill in what the labels determine, derive missing hypothesis steps. Press it constantly.</td>
+</tr>
+<tr>
+<td><code>Ctrl+R</code></td>
+<td>Unify and Renumber</td>
+<td>Same, then renumber and reorder the steps.</td>
+</tr>
+<tr>
+<td><code>Ctrl+H</code></td>
+<td>Search theorems in the theory</td>
+<td>Search the database.</td>
+</tr>
+<tr>
+<td><code>Ctrl+Space</code></td>
+<td>(completion)</td>
+<td>Label and step suggestions at the cursor.</td>
+</tr>
+</tbody>
+</table>
+<p>On a Mac the README says you may need <code>Cmd</code> instead of <code>Ctrl</code>. Everything is also in the command
+palette and in the right-click menu of an <code>.mmp</code> file.</p>
+<p>Searching can also be done inline with a line in the worksheet:</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>SearchSymbols: ( x e. ( A i^i B ) -&gt; x e. A )
+</code></pre></div>
+
+<p><code>SearchComment:</code> searches comment text instead. Chapter 5's advice about <code>search</code> applies here as
+well. Search for the <em>shape</em> you need, with the class and wff variables you expect.</p>
+<h2 id="worked-example-inss1">Worked example: <code>inss1</code></h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>This is the first proof in 6.2, <code>|- ( A i^i B ) C_ A</code>. Start with only the goal and the label you
+want to apply to it:</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>$theorem inss1
+qed::ssriv |- ( A i^i B ) C_ A
+</code></pre></div>
+
+<p>Press <code>Ctrl+U</code>. Yamma unifies <code>ssriv</code>'s conclusion with the goal and adds a step for its hypothesis.
+<code>ssriv</code>'s hypothesis mentions an element variable that its conclusion doesn't, so that position comes
+back as a working variable, something like <code>&amp;S1</code>. This is the moment where MM-PA needed
+<code>let variable</code>. Here you overwrite <code>&amp;S1</code> with <code>x</code>:</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>$theorem inss1
+50:: |- ( x e. ( A i^i B ) -&gt; x e. A )
+qed:50:ssriv |- ( A i^i B ) C_ A
+</code></pre></div>
+
+<p>Give step 50 the label <code>simplbi</code>. <code>Ctrl+U</code> again adds its hypothesis,
+<code>( x e. ( A i^i B ) &lt;-&gt; ( x e. A /\ &amp;W1 ) )</code> or similar. Label that step <code>elin</code> and unify once more.
+The worksheet is complete:</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>$theorem inss1
+51::elin           |- ( x e. ( A i^i B ) &lt;-&gt; ( x e. A /\ x e. B ) )
+50:51:simplbi      |- ( x e. ( A i^i B ) -&gt; x e. A )
+qed:50:ssriv       |- ( A i^i B ) C_ A
+</code></pre></div>
+
+<p>The exact refs and the working variable names Yamma generates may differ from these. The steps and
+labels are the ones in the chapter 6 hint.</p>
+<h2 id="worked-example-abbi-writing-the-middle-line-yourself">Worked example: <code>abbi</code>, writing the middle line yourself</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p><code>abbi</code> is <code>|- ( A. x ( ph &lt;-&gt; ps ) -&gt; { x | ph } = { x | ps } )</code>. The hint says to assign <code>eqrdv</code>
+with a fresh element <code>y</code>, then <code>3bitr4g</code>. In a worksheet, type the line you're aiming for and let
+unification check that it fits:</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>$theorem abbi
+51:: |- ( A. x ( ph &lt;-&gt; ps ) -&gt; ( y e. { x | ph } &lt;-&gt; y e. { x | ps } ) )
+qed:51:eqrdv |- ( A. x ( ph &lt;-&gt; ps ) -&gt; { x | ph } = { x | ps } )
+</code></pre></div>
+
+<p>Then put <code>3bitr4g</code> on step 51 and fill in its three hypotheses:</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>$theorem abbi
+52::spsbbi         |- ( A. x ( ph &lt;-&gt; ps ) -&gt; ( [ y / x ] ph &lt;-&gt; [ y / x ] ps ) )
+53::df-clab        |- ( y e. { x | ph } &lt;-&gt; [ y / x ] ph )
+54::df-clab        |- ( y e. { x | ps } &lt;-&gt; [ y / x ] ps )
+51:52,53,54:3bitr4g |- ( A. x ( ph &lt;-&gt; ps ) -&gt; ( y e. { x | ph } &lt;-&gt; y e. { x | ps } ) )
+qed:51:eqrdv       |- ( A. x ( ph &lt;-&gt; ps ) -&gt; { x | ph } = { x | ps } )
+</code></pre></div>
+
+<p><code>y</code> is a dummy variable: it appears in the proof but not in the statement. <code>eqrdv</code> requires <code>y</code>
+distinct from <code>x</code>, <code>ph</code>, and <code>ps</code>. With the default <code>GenerateDummy</code> setting, Yamma adds those <code>$d</code>
+lines itself. Otherwise it reports them as missing and offers a quick fix. (In <code>set.mm</code>, <code>abbi</code>'s
+scope already declares them. The worksheet just has to agree.)</p>
+<h2 id="getting-the-proof-back-into-the-database">Getting the proof back into the database</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p>When the worksheet is complete, run <strong>Unify + Store in MMT Folder</strong> from the right-click menu.
+Despite the name, the code writes the result next to the worksheet: <code>scratch.mmp</code> produces
+<code>scratch.mmt</code>. It contains the theorem as a block ready for a <code>.mm</code> file:</p>
+<div class="codehilite fenced-code" data-language="text"><div class="code-language">text</div><pre><code>  ${
+    $d ... $.
+    abbi $p |- ( A. x ( ph &lt;-&gt; ps ) -&gt; { x | ph } = { x | ps } ) $=
+      ( ... compressed proof ... ) $.
+  $}
+</code></pre></div>
+
+<p>For an exercise, the statement is already in <code>myset.mm</code>. You only need the proof: replace the text
+between <code>$=</code> and <code>$.</code> of the existing <code>abbi $p</code> with the one from the <code>.mmt</code> file. Then check it with
+the verifier:</p>
+<div class="codehilite fenced-code" data-language="bash"><div class="code-language">bash</div><pre><code>metamath<span class="w"> </span><span class="s1">'read myset.mm'</span><span class="w"> </span><span class="s1">'verify proof abbi'</span><span class="w"> </span>quit
+</code></pre></div>
+
+<p>Don't skip this step. Yamma checks a step label only by looking it up in the whole database. Its
+source has no rule that you may cite only <em>earlier</em> statements, the way MM-PA's <code>prove</code> does. In
+<code>scratch.mmp</code> you can happily use <code>abbii</code>, which comes after <code>abbi</code> and is proved from it.
+<code>verify proof</code> in <code>metamath.exe</code> rejects that, because a proof may only refer to statements before it
+in the file. It also catches any <code>$d</code> problem, as in chapter 6's <code>elabg</code>.</p>
+<p>Two other things to avoid in exercises:</p>
+<ul>
+<li><code>$getproof LABEL</code> loads the database's existing proof of <code>LABEL</code> into the worksheet. That's useful
+  for reading library proofs, but it shows you the answer.</li>
+<li>Labels tagged "New usage is discouraged" give a warning, and Yamma won't generate a proof that uses
+  them unless the worksheet contains the line <code>$allowdiscouraged</code>. For the exercises, take the
+  warning as a sign to find another lemma.</li>
+</ul>
+<h2 id="mmj2-briefly">mmj2, briefly</h2>
+<div class="markdown-alert markdown-alert-warning">
+<p class="markdown-alert-title">Warning</p>
+<p>This section is AI-generated and has not been reviewed.</p>
+</div>
+<p><a href="https://github.com/digama0/mmj2">mmj2</a> is a Java application with its own editor window, and the
+origin of the worksheet format above. Its worksheets start with a header naming the theorem and,
+via <code>LOC_AFTER</code>, where in the database the proof lives. That lets it restrict a proof to earlier
+statements. It has search, a unification engine, and macros. Upstream <code>set.mm</code>'s CI runs it as one
+of several verifiers. The cost is setup: a Java install, a run script, and an interface from another
+era. For working through these notes, Yamma inside the editor you already use is the easier choice.
+Use mmj2 if you start contributing upstream, or if you want <code>LOC_AFTER</code>'s ordering check while you
+work.</p>
+    </article>
+  </main>
+  <script>
+(function () {
+  var groups = ["theme", "width", "type", "text"];
+  var defaults = { theme: "system", width: "normal", type: "sans", text: "normal" };
+  var allowed = {
+    theme: { system: true, light: true, dark: true },
+    width: { normal: true, wide: true, compact: true },
+    type: { sans: true, serif: true },
+    text: { small: true, normal: true, large: true }
+  };
+  var namePrefix = "md2html-reader:";
+
+  function apply(name, value) {
+    if (value === defaults[name]) {
+      delete document.documentElement.dataset[name];
+      return;
+    }
+    document.documentElement.dataset[name] = value;
+  }
+
+  function readWindowState() {
+    if (!window.name || window.name.indexOf(namePrefix) !== 0) return {};
+    try {
+      return JSON.parse(window.name.slice(namePrefix.length)) || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveWindowState(name, value) {
+    var state = readWindowState();
+    state[name] = value;
+    try {
+      window.name = namePrefix + JSON.stringify(state);
+    } catch (error) {}
+  }
+
+  function readSetting(name) {
+    var value = null;
+    try {
+      value = localStorage.getItem("md2html-reader-" + name);
+    } catch (error) {
+      value = null;
+    }
+    if (!value) value = readWindowState()[name];
+    return allowed[name][value] ? value : null;
+  }
+
+  function saveSetting(name, value) {
+    try {
+      localStorage.setItem("md2html-reader-" + name, value);
+    } catch (error) {}
+    saveWindowState(name, value);
+  }
+
+  groups.forEach(function (name) {
+    var saved = readSetting(name);
+    if (saved) apply(name, saved);
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    groups.forEach(function (name) {
+      var saved = readSetting(name);
+      var inputs = Array.prototype.slice.call(document.querySelectorAll('input[name="' + name + '"]'));
+      inputs.forEach(function (input) {
+        if (saved && input.value === saved) input.checked = true;
+        input.addEventListener("change", function () {
+          if (!input.checked) return;
+          apply(name, input.value);
+          saveSetting(name, input.value);
+          if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise().catch(function () {});
+          }
+        });
+      });
+    });
+  });
+})();
+  </script>
+</body>
+</html>

@@ -24,6 +24,8 @@ See also: [local version of the metamath book](book/index.html),
 - [4. Studying Propositional Calculus with Metamath](04-propmm.html)
 - [5. Variables, Binding, and Predicate Calculus](05-predicate-calculus.html)
 - [5.5 Bonus chapter: Deigning to write proofs in English (Harper ch1-3)](05-5-practical-foundations.html)
+- [6. Proving theorems in set.mm](06-setmm.html)
+- [A1. Appendix: Setting up Yamma](a01-yamma.html)
 
 ## Intro
 
